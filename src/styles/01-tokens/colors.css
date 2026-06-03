@@ -3,6 +3,17 @@
 
 /* 全局颜色变量：所有组件优先使用 --pm-color-* 语义变量。 */
 :root {
+  /* Pixel Mall 当前主配色：来自首页像素商城方案，作为默认品牌色使用。 */
+  --pm-brand-cream: #fff5df;
+  --pm-brand-apricot: #ffd7b5;
+  --pm-brand-pink: #ff9fbd;
+  --pm-brand-soft-pink: #ffe2ec;
+  --pm-brand-rose: #d85d89;
+  --pm-brand-gold: #d6a441;
+  --pm-brand-ink: #5b3a42;
+  --pm-brand-line: #7b4a52;
+  --pm-brand-paper: #fffaf0;
+
   /* 默认樱花粉色阶：作为 sakura 默认主题的基础粉色。 */
   --pm-pink-50: #fff1f7;
   --pm-pink-100: #ffd7e8;
@@ -11,7 +22,7 @@
   --pm-pink-700: #d94f86;
 
   /* 可爱像素辅助色：用于标签、点缀、分类入口和促销区域。 */
-  --pm-cream: #fff9ec;
+  --pm-cream: var(--pm-brand-cream);
   --pm-cream-deep: #ffe8b8;
   --pm-mint: #7be0c3;
   --pm-blue: #8fd7ff;
@@ -21,7 +32,7 @@
 
   /* 中性色：用于文字、描边、弱文字和像素阴影。 */
   --pm-white: #ffffff;
-  --pm-ink: #3b2f3a;
+  --pm-ink: var(--pm-brand-ink);
   --pm-muted: #8b7280;
   --pm-soft-line: #f0d5df;
   --pm-shadow-color: rgba(59, 47, 58, 0.18);
@@ -33,19 +44,19 @@
   --pm-info: #5aaee8;
 
   /* 语义颜色：组件必须优先使用这一组变量，便于主题切换。 */
-  --pm-color-primary: var(--pm-pink-500);
-  --pm-color-primary-soft: var(--pm-pink-100);
-  --pm-color-primary-deep: var(--pm-pink-700);
-  --pm-color-bg: var(--pm-cream);
-  --pm-color-bg-soft: var(--pm-pink-50);
-  --pm-color-surface: var(--pm-white);
-  --pm-color-surface-warm: var(--pm-cream);
-  --pm-color-accent: var(--pm-yellow);
+  --pm-color-primary: var(--pm-brand-pink);
+  --pm-color-primary-soft: var(--pm-brand-soft-pink);
+  --pm-color-primary-deep: var(--pm-brand-rose);
+  --pm-color-bg: var(--pm-brand-cream);
+  --pm-color-bg-soft: var(--pm-brand-soft-pink);
+  --pm-color-surface: var(--pm-brand-paper);
+  --pm-color-surface-warm: var(--pm-brand-paper);
+  --pm-color-accent: var(--pm-brand-gold);
   --pm-color-accent-2: var(--pm-mint);
   --pm-color-accent-3: var(--pm-blue);
-  --pm-color-promo: var(--pm-coral);
-  --pm-color-text: var(--pm-ink);
+  --pm-color-promo: var(--pm-brand-apricot);
+  --pm-color-text: var(--pm-brand-ink);
   --pm-color-text-muted: var(--pm-muted);
-  --pm-color-line: var(--pm-ink);
+  --pm-color-line: var(--pm-brand-line);
   --pm-color-shadow: var(--pm-shadow-color);
 }

@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 
 const categories = ['奶油新品', '像素包包', '甜点香氛', '收藏摆件'];

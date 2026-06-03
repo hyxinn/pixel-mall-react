@@ -1,0 +1,4 @@
+#!/bin/sh
+
+echo "Running ESLint before commit..."
+npm run lint || exit 1
