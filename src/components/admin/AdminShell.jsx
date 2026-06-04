@@ -25,7 +25,7 @@ const AdminShell = () => {
   return (
     <div className="pm-admin-app">
       <div className="pm-admin-layout">
-        <aside className="pm-admin-side">
+        <div className="pm-admin-brand-panel">
           <div className="pm-admin-logo">
             <span className="pm-admin-brand-pixel" aria-hidden="true" />
             <div>
@@ -33,6 +33,15 @@ const AdminShell = () => {
               <p className="pm-help">奶油像素商城后台</p>
             </div>
           </div>
+        </div>
+        <header className="pm-admin-header">
+          <div>
+            <h1 className="pm-admin-title">后台管理</h1>
+            <p className="pm-help">当前角色：{currentAdmin?.nickname} / {currentAdmin?.role}</p>
+          </div>
+          <Button type="button" variant="ghost" onClick={handleLogout}>退出登录</Button>
+        </header>
+        <aside className="pm-admin-side">
           <Link className="pm-admin-home-link" to="/home">返回商城首页</Link>
           {navItems
             .filter((item) => menuKeys.includes(item.key) && admin.hasPermission(item.permission))
@@ -48,13 +57,6 @@ const AdminShell = () => {
             ))}
         </aside>
         <main className="pm-admin-main">
-          <header className="pm-admin-header">
-            <div>
-              <h1 className="pm-admin-title">后台管理</h1>
-              <p className="pm-help">当前角色：{currentAdmin?.nickname} / {currentAdmin?.role}</p>
-            </div>
-            <Button type="button" variant="ghost" onClick={handleLogout}>退出登录</Button>
-          </header>
           <Outlet />
         </main>
       </div>
