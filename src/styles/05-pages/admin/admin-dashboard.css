@@ -15,7 +15,7 @@
   align-items: center;
   justify-content: space-between;
   padding: var(--pm-space-5);
-  background: var(--pm-color-surface);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.94) 0%, rgba(255, 244, 227, 0.94) 100%);
   border: var(--pm-border-width) solid var(--pm-color-line);
   box-shadow: var(--pm-shadow-md);
 }
@@ -37,4 +37,8 @@
 .pm-admin-dashboard-section {
   display: grid;
   gap: var(--pm-space-4);
+  padding: var(--pm-space-4) var(--pm-space-5);
+  background: rgba(255, 255, 255, 0.82);
+  border: var(--pm-border-width) solid var(--pm-color-line);
+  box-shadow: var(--pm-shadow-sm);
 }

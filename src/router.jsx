@@ -1,53 +1,115 @@
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter } from 'react-router-dom';
 
 import App from './App';
-import LoginPage from './pages/LoginPage';
+import AdminShell from './components/admin/AdminShell';
+import { RequireAdminAuth, RequirePermission } from './components/admin/PermissionGate';
 import HomePage from './pages/HomePage';
-import DetailPage from "./pages/DetailPage";
-import CreateOrderPage from "./pages/CreateOrderPage";
+import LoginPage from './pages/LoginPage';
+import DetailPage from './pages/DetailPage';
+import CreateOrderPage from './pages/CreateOrderPage';
+import OrderDetailPage from './pages/OrderDetailPage';
+import OrderListPage from './pages/OrderListPage';
 import PayPage from './pages/PayPage';
-import OrderListPage from "./pages/OrderListPage";
-import OrderDetailPage from "./pages/OrderDetailPage";
+import AdminCategoriesPage from './pages/admin/AdminCategoriesPage';
+import AdminDashboardPage from './pages/admin/AdminDashboardPage';
+import AdminLoginPage from './pages/admin/AdminLoginPage';
+import AdminOrdersPage from './pages/admin/AdminOrdersPage';
+import AdminProductsPage from './pages/admin/AdminProductsPage';
+import AdminRolesPage from './pages/admin/AdminRolesPage';
 
 const router = createBrowserRouter([
   {
-    path: "/",
+    path: '/',
     Component: App,
     children: [
       {
-        path: "/",
+        path: '/',
         Component: HomePage,
       },
       {
-        path: "/login",
+        path: 'login',
         Component: LoginPage,
       },
       {
-        path: "/home",
+        path: 'home',
         Component: HomePage,
       },
       {
-        path: "/detail/:goodId",
+        path: 'detail/:goodId',
         Component: DetailPage,
       },
       {
-        path: "/createOrder/:goodId",
+        path: 'createOrder/:goodId',
         Component: CreateOrderPage,
       },
       {
-        path: "/pay/:orderId",
+        path: 'pay/:orderId',
         Component: PayPage,
       },
       {
-        path: "/orderList",
+        path: 'orderList',
         Component: OrderListPage,
       },
       {
-        path: "/orderDetail/:orderId",
+        path: 'orderDetail/:orderId',
         Component: OrderDetailPage,
       },
-    ]
-  }
+      {
+        path: 'admin/login',
+        Component: AdminLoginPage,
+      },
+      {
+        path: 'admin',
+        element: (
+          <RequireAdminAuth>
+            <AdminShell />
+          </RequireAdminAuth>
+        ),
+        children: [
+          {
+            index: true,
+            element: (
+              <RequirePermission permission="dashboard:view">
+                <AdminDashboardPage />
+              </RequirePermission>
+            ),
+          },
+          {
+            path: 'products',
+            element: (
+              <RequirePermission permission="products:view">
+                <AdminProductsPage />
+              </RequirePermission>
+            ),
+          },
+          {
+            path: 'categories',
+            element: (
+              <RequirePermission permission="categories:view">
+                <AdminCategoriesPage />
+              </RequirePermission>
+            ),
+          },
+          {
+            path: 'orders',
+            element: (
+              <RequirePermission permission="orders:view">
+                <AdminOrdersPage />
+              </RequirePermission>
+            ),
+          },
+          {
+            path: 'roles',
+            element: (
+              <RequirePermission permission="roles:view">
+                <AdminRolesPage />
+              </RequirePermission>
+            ),
+          },
+        ],
+      },
+    ],
+  },
 ]);
 
 export default router;

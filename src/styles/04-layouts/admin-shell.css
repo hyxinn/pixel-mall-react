@@ -4,15 +4,17 @@
 /* 后台应用根容器：提供全屏高度和后台背景。 */
 .pm-admin-app {
   min-height: 100vh;
-  background: var(--pm-color-bg);
+  background:
+    radial-gradient(circle at 12% 14%, rgba(255, 255, 255, 0.72), transparent 18%),
+    radial-gradient(circle at 88% 10%, rgba(255, 183, 211, 0.34), transparent 20%),
+    linear-gradient(180deg, #fff6ef 0%, #fffaf6 48%, #fff3eb 100%);
 }
 
 /* 后台主布局：左侧菜单，右侧内容。 */
 .pm-admin-layout {
   display: grid;
-  grid-template-columns: 180px minmax(0, 1fr);
+  grid-template-columns: 220px minmax(0, 1fr);
   min-height: 100vh;
-  background: var(--pm-color-surface);
 }
 
 /* 后台侧边栏：放置后台 logo 和菜单入口。 */
@@ -20,38 +22,100 @@
   display: grid;
   align-content: start;
   gap: var(--pm-space-2);
-  padding: var(--pm-space-4);
-  background: var(--pm-color-bg-soft);
+  padding: var(--pm-space-5) var(--pm-space-4);
+  background:
+    linear-gradient(180deg, rgba(255, 250, 240, 0.96), rgba(255, 236, 218, 0.95)),
+    linear-gradient(135deg, rgba(255, 228, 238, 0.35), transparent 55%);
   border-right: var(--pm-border-width) solid var(--pm-color-line);
+  box-shadow: inset -4px 0 0 rgba(255, 255, 255, 0.45);
 }
 
 /* 后台 logo：显示管理端名称。 */
 .pm-admin-logo {
-  margin-bottom: var(--pm-space-2);
+  display: flex;
+  gap: var(--pm-space-3);
+  align-items: center;
+  margin-bottom: var(--pm-space-3);
+  padding: var(--pm-space-3);
   font-size: var(--pm-text-xl);
   font-weight: var(--pm-weight-black);
+  line-height: var(--pm-line-tight);
+  background: rgba(255, 250, 240, 0.88);
+  border: var(--pm-border-width-thin) solid var(--pm-color-line);
+  box-shadow: var(--pm-shadow-xs);
 }
 
-/* 后台导航链接：商品管理、角色权限等菜单项。 */
-.pm-admin-nav-link {
-  padding: 9px;
+.pm-admin-logo strong {
+  display: block;
+}
+
+.pm-admin-logo .pm-help {
+  margin: 4px 0 0;
+}
+
+.pm-admin-brand-pixel {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  background:
+    linear-gradient(135deg, var(--pm-color-accent) 0 50%, transparent 50%),
+    linear-gradient(315deg, var(--pm-color-primary) 0 50%, transparent 50%),
+    var(--pm-color-primary-soft);
+  border: var(--pm-border-width-thin) solid var(--pm-color-line);
+  box-shadow: 3px 3px 0 rgba(255, 159, 199, 0.26);
+}
+
+.pm-admin-home-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  margin-bottom: var(--pm-space-3);
+  padding: 8px 12px;
   color: var(--pm-color-text);
   font-size: var(--pm-text-sm);
   font-weight: var(--pm-weight-black);
   text-decoration: none;
-  background: var(--pm-color-surface);
+  background: rgba(255, 255, 255, 0.84);
   border: var(--pm-border-width-thin) solid var(--pm-color-line);
+  box-shadow: var(--pm-shadow-xs);
+}
+
+.pm-admin-home-link:hover {
+  background: var(--pm-color-surface);
+}
+
+/* 后台导航链接：商品管理、角色权限等菜单项。 */
+.pm-admin-nav-link {
+  padding: 10px 12px;
+  color: var(--pm-color-text);
+  font-size: var(--pm-text-sm);
+  font-weight: var(--pm-weight-black);
+  text-decoration: none;
+  background: rgba(255, 255, 255, 0.84);
+  border: var(--pm-border-width-thin) solid var(--pm-color-line);
+  box-shadow: var(--pm-shadow-xs);
+  transition: transform 120ms ease, background-color 120ms ease;
+}
+
+.pm-admin-nav-link:hover {
+  transform: translateY(-1px);
+  background: var(--pm-color-surface);
 }
 
 /* 后台当前菜单：表示当前所在后台模块。 */
 .pm-admin-nav-link.is-active {
   background: var(--pm-color-accent);
+  box-shadow: inset 4px 0 0 var(--pm-color-line), var(--pm-shadow-xs);
 }
 
 /* 后台主内容区：承载表格、表单和统计信息。 */
 .pm-admin-main {
   min-width: 0;
-  padding: var(--pm-space-5);
+  padding: var(--pm-space-6);
+  background:
+    radial-gradient(circle at top right, rgba(255, 228, 238, 0.28), transparent 26%),
+    transparent;
 }
 
 /* 后台内容头部：标题、筛选和新增按钮的公共排列。 */
@@ -62,6 +126,10 @@
   align-items: center;
   justify-content: space-between;
   margin-bottom: var(--pm-space-5);
+  padding: var(--pm-space-4) var(--pm-space-5);
+  background: rgba(255, 255, 255, 0.75);
+  border: var(--pm-border-width) solid var(--pm-color-line);
+  box-shadow: var(--pm-shadow-sm);
 }
 
 /* 后台页面标题：商品管理、角色权限等模块标题。 */

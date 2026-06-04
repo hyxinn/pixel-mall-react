@@ -37,7 +37,7 @@ const Home = () => {
         <nav className="shop-nav" aria-label="主导航">
           <Link to="/home">首页</Link>
           <Link to="/orderList">订单</Link>
-          <Link to="/login">后台</Link>
+          <Link to="/admin/login">后台</Link>
         </nav>
       </header>
 

@@ -1,42 +1,102 @@
-/* 后台商品管理页样式文件：定义商品列表、筛选工具栏和新增编辑表单布局。
+/* 后台商品管理页样式文件：定义后台页面通用原语及商品页布局。
    表格、表单、弹窗、按钮必须复用公共组件。 */
 
-/* 商品管理页容器：控制筛选栏、统计、表格、表单间距。 */
-.pm-admin-products-page {
+/* 后台页面容器：商品、分类、订单、角色等页面共享的纵向节奏。 */
+.pm-admin-page {
   display: grid;
   gap: var(--pm-space-5);
 }
 
-/* 商品管理工具栏：放置页面标题、筛选项和新增按钮。 */
-.pm-admin-products-toolbar {
+/* 后台页面标题区：放置标题、说明和主操作按钮。 */
+.pm-admin-page-header {
   display: flex;
   flex-wrap: wrap;
   gap: var(--pm-space-3);
   align-items: center;
   justify-content: space-between;
+  padding: var(--pm-space-4) var(--pm-space-5);
+  background: rgba(255, 255, 255, 0.82);
+  border: var(--pm-border-width) solid var(--pm-color-line);
+  box-shadow: var(--pm-shadow-sm);
 }
 
-/* 商品管理筛选区：商品名搜索、分类筛选、上下架状态筛选。 */
-.pm-admin-products-filters {
+/* 后台页面筛选区：搜索、状态筛选等工具项。 */
+.pm-admin-page-filters {
   display: flex;
   flex-wrap: wrap;
   gap: var(--pm-space-3);
   align-items: end;
+  padding: var(--pm-space-4) var(--pm-space-5);
+  background: rgba(255, 255, 255, 0.78);
+  border: var(--pm-border-width) solid var(--pm-color-line);
+  box-shadow: var(--pm-shadow-xs);
 }
 
-/* 商品编辑表单：默认两列布局，适合后台新增和编辑商品。 */
-.pm-admin-product-form {
+/* 后台页面面板：统一承载表单、统计块和辅助说明。 */
+.pm-admin-panel {
+  display: grid;
+  gap: var(--pm-space-4);
+  padding: var(--pm-space-5);
+  background: rgba(255, 255, 255, 0.9);
+  border: var(--pm-border-width) solid var(--pm-color-line);
+  box-shadow: var(--pm-shadow-md);
+}
+
+/* 后台卡片标题：分类卡片、角色卡片等共享标题风格。 */
+.pm-admin-card-title {
+  margin: 0;
+  font-size: var(--pm-text-xl);
+}
+
+/* 后台通用表单：默认两列布局，适合商品和分类维护。 */
+.pm-admin-form {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--pm-space-4);
 }
 
-/* 商品编辑表单控件：后台表单里的控件默认撑满可用宽度。 */
-.pm-admin-product-form .pm-control {
+/* 后台表单控件：后台表单中的控件默认铺满容器。 */
+.pm-admin-form .pm-control {
   width: 100%;
 }
 
-/* 商品编辑表单通栏项：商品描述、图片上传等需要跨两列的字段。 */
-.pm-admin-product-form-wide {
+/* 后台表单通栏项：描述、图片等跨列字段统一使用。 */
+.pm-admin-form-wide {
   grid-column: 1 / -1;
+}
+
+/* 后台行内操作：表格或卡片中的紧凑按钮组。 */
+.pm-admin-inline-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--pm-space-2);
+}
+
+.pm-admin-table-panel {
+  background: rgba(255, 255, 255, 0.9);
+  border: var(--pm-border-width) solid var(--pm-color-line);
+  box-shadow: var(--pm-shadow-md);
+}
+
+.pm-admin-table-panel .pm-table {
+  background: transparent;
+}
+
+.pm-admin-table-panel .pm-table th {
+  position: sticky;
+  top: 0;
+}
+
+.pm-admin-table-panel .pm-table td {
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.pm-admin-table-panel .pm-table tbody tr:nth-child(even) td {
+  background: rgba(255, 246, 236, 0.92);
+}
+
+/* 商品管理页容器：控制筛选栏、表格、表单间距。 */
+.pm-admin-products-page {
+  display: grid;
+  gap: var(--pm-space-5);
 }

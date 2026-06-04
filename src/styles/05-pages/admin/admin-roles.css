@@ -1,50 +1,137 @@
-/* 后台角色权限页样式文件：定义管理员、运营角色和权限列表布局。
-   本项目只做简化 RBAC 展示，不做复杂权限系统。 */
+/* 后台角色权限页样式文件：定义角色卡片、权限编辑区和菜单配置布局。 */
 
-/* 角色权限页容器：控制角色列表和权限说明间距。 */
 .pm-admin-roles-page {
   display: grid;
   gap: var(--pm-space-5);
 }
 
-/* 角色列表：展示管理员、运营等角色卡片。 */
-.pm-role-list {
+.pm-role-workspace {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: minmax(240px, 320px) minmax(0, 1fr);
   gap: var(--pm-space-4);
+  align-items: start;
 }
 
-/* 角色卡片：显示角色名称、权限说明和可见菜单。 */
+.pm-role-list {
+  display: grid;
+  gap: var(--pm-space-3);
+}
+
 .pm-role-card {
   display: grid;
   gap: var(--pm-space-3);
   padding: var(--pm-space-4);
-  background: var(--pm-color-surface);
+  background: rgba(255, 255, 255, 0.88);
   border: var(--pm-border-width) solid var(--pm-color-line);
   box-shadow: var(--pm-shadow-md);
 }
 
-/* 角色标题：显示管理员、运营等角色名称。 */
-.pm-role-title {
-  margin: 0;
-  font-size: var(--pm-text-xl);
+.pm-role-card-button {
+  width: 100%;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
 }
 
-/* 权限列表：列出该角色可访问的菜单或按钮权限。 */
-.pm-permission-list {
+.pm-role-card-button.is-active {
+  background: rgba(255, 236, 218, 0.95);
+  box-shadow: inset 4px 0 0 var(--pm-color-line), var(--pm-shadow-md);
+}
+
+.pm-role-description {
+  margin: 0;
+  color: var(--pm-color-text-muted);
+}
+
+.pm-role-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--pm-space-2);
+  color: var(--pm-color-primary-deep);
+  font-size: var(--pm-text-xs);
+  font-weight: var(--pm-weight-black);
+}
+
+.pm-role-editor {
+  display: grid;
+  gap: var(--pm-space-5);
+}
+
+.pm-role-editor-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--pm-space-3);
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.pm-role-section {
+  display: grid;
+  gap: var(--pm-space-3);
+}
+
+.pm-role-group-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--pm-space-3);
+}
+
+.pm-role-group-card {
+  display: grid;
+  gap: var(--pm-space-3);
+  padding: var(--pm-space-3);
+  background: rgba(255, 248, 240, 0.95);
+  border: var(--pm-border-width-thin) solid var(--pm-color-line);
+}
+
+.pm-role-group-title {
+  margin: 0;
+  font-size: var(--pm-text-md);
+}
+
+.pm-role-toggle-list {
   display: grid;
   gap: var(--pm-space-2);
-  margin: 0;
-  padding: 0;
-  list-style: none;
 }
 
-/* 单条权限：展示某个具体权限项。 */
-.pm-permission-item {
-  display: flex;
-  gap: var(--pm-space-2);
-  align-items: center;
-  padding: var(--pm-space-2);
-  background: var(--pm-color-bg-soft);
+.pm-role-menu-list {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.pm-role-toggle {
+  display: grid;
+  gap: 4px;
+  padding: var(--pm-space-3);
+  background: rgba(255, 255, 255, 0.94);
   border: var(--pm-border-width-thin) solid var(--pm-color-line);
+  box-shadow: var(--pm-shadow-xs);
+}
+
+.pm-role-toggle input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+}
+
+.pm-role-toggle span {
+  font-weight: var(--pm-weight-black);
+}
+
+.pm-role-toggle small {
+  color: var(--pm-color-text-muted);
+  font-size: var(--pm-text-xs);
+}
+
+.pm-role-toggle.is-checked {
+  background: rgba(255, 236, 218, 0.95);
+}
+
+.pm-role-toggle.is-disabled {
+  opacity: 0.58;
+}
+
+@media (max-width: 980px) {
+  .pm-role-workspace {
+    grid-template-columns: 1fr;
+  }
 }

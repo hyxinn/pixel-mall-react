@@ -66,6 +66,8 @@
 @import "./05-pages/admin/admin-dashboard.css";
 @import "./05-pages/admin/admin-roles.css";
 @import "./05-pages/admin/admin-products.css";
+@import "./05-pages/admin/admin-categories.css";
+@import "./05-pages/admin/admin-orders.css";
 
 /* 06-states：JS 控制状态类和全局响应式覆盖。 */
 @import "./06-states/states.css";

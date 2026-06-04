@@ -1,0 +1,25 @@
+ .pm-admin-categories-page {
+  display: grid;
+  gap: var(--pm-space-5);
+ }
+
+ .pm-admin-category-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--pm-space-4);
+ }
+
+ .pm-admin-category-card {
+  display: grid;
+  gap: var(--pm-space-3);
+  padding: var(--pm-space-4);
+  background: rgba(255, 255, 255, 0.88);
+  border: var(--pm-border-width) solid var(--pm-color-line);
+  box-shadow: var(--pm-shadow-md);
+ }
+
+ .pm-admin-category-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--pm-space-2);
+ }

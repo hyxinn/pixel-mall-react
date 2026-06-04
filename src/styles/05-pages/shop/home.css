@@ -1,69 +1,451 @@
-/* 前台首页样式文件：定义首页 Hero、分类入口、楼层区块和活动 Banner 的页面布局。
-   商品卡、按钮、标签等公共组件不要在这里重写，统一复用 03-components。 */
-
-/* 首页页面容器：控制首页各楼层之间的垂直间距。 */
+/* 首页页面容器：控制首页整体宽度和各区块间距。 */
+.pixel-shop,
 .pm-home-page {
+  width: min(var(--pm-page-max), calc(100% - 24px));
+  margin: 0 auto;
+  padding: var(--pm-space-4) 0 var(--pm-space-12);
   display: grid;
-  gap: var(--pm-space-6);
+  gap: var(--pm-space-5);
 }
 
-/* 首页主视觉区：承载商城主题、搜索引导、活动信息或轮播首屏。 */
-.pm-home-hero {
-  position: relative;
-  min-height: 320px;
-  padding: var(--pm-space-6);
-  overflow: hidden;
-  color: var(--pm-white);
+/* 顶部导航：对齐品牌和入口链接。 */
+.shop-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--pm-space-3);
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--pm-space-3) var(--pm-space-4);
+  background: rgba(255, 250, 240, 0.88);
+  border: var(--pm-border-width) solid var(--pm-color-line);
+  box-shadow: var(--pm-shadow-sm);
+}
+
+.brand-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pm-space-2);
+  color: var(--pm-color-text);
+  font-size: var(--pm-text-lg);
+  font-weight: var(--pm-weight-black);
+  text-decoration: none;
+}
+
+.brand-pixel {
+  width: 18px;
+  height: 18px;
   background:
-    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.18) 0 10px, transparent 10px 20px),
-    linear-gradient(135deg, var(--pm-color-primary), var(--pm-color-promo));
+    linear-gradient(135deg, var(--pm-color-accent) 0 50%, transparent 50%),
+    linear-gradient(315deg, var(--pm-color-primary) 0 50%, transparent 50%),
+    var(--pm-color-primary-soft);
+  border: var(--pm-border-width-thin) solid var(--pm-color-line);
+  box-shadow: 3px 3px 0 rgba(255, 159, 199, 0.26);
+}
+
+.shop-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--pm-space-2);
+  align-items: center;
+}
+
+.shop-nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 4px 10px;
+  color: var(--pm-color-text);
+  font-weight: var(--pm-weight-black);
+  text-decoration: none;
+  background: var(--pm-color-surface);
+  border: var(--pm-border-width-thin) solid var(--pm-color-line);
+  box-shadow: var(--pm-shadow-xs);
+}
+
+/* 首屏：左侧文案、右侧精选卡。 */
+.hero-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.85fr);
+  gap: var(--pm-space-5);
+  align-items: stretch;
+  padding: var(--pm-space-6);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.54), rgba(255, 226, 236, 0.5)),
+    var(--pm-color-surface);
   border: var(--pm-border-width) solid var(--pm-color-line);
   box-shadow: var(--pm-shadow-lg);
 }
 
-/* 首页主视觉标题：用于 Pixel Mall 或活动主标题。 */
-.pm-home-hero-title {
-  max-width: 620px;
-  margin: 0 0 var(--pm-space-3);
-  font-size: clamp(36px, 7vw, 72px);
-  line-height: 1.05;
+.hero-copy {
+  display: grid;
+  align-content: center;
+  gap: var(--pm-space-3);
 }
 
-/* 首页主视觉说明：用于一句话介绍活动或商城主题。 */
-.pm-home-hero-desc {
-  max-width: 520px;
+.eyebrow {
   margin: 0;
-  font-size: var(--pm-text-lg);
+  color: var(--pm-color-primary-deep);
+  font-size: var(--pm-text-sm);
+  font-weight: var(--pm-weight-black);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
-/* 首页分类入口行：四个快捷分类入口的网格容器。 */
-.pm-home-category-row {
+.hero-copy h1,
+.section-heading h2 {
+  margin: 0;
+  font-family: var(--pm-font-title);
+  line-height: var(--pm-line-tight);
+}
+
+.hero-copy h1 {
+  max-width: 12ch;
+  font-size: clamp(34px, 6vw, 64px);
+}
+
+.hero-text {
+  max-width: 44ch;
+  margin: 0;
+  color: var(--pm-color-text-muted);
+  font-size: var(--pm-text-md);
+}
+
+.search-box {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--pm-space-2);
+  align-items: center;
+  max-width: 560px;
+}
+
+.search-box input {
+  flex: 1;
+  min-width: 220px;
+  min-height: 48px;
+  padding: 10px 14px;
+  color: var(--pm-color-text);
+  background: var(--pm-color-bg);
+  border: var(--pm-border-width-thin) solid var(--pm-color-line);
+  outline: none;
+  box-shadow: inset 4px 4px 0 rgba(255, 215, 101, 0.16);
+}
+
+.search-box input::placeholder {
+  color: #b999a8;
+}
+
+.search-box button,
+.pixel-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 10px 18px;
+  color: var(--pm-color-text);
+  font-weight: var(--pm-weight-black);
+  text-decoration: none;
+  cursor: pointer;
+  background: var(--pm-color-accent);
+  border: var(--pm-border-width-thin) solid var(--pm-color-line);
+  box-shadow: var(--pm-shadow-sm);
+}
+
+.pixel-button.primary,
+.search-box button {
+  color: var(--pm-white);
+  background: var(--pm-color-primary);
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--pm-space-3);
+}
+
+.hero-card {
+  display: grid;
+  gap: var(--pm-space-3);
+  align-content: start;
+  padding: var(--pm-space-4);
+  background: var(--pm-color-bg);
+  border: var(--pm-border-width) solid var(--pm-color-line);
+  box-shadow: 8px 8px 0 rgba(255, 159, 199, 0.2);
+}
+
+.card-ribbon {
+  width: fit-content;
+  padding: 4px 10px;
+  color: var(--pm-white);
+  font-size: var(--pm-text-xs);
+  font-weight: var(--pm-weight-black);
+  background: var(--pm-color-primary-deep);
+  border: var(--pm-border-width-thin) solid var(--pm-color-line);
+}
+
+.pixel-product {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.85), transparent 24%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0)),
+    var(--pm-color-primary-soft);
+  border: var(--pm-border-width-thin) solid var(--pm-color-line);
+}
+
+.pixel-product::before,
+.pixel-product::after {
+  position: absolute;
+  inset: auto;
+  content: '';
+}
+
+.pixel-product::before {
+  top: 16%;
+  left: 50%;
+  width: 62%;
+  height: 56%;
+  transform: translateX(-50%);
+  background:
+    radial-gradient(circle at 30% 35%, rgba(255, 255, 255, 0.9) 0 14%, transparent 15%),
+    radial-gradient(circle at 70% 35%, rgba(255, 255, 255, 0.9) 0 14%, transparent 15%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0));
+  clip-path: polygon(8% 100%, 8% 36%, 18% 18%, 34% 10%, 50% 7%, 66% 10%, 82% 18%, 92% 36%, 92% 100%);
+}
+
+.pixel-product::after {
+  right: 10%;
+  bottom: 12%;
+  width: 36%;
+  height: 24%;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.65), transparent 60%);
+  clip-path: polygon(0 0, 100% 20%, 86% 100%, 8% 78%);
+}
+
+.pixel-product-large,
+.pixel-product.large {
+  min-height: 280px;
+}
+
+.pixel-product.pink {
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.82), transparent 24%),
+    linear-gradient(135deg, #ffe4ee, #ffb7d3);
+}
+
+.pixel-product.cream {
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.9), transparent 24%),
+    linear-gradient(135deg, #fff4d8, #ffd9ae);
+}
+
+.pixel-product.gold {
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.9), transparent 24%),
+    linear-gradient(135deg, #ffebb5, #f5c25d);
+}
+
+.pixel-sparkle {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  background: var(--pm-white);
+  clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+  opacity: 0.95;
+}
+
+.pixel-sparkle.one {
+  top: 20px;
+  left: 18px;
+}
+
+.pixel-sparkle.two {
+  right: 22px;
+  bottom: 26px;
+  transform: scale(1.2);
+}
+
+.hero-card-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--pm-space-3);
+  padding-top: var(--pm-space-2);
+  font-weight: var(--pm-weight-black);
+}
+
+.hero-card-info span {
+  color: var(--pm-color-text-muted);
+}
+
+.hero-card-info strong {
+  color: var(--pm-color-primary-deep);
+  font-size: var(--pm-text-xl);
+}
+
+/* 分类入口：像素贴纸风按钮。 */
+.category-row {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: var(--pm-space-3);
 }
 
-/* 首页单个分类入口：用于新品、热卖、优惠、家居等快捷入口。 */
-.pm-home-category {
-  display: grid;
-  gap: var(--pm-space-2);
-  justify-items: center;
-  padding: var(--pm-space-3);
-  text-align: center;
+.category-chip {
+  min-height: 48px;
+  padding: 10px 12px;
+  color: var(--pm-color-text);
+  font-weight: var(--pm-weight-black);
   background: var(--pm-color-surface);
-  border: var(--pm-border-width) solid var(--pm-color-line);
+  border: var(--pm-border-width-thin) solid var(--pm-color-line);
   box-shadow: var(--pm-shadow-xs);
 }
 
-/* 首页楼层区块：用于热门商品、新品上架、主题推荐等区域。 */
-.pm-home-section {
+/* 分区标题。 */
+.section-heading {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--pm-space-3);
+  align-items: flex-end;
+  justify-content: space-between;
+}
+
+.section-heading a {
+  color: var(--pm-color-primary-deep);
+  font-weight: var(--pm-weight-black);
+}
+
+.section-heading h2 {
+  font-size: clamp(24px, 3vw, 34px);
+}
+
+/* 商品网格：适配卡片列表。 */
+.product-grid {
   display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: var(--pm-space-4);
 }
 
-/* 首页活动 Banner：用于优惠券、会员卡、限时活动等横幅。 */
-.pm-home-banner {
-  padding: var(--pm-space-5);
-  background: var(--pm-color-primary-soft);
+.product-card {
+  display: grid;
+  gap: var(--pm-space-3);
+  padding: var(--pm-space-3);
+  background: rgba(255, 250, 240, 0.9);
   border: var(--pm-border-width) solid var(--pm-color-line);
+  box-shadow: var(--pm-shadow-md);
+}
+
+.product-card .pixel-product {
+  min-height: 190px;
+}
+
+.product-meta {
+  display: grid;
+  gap: var(--pm-space-2);
+}
+
+.product-meta > span {
+  color: var(--pm-color-primary-deep);
+  font-size: var(--pm-text-xs);
+  font-weight: var(--pm-weight-black);
+}
+
+.product-meta h3 {
+  margin: 0;
+  font-size: var(--pm-text-lg);
+  line-height: var(--pm-line-tight);
+}
+
+.product-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--pm-space-2);
+}
+
+.product-footer strong {
+  color: var(--pm-color-primary-deep);
+  font-size: var(--pm-text-xl);
+}
+
+.product-footer a {
+  color: var(--pm-color-text);
+  font-weight: var(--pm-weight-black);
+}
+
+/* 底部信息条。 */
+.feature-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--pm-space-3);
+}
+
+.feature-strip > div {
+  display: grid;
+  gap: var(--pm-space-2);
+  justify-items: start;
+  padding: var(--pm-space-3);
+  background: rgba(255, 255, 255, 0.68);
+  border: var(--pm-border-width-thin) solid var(--pm-color-line);
+  box-shadow: var(--pm-shadow-xs);
+}
+
+.mini-icon {
+  display: inline-grid;
+  place-items: center;
+  min-width: 42px;
+  min-height: 30px;
+  padding: 0 8px;
+  color: var(--pm-white);
+  font-size: var(--pm-text-xs);
+  font-weight: var(--pm-weight-black);
+  background: var(--pm-color-primary);
+  border: var(--pm-border-width-thin) solid var(--pm-color-line);
+}
+
+.feature-strip p {
+  margin: 0;
+  font-weight: var(--pm-weight-black);
+}
+
+@media (max-width: 900px) {
+  .hero-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .category-row,
+  .feature-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .pixel-shop,
+  .pm-home-page {
+    width: min(var(--pm-page-max), calc(100% - 16px));
+    padding-top: var(--pm-space-2);
+  }
+
+  .shop-header,
+  .section-heading {
+    align-items: flex-start;
+  }
+
+  .category-row,
+  .feature-strip {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-panel {
+    padding: var(--pm-space-4);
+  }
+
+  .search-box input {
+    min-width: 0;
+  }
+
+  .product-grid {
+    grid-template-columns: 1fr;
+  }
 }
