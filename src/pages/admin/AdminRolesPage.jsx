@@ -1,7 +1,9 @@
 import { useContext, useMemo, useState } from 'react';
 import Button from '../../components/common/Button';
 import EmptyState from '../../components/common/EmptyState';
+import Modal from '../../components/common/Modal';
 import { ServiceContext } from '../../contexts/ServiceContext';
+import { useServiceVersion } from '../../hooks/useServices';
 
 const createRoleForm = (role) => ({
   permissions: [...(role?.permissions || [])],
@@ -10,6 +12,7 @@ const createRoleForm = (role) => ({
 
 const AdminRolesPage = () => {
   const { admin } = useContext(ServiceContext);
+  useServiceVersion(admin);
   const roles = admin.getRoles();
   const permissionCatalog = admin.getPermissionCatalog();
   const menuCatalog = admin.getMenuCatalog();
@@ -17,6 +20,7 @@ const AdminRolesPage = () => {
   const [selectedRoleId, setSelectedRoleId] = useState(initialRole?.id || '');
   const [form, setForm] = useState(createRoleForm(initialRole));
   const [message, setMessage] = useState('');
+  const [viewingRole, setViewingRole] = useState(null);
 
   const groupedPermissions = useMemo(() => {
     return permissionCatalog.reduce((groups, permission) => {
@@ -93,6 +97,15 @@ const AdminRolesPage = () => {
     setForm(createRoleForm(nextRole));
   };
 
+  const handleRefresh = () => {
+    admin.reload();
+    const nextRoles = admin.getRoles();
+    const nextRole = nextRoles.find((role) => role.id === selectedRoleId) || nextRoles[0] || null;
+    setSelectedRoleId(nextRole?.id || '');
+    setForm(createRoleForm(nextRole));
+    setMessage('角色数据已刷新。');
+  };
+
   return (
     <div className="pm-admin-roles-page">
       <div className="pm-admin-page-header">
@@ -100,7 +113,10 @@ const AdminRolesPage = () => {
           <h2 className="pm-section-title">角色权限配置</h2>
           <p className="pm-help">编辑现有系统角色的菜单范围与权限点，保存后会直接影响后台菜单和访问控制。</p>
         </div>
-        <Button type="button" variant="ghost" onClick={handleRestoreDefaults}>恢复默认</Button>
+        <div className="pm-admin-inline-actions">
+          <Button type="button" variant="ghost" onClick={handleRefresh}>刷新</Button>
+          <Button type="button" variant="ghost" onClick={handleRestoreDefaults}>恢复默认</Button>
+        </div>
       </div>
 
       {message ? <div className="pm-alert">{message}</div> : null}
@@ -127,6 +143,14 @@ const AdminRolesPage = () => {
                 <div className="pm-role-meta">
                   <span>{role.menuCount} 个菜单</span>
                   <span>{role.permissionCount} 个权限</span>
+                </div>
+                <div className="pm-admin-inline-actions">
+                  <Button type="button" variant="ghost" onClick={(event) => {
+                    event.stopPropagation();
+                    setViewingRole(role);
+                  }}>
+                    查看详情
+                  </Button>
                 </div>
               </button>
             );
@@ -203,6 +227,60 @@ const AdminRolesPage = () => {
           </section>
         ) : null}
       </div>
+
+      <Modal
+        cancelText=""
+        confirmText=""
+        onClose={() => setViewingRole(null)}
+        onConfirm={() => setViewingRole(null)}
+        open={Boolean(viewingRole)}
+        title="角色详情"
+      >
+        {viewingRole ? (
+          <div className="pm-admin-panel pm-admin-detail-panel">
+            <div className="pm-admin-detail-grid">
+              <div>
+                <p className="pm-label">角色名称</p>
+                <h3 className="pm-admin-card-title">{viewingRole.name}</h3>
+              </div>
+              <div>
+                <p className="pm-label">角色标识</p>
+                <p>{viewingRole.id}</p>
+              </div>
+              <div>
+                <p className="pm-label">菜单数量</p>
+                <p>{viewingRole.menuCount}</p>
+              </div>
+              <div>
+                <p className="pm-label">权限数量</p>
+                <p>{viewingRole.permissionCount}</p>
+              </div>
+            </div>
+            <div>
+              <p className="pm-label">角色说明</p>
+              <p className="pm-admin-detail-copy">{viewingRole.description}</p>
+            </div>
+            <div>
+              <p className="pm-label">菜单列表</p>
+              <div className="pm-admin-detail-chip-row">
+                {viewingRole.menus.map((menuKey) => {
+                  const menu = menuCatalog.find((item) => item.key === menuKey);
+                  return <span className="pm-tag pm-tag-info" key={menuKey}>{menu?.label || menuKey}</span>;
+                })}
+              </div>
+            </div>
+            <div>
+              <p className="pm-label">权限列表</p>
+              <div className="pm-admin-detail-chip-row">
+                {viewingRole.permissions.map((permissionKey) => {
+                  const permission = permissionCatalog.find((item) => item.key === permissionKey);
+                  return <span className="pm-tag pm-tag-sale" key={permissionKey}>{permission?.label || permissionKey}</span>;
+                })}
+              </div>
+            </div>
+          </div>
+        ) : null}
+      </Modal>
     </div>
   );
 };

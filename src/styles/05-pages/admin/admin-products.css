@@ -17,3 +17,31 @@
 .pm-admin-products-page .pm-admin-table-panel {
   transform: rotate(0.08deg);
 }
+
+.pm-admin-product-price {
+  display: grid;
+  justify-items: start;
+  gap: 4px;
+}
+
+.pm-admin-product-price .pm-price {
+  font-size: var(--pm-text-lg);
+}
+
+.pm-admin-product-price .pm-old-price {
+  font-size: var(--pm-text-sm);
+}
+
+.pm-admin-product-status-btn-off-sale {
+  box-shadow: 4px 4px 0 rgba(128, 231, 200, 0.18), 7px 7px 0 rgba(128, 231, 200, 0.14);
+}
+
+.pm-admin-product-status-btn-on-sale {
+  box-shadow: 4px 4px 0 rgba(255, 111, 168, 0.18), 7px 7px 0 rgba(255, 111, 168, 0.14);
+}
+
+.pm-admin-products-page .pm-table-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}

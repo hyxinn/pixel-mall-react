@@ -4,7 +4,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import Button from '../components/common/Button';
 import EmptyState from '../components/common/EmptyState';
 import { useServices } from '../hooks/useServices';
-import { formatPrice } from '../utils/productDisplay';
+import { formatPrice, getProductPriceInfo } from '../utils/productDisplay';
 
 const PAY_TIMEOUT_SECONDS = 15 * 60;
 const PAY_METHODS = [
@@ -96,6 +96,7 @@ const PayPage = () => {
     navigate('/home');
   };
 
+  const snapshotPriceInfo = getProductPriceInfo(currentOrder?.goodSnapshot || { price: currentOrder?.price });
   const countdownText = !isPendingPay
     ? '订单已支付'
     : failed
@@ -122,7 +123,11 @@ const PayPage = () => {
           </header>
           <p className="pm-order-desc">商品：{currentOrder.goodSnapshot?.name || '组合商品'}</p>
           <footer className="pm-order-foot">
-            <strong className="pm-price">{formatPrice(currentOrder.price)}</strong>
+            <div>
+              <strong className="pm-price">{formatPrice(currentOrder.price)}</strong>
+              {snapshotPriceInfo.hasDiscount ? <span className="pm-old-price">{formatPrice(snapshotPriceInfo.originalPrice)}</span> : null}
+              {snapshotPriceInfo.saleTag ? <span className="pm-tag pm-tag-sale">{snapshotPriceInfo.saleTag}</span> : null}
+            </div>
           </footer>
         </section>
 

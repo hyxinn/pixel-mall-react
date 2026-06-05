@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useSyncExternalStore } from 'react';
 
 import { ServiceContext } from '../contexts/ServiceContext';
 
@@ -15,4 +15,12 @@ export const useServices = () => {
 export const useCurrentUser = () => {
   const { user } = useServices();
   return user.getCurrentUser();
+};
+
+export const useServiceVersion = (service) => {
+  useSyncExternalStore(
+    (listener) => (service?.subscribe ? service.subscribe(listener) : () => {}),
+    () => (service?.getRevision ? service.getRevision() : 0),
+    () => 0,
+  );
 };

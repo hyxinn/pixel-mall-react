@@ -19,9 +19,9 @@
   padding: 22px;
   overflow: hidden;
   background:
-    linear-gradient(90deg, rgba(255, 255, 255, 0.24) 1px, transparent 1px),
-    linear-gradient(rgba(255, 255, 255, 0.24) 1px, transparent 1px),
-    linear-gradient(135deg, rgba(255, 246, 228, 0.96), rgba(255, 226, 236, 0.84));
+    linear-gradient(90deg, color-mix(in srgb, var(--pm-color-surface) 24%, transparent) 1px, transparent 1px),
+    linear-gradient(color-mix(in srgb, var(--pm-color-surface) 24%, transparent) 1px, transparent 1px),
+    linear-gradient(135deg, color-mix(in srgb, var(--pm-color-surface-warm) 90%, var(--pm-color-surface)), color-mix(in srgb, var(--pm-color-primary-soft) 84%, var(--pm-color-surface)));
   background-size: 16px 16px, 16px 16px, auto;
   border: 2px solid rgba(61, 47, 59, 0.28);
   box-shadow: 5px 5px 0 rgba(255, 215, 101, 0.28), inset 0 6px 0 rgba(255, 215, 101, 0.42);
@@ -46,9 +46,9 @@
 
 .pm-admin-category-card:nth-child(2n) {
   background:
-    linear-gradient(90deg, rgba(255, 255, 255, 0.24) 1px, transparent 1px),
-    linear-gradient(rgba(255, 255, 255, 0.24) 1px, transparent 1px),
-    linear-gradient(135deg, rgba(223, 249, 239, 0.9), rgba(255, 255, 255, 0.86));
+    linear-gradient(90deg, color-mix(in srgb, var(--pm-color-surface) 24%, transparent) 1px, transparent 1px),
+    linear-gradient(color-mix(in srgb, var(--pm-color-surface) 24%, transparent) 1px, transparent 1px),
+    linear-gradient(135deg, color-mix(in srgb, var(--pm-color-accent-2) 30%, var(--pm-color-surface)), color-mix(in srgb, var(--pm-color-surface) 86%, var(--pm-color-accent-2)));
   background-size: 16px 16px, 16px 16px, auto;
   box-shadow: 5px 5px 0 rgba(128, 231, 200, 0.28), inset 0 6px 0 rgba(128, 231, 200, 0.44);
   transform: translateY(12px) rotate(0.9deg);
@@ -56,9 +56,9 @@
 
 .pm-admin-category-card:nth-child(3n) {
   background:
-    linear-gradient(90deg, rgba(255, 255, 255, 0.24) 1px, transparent 1px),
-    linear-gradient(rgba(255, 255, 255, 0.24) 1px, transparent 1px),
-    linear-gradient(135deg, rgba(217, 239, 255, 0.9), rgba(255, 244, 250, 0.84));
+    linear-gradient(90deg, color-mix(in srgb, var(--pm-color-surface) 24%, transparent) 1px, transparent 1px),
+    linear-gradient(color-mix(in srgb, var(--pm-color-surface) 24%, transparent) 1px, transparent 1px),
+    linear-gradient(135deg, color-mix(in srgb, var(--pm-color-accent-3) 30%, var(--pm-color-surface)), color-mix(in srgb, var(--pm-color-primary-soft) 76%, var(--pm-color-surface)));
   background-size: 16px 16px, 16px 16px, auto;
   box-shadow: 5px 5px 0 rgba(143, 215, 255, 0.28), inset 0 6px 0 rgba(143, 215, 255, 0.48);
   transform: rotate(1.2deg);

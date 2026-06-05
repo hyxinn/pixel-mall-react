@@ -1,16 +1,30 @@
 import { defaultCategories, defaultProducts } from '../mock/data';
+import { getProductPriceInfo } from '../utils/productDisplay';
 import { cloneValue, loadFromStorage, saveToStorage } from '../utils/storage';
+import SubscribableService from './subscribableService';
 
 const PRODUCT_KEY = 'pixelMall:products';
 const CATEGORY_KEY = 'pixelMall:categories';
 
 const normalizeText = (value) => String(value ?? '').trim();
+const normalizeMoney = (value) => {
+  const amount = Number(value);
+  return Number.isFinite(amount) && amount >= 0 ? amount : 0;
+};
+const hasCategoryId = (category) => Boolean(normalizeText(category?.id));
+const normalizeCategory = (input, fallbackSort = 1) => ({
+  id: normalizeText(input.id),
+  name: normalizeText(input.name) || '未命名分类',
+  description: normalizeText(input.description),
+  sort: Number(input.sort) || fallbackSort,
+});
 
-class GoodService {
+class GoodService extends SubscribableService {
   products = [];
   categories = [];
 
   constructor() {
+    super();
     this._loadData();
   }
 
@@ -61,6 +75,7 @@ class GoodService {
 
   getCategoryList() {
     return this.categories
+      .filter(hasCategoryId)
       .slice()
       .sort((left, right) => left.sort - right.sort)
       .map((category) => cloneValue(category));
@@ -87,6 +102,10 @@ class GoodService {
     };
   }
 
+  reload() {
+    this._loadData();
+  }
+
   addGood(input) {
     const product = this._normalizeProduct({
       ...input,
@@ -97,6 +116,7 @@ class GoodService {
 
     this.products.unshift(product);
     this._saveProducts();
+    this.notify();
     return cloneValue(product);
   }
 
@@ -118,6 +138,7 @@ class GoodService {
 
     this.products = this.products.map((item) => (item.id === parsedId ? product : item));
     this._saveProducts();
+    this.notify();
     return cloneValue(product);
   }
 
@@ -132,6 +153,7 @@ class GoodService {
     product.status = 'deleted';
     product.updatedAt = new Date().toLocaleString();
     this._saveProducts();
+    this.notify();
     return true;
   }
 
@@ -146,6 +168,7 @@ class GoodService {
     product.status = product.status === 'on-sale' ? 'off-sale' : 'on-sale';
     product.updatedAt = new Date().toLocaleString();
     this._saveProducts();
+    this.notify();
     return cloneValue(product);
   }
 
@@ -159,6 +182,7 @@ class GoodService {
 
     this.categories.push(category);
     this._saveCategories();
+    this.notify();
     return cloneValue(category);
   }
 
@@ -181,6 +205,7 @@ class GoodService {
 
     this._saveCategories();
     this._saveProducts();
+    this.notify();
     return cloneValue(category);
   }
 
@@ -193,6 +218,7 @@ class GoodService {
 
     this.categories = this.categories.filter((item) => item.id !== id);
     this._saveCategories();
+    this.notify();
     return { success: true };
   }
 
@@ -203,11 +229,17 @@ class GoodService {
   _normalizeProduct(input) {
     const category = this.categories.find((item) => item.id === input.categoryId) || this.categories[0];
     const cover = normalizeText(input.cover || input.img || '/favicon.svg');
-
-    return {
+    const legacyPrice = normalizeMoney(input.price);
+    const nextCurrentPrice = normalizeMoney(input.currentPrice ?? legacyPrice);
+    const nextOriginalPrice = Math.max(normalizeMoney(input.originalPrice ?? legacyPrice), nextCurrentPrice);
+    const saleTag = normalizeText(input.saleTag);
+    const normalizedProduct = {
       id: Number(input.id),
       name: normalizeText(input.name),
-      price: Number(input.price) || 0,
+      price: nextCurrentPrice,
+      originalPrice: nextOriginalPrice,
+      currentPrice: nextCurrentPrice,
+      saleTag,
       categoryId: input.categoryId || category?.id || '',
       categoryName: category?.name || '',
       cover,
@@ -217,6 +249,16 @@ class GoodService {
       status: input.status || 'off-sale',
       createdAt: input.createdAt || new Date().toLocaleString(),
       updatedAt: input.updatedAt || new Date().toLocaleString(),
+    };
+
+    const priceInfo = getProductPriceInfo(normalizedProduct);
+
+    return {
+      ...normalizedProduct,
+      price: priceInfo.currentPrice,
+      originalPrice: priceInfo.originalPrice,
+      currentPrice: priceInfo.currentPrice,
+      saleTag: priceInfo.saleTag,
     };
   }
 
@@ -229,11 +271,15 @@ class GoodService {
   }
 
   _loadData() {
-    const storedCategories = loadFromStorage([CATEGORY_KEY], defaultCategories);
-    const storedCategoryIds = new Set(storedCategories.map((c) => c.id));
+    const storedCategories = loadFromStorage([CATEGORY_KEY], defaultCategories)
+      .filter(hasCategoryId)
+      .map((category, index) => normalizeCategory(category, index + 1));
+    const storedCategoryIds = new Set(storedCategories.map((category) => category.id));
     const mergedCategories = [
       ...storedCategories,
-      ...defaultCategories.filter((c) => !storedCategoryIds.has(c.id)),
+      ...defaultCategories
+        .filter((category) => !storedCategoryIds.has(category.id))
+        .map((category, index) => normalizeCategory(category, storedCategories.length + index + 1)),
     ];
     this.categories = mergedCategories.sort((a, b) => a.sort - b.sort);
 
@@ -257,6 +303,7 @@ class GoodService {
 
     this._saveCategories();
     this._saveProducts();
+    this.notify();
   }
 }
 

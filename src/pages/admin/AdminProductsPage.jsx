@@ -1,16 +1,22 @@
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import PermissionGate from '../../components/admin/PermissionGate';
 import ProductForm from '../../components/admin/ProductForm';
 import Button from '../../components/common/Button';
 import EmptyState from '../../components/common/EmptyState';
 import Modal from '../../components/common/Modal';
 import StatusTag from '../../components/common/StatusTag';
+import Pagination from '../../components/h5/Pagination';
 import { ServiceContext } from '../../contexts/ServiceContext';
+import { useServiceVersion } from '../../hooks/useServices';
+import { usePagination } from '../../hooks/usePagination';
+import { formatPrice, getProductPriceInfo } from '../../utils/productDisplay';
 
 const createInitialForm = (categories) => ({
   id: null,
   name: '',
-  price: 0,
+  originalPrice: 0,
+  currentPrice: 0,
+  saleTag: '',
   categoryId: categories[0]?.id || '',
   stock: 0,
   cover: '/favicon.svg',
@@ -26,10 +32,28 @@ const AdminProductsPage = () => {
   const [editingId, setEditingId] = useState(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [deletingProduct, setDeletingProduct] = useState(null);
+  const [viewingProduct, setViewingProduct] = useState(null);
   const [message, setMessage] = useState('');
+  const [formMode, setFormMode] = useState('edit');
+
+  useServiceVersion(good);
 
   const canManage = admin.hasPermission('products:manage');
+  const canEditDiscount = admin.hasPermission('products:discount');
   const products = good.getGoodList(filters);
+  const {
+    page,
+    setPage,
+    totalPages,
+    total,
+    slice: pagedProducts,
+    hasPrev,
+    hasNext,
+  } = usePagination(products, 10);
+
+  useEffect(() => {
+    setPage(1);
+  }, [filters, setPage]);
 
   const handleFilterChange = (event) => {
     const { name, value } = event.target;
@@ -44,11 +68,13 @@ const AdminProductsPage = () => {
   const closeForm = () => {
     setIsFormOpen(false);
     setEditingId(null);
+    setFormMode('edit');
     setForm(createInitialForm(categories));
   };
 
   const openCreateForm = () => {
     setEditingId(null);
+    setFormMode('edit');
     setForm(createInitialForm(categories));
     setIsFormOpen(true);
   };
@@ -56,27 +82,55 @@ const AdminProductsPage = () => {
   const handleSubmit = (event) => {
     event.preventDefault();
 
+    const originalPrice = Math.max(0, Number(form.originalPrice) || 0);
+    const currentInput = Number(form.currentPrice);
+    const currentPrice = Math.max(0, Number.isFinite(currentInput) ? currentInput : originalPrice);
+
+    if (canEditDiscount && currentPrice > originalPrice) {
+      setMessage('现价不能高于原价。');
+      return;
+    }
+
+    const payload = {
+      ...form,
+      originalPrice: canEditDiscount ? originalPrice : currentPrice,
+      currentPrice,
+      price: currentPrice,
+      saleTag: canEditDiscount ? form.saleTag.trim() : '',
+    };
+
     if (editingId) {
-      good.updateGood({ ...form, id: editingId });
-      setMessage('商品已更新。');
+      good.updateGood({ ...payload, id: editingId });
+      setMessage(formMode === 'discount' ? '商品折扣已更新。' : '商品已更新。');
     } else {
-      good.addGood(form);
+      good.addGood(payload);
       setMessage('商品已新增。');
     }
 
     closeForm();
   };
 
-  const handleEdit = (product) => {
-    if (!canManage) {
+  const openProductForm = (product, mode = 'edit') => {
+    if ((mode === 'discount' && !canEditDiscount) || (mode !== 'discount' && !canManage)) {
       return;
     }
 
-    setEditingId(product.id);
+    setEditingId(product?.id ?? null);
+    setFormMode(mode);
+
+    if (!product) {
+      setForm(createInitialForm(categories));
+      setIsFormOpen(true);
+      return;
+    }
+
+    const priceInfo = getProductPriceInfo(product);
     setForm({
       id: product.id,
       name: product.name,
-      price: product.price,
+      originalPrice: priceInfo.originalPrice,
+      currentPrice: priceInfo.currentPrice,
+      saleTag: priceInfo.saleTag,
       categoryId: product.categoryId,
       stock: product.stock,
       cover: product.cover,
@@ -84,6 +138,14 @@ const AdminProductsPage = () => {
       status: product.status,
     });
     setIsFormOpen(true);
+  };
+
+  const handleEdit = (product) => {
+    openProductForm(product, 'edit');
+  };
+
+  const handleDiscount = (product) => {
+    openProductForm(product, 'discount');
   };
 
   const handleDelete = () => {
@@ -111,10 +173,15 @@ const AdminProductsPage = () => {
       return;
     }
 
-    setMessage(updatedProduct.status === 'on-sale' ? '商品已重新上架。' : '商品已下架。');
+    setMessage(`商品状态已切换为${updatedProduct.status === 'on-sale' ? '上架中' : '已下架'}。`);
     if (editingId === productId) {
       handleEdit(updatedProduct);
     }
+  };
+
+  const handleRefresh = () => {
+    good.reload();
+    setMessage('商品数据已刷新。');
   };
 
   return (
@@ -122,11 +189,14 @@ const AdminProductsPage = () => {
       <section className="pm-admin-page-header">
         <div>
           <h2 className="pm-section-title">商品管理</h2>
-          <p className="pm-help">支持搜索、筛选、上下架、新增和编辑商品。</p>
+          <p className="pm-help">支持搜索、筛选、查看、折扣管理、上下架、新增和编辑商品。</p>
         </div>
-        <PermissionGate permission="products:manage">
-          <Button type="button" onClick={openCreateForm}>新增商品</Button>
-        </PermissionGate>
+        <div className="pm-admin-inline-actions">
+          <Button type="button" variant="ghost" onClick={handleRefresh}>刷新</Button>
+          <PermissionGate permission="products:manage">
+            <Button type="button" onClick={openCreateForm}>新增商品</Button>
+          </PermissionGate>
+        </div>
       </section>
 
       {message ? <div className="pm-alert">{message}</div> : null}
@@ -172,67 +242,157 @@ const AdminProductsPage = () => {
                 </tr>
               </thead>
               <tbody>
-                {products.map((product) => (
-                  <tr key={product.id}>
-                    <td>
-                      <strong>{product.name}</strong>
-                      <p className="pm-help">ID: {product.id}</p>
-                    </td>
-                    <td>{product.categoryName}</td>
-                    <td>¥{product.price}</td>
-                    <td>{product.stock}</td>
-                    <td>
-                      <StatusTag value={product.status}>
-                        {product.status === 'on-sale' ? '上架中' : product.status === 'off-sale' ? '已下架' : '已删除'}
-                      </StatusTag>
-                    </td>
-                    <td>{product.updatedAt}</td>
-                    <td>
-                      <div className="pm-table-actions">
-                        <PermissionGate permission="products:manage">
-                          <Button type="button" variant="ghost" onClick={() => handleEdit(product)}>编辑</Button>
-                        </PermissionGate>
-                        <PermissionGate permission="products:manage">
-                          <Button type="button" variant="mint" onClick={() => handleToggleStatus(product.id)} disabled={product.status === 'deleted'}>
-                            {product.status === 'on-sale' ? '下架' : '上架'}
-                          </Button>
-                        </PermissionGate>
-                        <PermissionGate permission="products:manage">
-                          <Button type="button" variant="danger" onClick={() => setDeletingProduct(product)}>删除</Button>
-                        </PermissionGate>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                {pagedProducts.map((product) => {
+                  const priceInfo = getProductPriceInfo(product);
+
+                  return (
+                    <tr key={product.id}>
+                      <td>
+                        <strong>{product.name}</strong>
+                        <p className="pm-help">ID: {product.id}</p>
+                      </td>
+                      <td>{product.categoryName}</td>
+                      <td>
+                        <div className="pm-admin-product-price">
+                          <strong className="pm-price">{formatPrice(priceInfo.currentPrice)}</strong>
+                          {priceInfo.hasDiscount ? <span className="pm-old-price">原价 {formatPrice(priceInfo.originalPrice)}</span> : null}
+                          {priceInfo.saleTag ? <span className="pm-tag pm-tag-sale">{priceInfo.saleTag}</span> : null}
+                        </div>
+                      </td>
+                      <td>{product.stock}</td>
+                      <td>
+                        <StatusTag value={product.status}>
+                          {product.status === 'on-sale' ? '上架中' : product.status === 'off-sale' ? '已下架' : '已删除'}
+                        </StatusTag>
+                      </td>
+                      <td>{product.updatedAt}</td>
+                      <td>
+                        <div className="pm-table-actions">
+                          <Button type="button" variant="ghost" onClick={() => setViewingProduct(product)}>查看</Button>
+                          <PermissionGate permission="products:discount">
+                            <Button type="button" variant="accent" onClick={() => handleDiscount(product)}>折扣</Button>
+                          </PermissionGate>
+                          <PermissionGate permission="products:manage">
+                            <Button type="button" variant="ghost" onClick={() => handleEdit(product)}>编辑</Button>
+                          </PermissionGate>
+                          <PermissionGate permission="products:manage">
+                            <Button
+                              type="button"
+                              variant={product.status === 'on-sale' ? 'danger' : 'mint'}
+                              className={`pm-admin-product-status-btn pm-admin-product-status-btn-${product.status}`}
+                              onClick={() => handleToggleStatus(product.id)}
+                              disabled={product.status === 'deleted'}
+                            >
+                              {product.status === 'on-sale' ? '下架' : '上架'}
+                            </Button>
+                          </PermissionGate>
+                          <PermissionGate permission="products:manage">
+                            <Button type="button" variant="danger" onClick={() => setDeletingProduct(product)}>删除</Button>
+                          </PermissionGate>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
+          <Pagination
+            className="pm-admin-pagination"
+            page={page}
+            totalPages={totalPages}
+            total={total}
+            onPrev={() => hasPrev && setPage(page - 1)}
+            onNext={() => hasNext && setPage(page + 1)}
+          />
         </div>
       ) : (
         <EmptyState title="暂无商品" description="当前筛选条件下没有找到商品。" />
       )}
 
-      <PermissionGate permission="products:manage">
+      {canManage || canEditDiscount ? (
         <Modal
           cancelText="取消"
           confirmText=""
           onClose={closeForm}
           onConfirm={closeForm}
           open={isFormOpen}
-          title={editingId ? '编辑商品' : '新增商品'}
+          title={editingId ? (formMode === 'discount' ? '设置商品折扣' : '编辑商品') : '新增商品'}
         >
           <div className="pm-admin-panel">
             <p className="pm-help">保存后会同步影响前台商品展示和购买状态。</p>
+            {formMode === 'discount' ? <p className="pm-help">在这里维护原价、现价和促销文案，列表页会同步显示折扣效果。</p> : null}
+            {!canEditDiscount ? <p className="pm-help">当前角色没有折扣设置权限，原价和促销文案不可修改，现价会按普通售价保存。</p> : null}
             <ProductForm
+              canEditDiscount={canEditDiscount}
               categories={categories}
               form={form}
+              mode={formMode}
               onChange={handleFormChange}
               onSubmit={handleSubmit}
-              submitText={editingId ? '保存修改' : '创建商品'}
+              submitText={editingId ? (formMode === 'discount' ? '保存折扣' : '保存修改') : '创建商品'}
             />
           </div>
         </Modal>
-      </PermissionGate>
+      ) : null}
+
+      <Modal
+        cancelText=""
+        confirmText=""
+        onClose={() => setViewingProduct(null)}
+        onConfirm={() => setViewingProduct(null)}
+        open={Boolean(viewingProduct)}
+        title="商品详情"
+      >
+        {viewingProduct ? (
+          <div className="pm-admin-panel pm-admin-detail-panel">
+            <div className="pm-admin-detail-grid">
+              <div>
+                <p className="pm-label">商品名称</p>
+                <h3 className="pm-admin-card-title">{viewingProduct.name}</h3>
+              </div>
+              <div>
+                <p className="pm-label">分类</p>
+                <p>{viewingProduct.categoryName}</p>
+              </div>
+              <div>
+                <p className="pm-label">库存</p>
+                <p>{viewingProduct.stock}</p>
+              </div>
+              <div>
+                <p className="pm-label">状态</p>
+                <StatusTag value={viewingProduct.status}>{viewingProduct.status === 'on-sale' ? '上架中' : viewingProduct.status === 'off-sale' ? '已下架' : '已删除'}</StatusTag>
+              </div>
+            </div>
+            <div className="pm-admin-detail-grid">
+              <div>
+                <p className="pm-label">现价</p>
+                <strong className="pm-price">{formatPrice(getProductPriceInfo(viewingProduct).currentPrice)}</strong>
+              </div>
+              <div>
+                <p className="pm-label">原价</p>
+                <p>{formatPrice(getProductPriceInfo(viewingProduct).originalPrice)}</p>
+              </div>
+              <div>
+                <p className="pm-label">促销文案</p>
+                <p>{getProductPriceInfo(viewingProduct).saleTag || '无'}</p>
+              </div>
+              <div>
+                <p className="pm-label">更新时间</p>
+                <p>{viewingProduct.updatedAt}</p>
+              </div>
+            </div>
+            <div className="pm-admin-detail-media">
+              <p className="pm-label">封面预览</p>
+              <img src={viewingProduct.cover} alt={viewingProduct.name} />
+            </div>
+            <div>
+              <p className="pm-label">商品描述</p>
+              <p className="pm-admin-detail-copy">{viewingProduct.description}</p>
+            </div>
+          </div>
+        ) : null}
+      </Modal>
 
       <Modal
         cancelText="取消"

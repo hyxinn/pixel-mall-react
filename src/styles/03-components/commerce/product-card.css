@@ -81,6 +81,12 @@
   gap: var(--pm-space-3);
 }
 
+.pm-product-price-stack {
+  display: grid;
+  justify-items: start;
+  gap: 5px;
+}
+
 /* 当前价格：全站价格主视觉，使用主题深色。 */
 .pm-price {
   color: var(--pm-color-primary-deep);
@@ -91,9 +97,17 @@
 
 /* 原价：用于促销前价格，显示删除线。 */
 .pm-old-price {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 0 6px;
   color: var(--pm-color-text-muted);
   font-size: var(--pm-text-xs);
   text-decoration: line-through;
+  text-decoration-thickness: 2px;
+  text-decoration-color: color-mix(in srgb, var(--pm-color-primary) 72%, transparent);
+  background: color-mix(in srgb, var(--pm-color-surface) 82%, var(--pm-color-bg-soft));
+  border: 1px solid color-mix(in srgb, var(--pm-color-line) 24%, transparent);
 }
 
 /* 收藏卡商品变体：用于首页、收藏页和推荐区的错位贴纸式商品卡。 */

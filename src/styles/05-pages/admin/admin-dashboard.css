@@ -9,20 +9,23 @@
 
 /* 后台首页头部：展示欢迎语、角色信息和快捷操作。 */
 .pm-admin-dashboard-hero {
-  position: relative;
+  position: sticky;
+  top: 0;
   isolation: isolate;
   display: flex;
   flex-wrap: wrap;
-  gap: 14px;
-  align-items: center;
+  gap: 4px;
+  align-items: start;
   justify-content: space-between;
   overflow: visible;
-  min-height: 138px;
-  padding: 28px 30px;
+  min-height: 84px;
+  margin-top: 0;
+  padding: 1px 30px 10px;
+  z-index: 8;
   background:
-    linear-gradient(90deg, rgba(255, 255, 255, 0.28) 1px, transparent 1px),
-    linear-gradient(rgba(255, 255, 255, 0.28) 1px, transparent 1px),
-    linear-gradient(135deg, #ffe6ef 0%, #fff0c9 58%, #dff9ef 100%);
+    linear-gradient(90deg, color-mix(in srgb, var(--pm-color-surface) 28%, transparent) 1px, transparent 1px),
+    linear-gradient(color-mix(in srgb, var(--pm-color-surface) 28%, transparent) 1px, transparent 1px),
+    linear-gradient(135deg, color-mix(in srgb, var(--pm-color-bg-soft) 72%, transparent) 0%, color-mix(in srgb, var(--pm-color-accent) 32%, var(--pm-color-surface)) 58%, color-mix(in srgb, var(--pm-color-accent-2) 28%, transparent) 100%);
   background-size: 18px 18px, 18px 18px, auto;
   border: 0;
   box-shadow: inset 0 -3px 0 rgba(61, 47, 59, 0.28), inset 0 -9px 0 rgba(255, 111, 168, 0.14);
@@ -30,8 +33,8 @@
 
 .pm-admin-dashboard-hero::before {
   position: absolute;
-  top: -12px;
-  left: 26px;
+  top: -18px;
+  left: 18px;
   z-index: 2;
   width: 78px;
   height: 26px;
@@ -39,7 +42,7 @@
   background:
     linear-gradient(90deg, var(--pm-color-primary) 0 70%, var(--pm-color-accent) 70%),
     var(--pm-color-primary-soft);
-  transform: rotate(-2deg);
+  transform: rotate(-4deg);
 }
 
 .pm-admin-dashboard-hero::after {
@@ -99,9 +102,9 @@
   min-height: 96px;
   padding: 20px 22px;
   background:
-    linear-gradient(90deg, rgba(255, 159, 199, 0.08) 1px, transparent 1px),
-    linear-gradient(rgba(255, 159, 199, 0.08) 1px, transparent 1px),
-    linear-gradient(135deg, #fff2d7, #ffe6ef);
+    linear-gradient(90deg, color-mix(in srgb, var(--pm-color-primary) 8%, transparent) 1px, transparent 1px),
+    linear-gradient(color-mix(in srgb, var(--pm-color-primary) 8%, transparent) 1px, transparent 1px),
+    linear-gradient(135deg, color-mix(in srgb, var(--pm-color-accent) 24%, var(--pm-color-surface)), color-mix(in srgb, var(--pm-color-primary-soft) 58%, var(--pm-color-surface)));
   background-size: 16px 16px, 16px 16px, auto;
   border: 0;
   border-left: 6px solid var(--pm-color-accent);

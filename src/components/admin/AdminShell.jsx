@@ -1,6 +1,8 @@
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { ServiceContext } from '../../contexts/ServiceContext';
+import { useServiceVersion } from '../../hooks/useServices';
+import ThemePanel from '../common/ThemePanel';
 import Button from '../common/Button';
 
 const navItems = [
@@ -14,12 +16,20 @@ const navItems = [
 const AdminShell = () => {
   const { admin } = useContext(ServiceContext);
   const navigate = useNavigate();
+
+  useServiceVersion(admin);
+
   const currentAdmin = admin.getCurrentAdmin();
   const menuKeys = admin.getMenuKeys();
+  const [isThemePanelOpen, setIsThemePanelOpen] = useState(false);
 
   const handleLogout = () => {
     admin.logout();
     navigate('/admin/login');
+  };
+
+  const toggleThemePanel = () => {
+    setIsThemePanelOpen((current) => !current);
   };
 
   return (
@@ -39,10 +49,29 @@ const AdminShell = () => {
             <h1 className="pm-admin-title">后台管理</h1>
             <p className="pm-help">当前角色：{currentAdmin?.nickname} / {currentAdmin?.role}</p>
           </div>
-          <Button type="button" variant="ghost" onClick={handleLogout}>退出登录</Button>
+          <div className="pm-admin-header-actions">
+            <Link className="pm-admin-home-link" to="/home">返回商城首页</Link>
+            <div className="pm-admin-theme-entry">
+              <Button
+                type="button"
+                variant="ghost"
+                className={`pm-admin-theme-toggle${isThemePanelOpen ? ' is-open' : ''}`}
+                onClick={toggleThemePanel}
+                aria-expanded={isThemePanelOpen}
+                aria-controls="pm-admin-theme-panel"
+              >
+                主题
+              </Button>
+              {isThemePanelOpen ? (
+                <div className="pm-admin-theme-popover" id="pm-admin-theme-panel">
+                  <ThemePanel variant="admin" />
+                </div>
+              ) : null}
+            </div>
+            <Button type="button" variant="ghost" onClick={handleLogout}>退出登录</Button>
+          </div>
         </header>
         <aside className="pm-admin-side">
-          <Link className="pm-admin-home-link" to="/home">返回商城首页</Link>
           {navItems
             .filter((item) => menuKeys.includes(item.key) && admin.hasPermission(item.permission))
             .map((item) => (

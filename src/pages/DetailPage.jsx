@@ -4,7 +4,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import Button from '../components/common/Button';
 import EmptyState from '../components/common/EmptyState';
 import { useServices } from '../hooks/useServices';
-import { formatPrice, getProductTone } from '../utils/productDisplay';
+import { formatPrice, getProductPriceInfo, getProductTone } from '../utils/productDisplay';
 
 const DetailPage = () => {
   const { goodId } = useParams();
@@ -21,6 +21,7 @@ const DetailPage = () => {
   const parsedGoodId = Number(goodId);
   const product = good.getGoodById(parsedGoodId);
   const currentUser = user.getCurrentUser();
+  const priceInfo = getProductPriceInfo(product);
   const isSoldOut = !product || product.status !== 'on-sale' || product.stock <= 0;
 
   void favTick;
@@ -92,9 +93,13 @@ const DetailPage = () => {
         <h1 className="pm-product-title">{product.name}</h1>
         <p className="pm-product-desc">{product.description}</p>
         <div className="pm-product-foot">
-          <strong className="pm-price">{formatPrice(product.price)}</strong>
+          <div>
+            <strong className="pm-price">{formatPrice(priceInfo.currentPrice)}</strong>
+            {priceInfo.hasDiscount ? <span className="pm-old-price">{formatPrice(priceInfo.originalPrice)}</span> : null}
+          </div>
           <span className="pm-tag pm-tag-info">库存 {product.stock}</span>
-          <span className="pm-tag pm-tag-sale">{product.categoryName}</span>
+          <span className="pm-tag pm-tag-info">{product.categoryName}</span>
+          {priceInfo.saleTag ? <span className="pm-tag pm-tag-sale">{priceInfo.saleTag}</span> : null}
           {product.status !== 'on-sale' ? (
             <span className="pm-tag pm-tag-muted">已下架</span>
           ) : null}

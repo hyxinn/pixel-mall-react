@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import Button from '../components/common/Button';
 import OrderAddressSummary from '../components/h5/OrderAddressSummary';
 import { useServices } from '../hooks/useServices';
-import { formatPrice } from '../utils/productDisplay';
+import { formatPrice, getProductPriceInfo } from '../utils/productDisplay';
 import { readSelectedAddressId } from '../utils/orderAddress';
 import { collectErrors, validatePhone, validateRequired } from '../utils/validation';
 
@@ -109,20 +109,28 @@ const CheckoutPage = () => {
       <section className="pm-create-order-goods">
         <h2 className="pm-create-order-section-title">商品清单</h2>
         <div className="pm-cart-list">
-          {selectedItems.map((item) => (
-            <article className="pm-create-order-goods-item" key={item.id}>
-              <div className="pm-cart-media">
-                {item.product?.cover ? (
-                  <img src={item.product.cover} alt={item.product.name} />
-                ) : null}
-              </div>
-              <div className="pm-cart-info">
-                <h3 className="pm-cart-title">{item.product?.name}</h3>
-                <p className="pm-cart-spec">x{item.count}</p>
-              </div>
-              <strong className="pm-price">{formatPrice(item.lineTotal)}</strong>
-            </article>
-          ))}
+          {selectedItems.map((item) => {
+            const priceInfo = getProductPriceInfo(item.product || item.goodSnapshot);
+
+            return (
+              <article className="pm-create-order-goods-item" key={item.id}>
+                <div className="pm-cart-media">
+                  {item.product?.cover ? (
+                    <img src={item.product.cover} alt={item.product.name} />
+                  ) : null}
+                </div>
+                <div className="pm-cart-info">
+                  <h3 className="pm-cart-title">{item.product?.name}</h3>
+                  <p className="pm-cart-spec">x{item.count}</p>
+                  {priceInfo.saleTag ? <span className="pm-tag pm-tag-sale">{priceInfo.saleTag}</span> : null}
+                </div>
+                <div>
+                  <strong className="pm-price">{formatPrice(item.lineTotal)}</strong>
+                  {priceInfo.hasDiscount ? <span className="pm-old-price">{formatPrice(priceInfo.originalPrice * item.count)}</span> : null}
+                </div>
+              </article>
+            );
+          })}
         </div>
       </section>
 

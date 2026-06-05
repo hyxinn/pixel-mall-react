@@ -1,5 +1,9 @@
 /* 后台角色权限页样式文件：定义角色卡片、权限编辑区和菜单配置布局。 */
 
+
+
+
+
 .pm-admin-roles-page {
   display: flex;
   flex-direction: column;
@@ -27,9 +31,9 @@
   padding: 12px;
   overflow: auto;
   background:
-    linear-gradient(90deg, rgba(255, 159, 199, 0.07) 1px, transparent 1px),
-    linear-gradient(rgba(255, 159, 199, 0.07) 1px, transparent 1px),
-    linear-gradient(180deg, rgba(255, 250, 240, 0.92), rgba(255, 234, 244, 0.86));
+    linear-gradient(90deg, color-mix(in srgb, var(--pm-color-primary) 7%, transparent) 1px, transparent 1px),
+    linear-gradient(color-mix(in srgb, var(--pm-color-primary) 7%, transparent) 1px, transparent 1px),
+    linear-gradient(180deg, color-mix(in srgb, var(--pm-color-surface-warm) 92%, var(--pm-color-surface)), color-mix(in srgb, var(--pm-color-bg-soft) 82%, var(--pm-color-surface)));
   background-size: 18px 18px, 18px 18px, auto;
   border: 0;
   border-left: 6px solid var(--pm-color-primary);
@@ -45,9 +49,9 @@
   padding: 16px 18px;
   overflow: hidden;
   background:
-    linear-gradient(90deg, rgba(255, 255, 255, 0.26) 1px, transparent 1px),
-    linear-gradient(rgba(255, 255, 255, 0.26) 1px, transparent 1px),
-    linear-gradient(135deg, rgba(255, 246, 228, 0.96), rgba(255, 232, 240, 0.9));
+    linear-gradient(90deg, color-mix(in srgb, var(--pm-color-surface) 26%, transparent) 1px, transparent 1px),
+    linear-gradient(color-mix(in srgb, var(--pm-color-surface) 26%, transparent) 1px, transparent 1px),
+    linear-gradient(135deg, color-mix(in srgb, var(--pm-color-accent) 24%, var(--pm-color-surface)), color-mix(in srgb, var(--pm-color-primary-soft) 72%, var(--pm-color-surface)));
   background-size: 16px 16px, 16px 16px, auto;
   border: 2px solid rgba(61, 47, 59, 0.28);
   box-shadow: 4px 4px 0 rgba(255, 215, 101, 0.2), inset 0 5px 0 rgba(255, 215, 101, 0.24);
@@ -73,9 +77,9 @@
 
 .pm-role-card:nth-child(2) {
   background:
-    linear-gradient(90deg, rgba(255, 255, 255, 0.24) 1px, transparent 1px),
-    linear-gradient(rgba(255, 255, 255, 0.24) 1px, transparent 1px),
-    linear-gradient(135deg, rgba(223, 249, 239, 0.9), rgba(255, 255, 255, 0.9));
+    linear-gradient(90deg, color-mix(in srgb, var(--pm-color-surface) 24%, transparent) 1px, transparent 1px),
+    linear-gradient(color-mix(in srgb, var(--pm-color-surface) 24%, transparent) 1px, transparent 1px),
+    linear-gradient(135deg, color-mix(in srgb, var(--pm-color-accent-2) 28%, var(--pm-color-surface)), color-mix(in srgb, var(--pm-color-surface) 88%, var(--pm-color-accent-2)));
   background-size: 16px 16px, 16px 16px, auto;
   box-shadow: 4px 4px 0 rgba(128, 231, 200, 0.24), inset 0 5px 0 rgba(128, 231, 200, 0.42);
 }
@@ -90,11 +94,11 @@
 
 .pm-role-card-button.is-active {
   background:
-    linear-gradient(90deg, rgba(255, 255, 255, 0.26) 1px, transparent 1px),
-    linear-gradient(rgba(255, 255, 255, 0.26) 1px, transparent 1px),
-    linear-gradient(135deg, rgba(255, 215, 101, 0.78), rgba(255, 226, 236, 0.96));
+    linear-gradient(90deg, color-mix(in srgb, var(--pm-color-surface) 26%, transparent) 1px, transparent 1px),
+    linear-gradient(color-mix(in srgb, var(--pm-color-surface) 26%, transparent) 1px, transparent 1px),
+    linear-gradient(135deg, color-mix(in srgb, var(--pm-color-accent) 68%, var(--pm-color-surface)), color-mix(in srgb, var(--pm-color-primary-soft) 82%, var(--pm-color-surface)));
   background-size: 16px 16px, 16px 16px, auto;
-  box-shadow: inset 8px 0 0 var(--pm-color-primary), inset 0 5px 0 rgba(255, 255, 255, 0.34), 5px 5px 0 rgba(255, 111, 168, 0.22);
+  box-shadow: inset 8px 0 0 var(--pm-color-primary), inset 0 5px 0 color-mix(in srgb, var(--pm-color-surface) 34%, transparent), 5px 5px 0 color-mix(in srgb, var(--pm-color-primary) 22%, transparent);
   transform: translateX(3px);
   z-index: 2;
 }
@@ -119,6 +123,15 @@
   font-weight: var(--pm-weight-black);
 }
 
+.pm-role-card .pm-admin-inline-actions {
+  gap: 6px;
+}
+
+.pm-role-card .pm-admin-inline-actions .pm-btn {
+  min-height: 32px;
+  padding-inline: 10px;
+}
+
 .pm-role-meta span {
   padding: 3px 7px;
   color: var(--pm-color-text);
@@ -136,13 +149,13 @@
   padding: 0;
   overflow: hidden;
   background:
-    linear-gradient(90deg, rgba(255, 159, 199, 0.05) 1px, transparent 1px),
-    linear-gradient(rgba(255, 159, 199, 0.05) 1px, transparent 1px),
-    rgba(255, 255, 255, 0.86);
+    linear-gradient(90deg, color-mix(in srgb, var(--pm-color-primary) 5%, transparent) 1px, transparent 1px),
+    linear-gradient(color-mix(in srgb, var(--pm-color-primary) 5%, transparent) 1px, transparent 1px),
+    color-mix(in srgb, var(--pm-color-surface) 86%, var(--pm-color-bg-soft));
   background-size: 18px 18px, 18px 18px, auto;
   border: 0;
   border-left: 6px solid var(--pm-color-accent-2);
-  box-shadow: inset 0 -3px 0 rgba(61, 47, 59, 0.14), 6px 6px 0 rgba(128, 231, 200, 0.12);
+  box-shadow: inset 0 -3px 0 color-mix(in srgb, var(--pm-color-text) 14%, transparent), 6px 6px 0 color-mix(in srgb, var(--pm-color-accent-2) 12%, transparent);
 }
 
 .pm-role-editor-head {
@@ -153,12 +166,12 @@
   justify-content: space-between;
   padding: 16px 22px;
   background:
-    linear-gradient(90deg, rgba(255, 255, 255, 0.24) 1px, transparent 1px),
-    linear-gradient(rgba(255, 255, 255, 0.24) 1px, transparent 1px),
-    linear-gradient(135deg, rgba(255, 226, 236, 0.9), rgba(223, 249, 239, 0.72));
+    linear-gradient(90deg, color-mix(in srgb, var(--pm-color-surface) 24%, transparent) 1px, transparent 1px),
+    linear-gradient(color-mix(in srgb, var(--pm-color-surface) 24%, transparent) 1px, transparent 1px),
+    linear-gradient(135deg, color-mix(in srgb, var(--pm-color-primary-soft) 82%, var(--pm-color-surface)), color-mix(in srgb, var(--pm-color-accent-2) 30%, var(--pm-color-surface)));
   background-size: 16px 16px, 16px 16px, auto;
-  border-bottom: 2px solid rgba(61, 47, 59, 0.18);
-  box-shadow: inset 0 -6px 0 rgba(128, 231, 200, 0.16);
+  border-bottom: 2px solid color-mix(in srgb, var(--pm-color-text) 18%, transparent);
+  box-shadow: inset 0 -6px 0 color-mix(in srgb, var(--pm-color-accent-2) 16%, transparent);
 }
 
 .pm-role-section {
@@ -185,7 +198,7 @@
 }
 
 .pm-role-group-card {
-  --pm-role-group-color: rgba(255, 226, 236, 0.82);
+  --pm-role-group-color: color-mix(in srgb, var(--pm-color-primary-soft) 82%, var(--pm-color-surface));
   --pm-role-group-strong: var(--pm-color-primary);
   display: grid;
   gap: 8px;
@@ -208,22 +221,22 @@
 }
 
 .pm-role-group-card:nth-child(2) {
-  --pm-role-group-color: rgba(191, 244, 223, 0.86);
+  --pm-role-group-color: color-mix(in srgb, var(--pm-color-accent-2) 30%, var(--pm-color-surface));
   --pm-role-group-strong: var(--pm-color-accent-2);
 }
 
 .pm-role-group-card:nth-child(3) {
-  --pm-role-group-color: rgba(217, 239, 255, 0.86);
+  --pm-role-group-color: color-mix(in srgb, var(--pm-color-accent-3) 30%, var(--pm-color-surface));
   --pm-role-group-strong: var(--pm-color-accent-3);
 }
 
 .pm-role-group-card:nth-child(4) {
-  --pm-role-group-color: rgba(255, 239, 201, 0.88);
+  --pm-role-group-color: color-mix(in srgb, var(--pm-color-accent) 30%, var(--pm-color-surface));
   --pm-role-group-strong: var(--pm-color-accent);
 }
 
 .pm-role-group-card:nth-child(5) {
-  --pm-role-group-color: rgba(228, 220, 255, 0.86);
+  --pm-role-group-color: color-mix(in srgb, var(--pm-color-primary-soft) 34%, var(--pm-color-surface));
   --pm-role-group-strong: var(--pm-lavender);
 }
 

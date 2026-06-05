@@ -1,5 +1,6 @@
 import { adminMenuCatalog, adminPermissionCatalog, defaultAdmins, defaultRoleDefinitions } from '../mock/data';
 import { cloneValue, loadFromStorage, removeFromStorage, saveToStorage } from '../utils/storage';
+import SubscribableService from './subscribableService';
 
 const ADMIN_LIST_KEY = 'pixelMall:admins';
 const CURRENT_ADMIN_KEY = 'pixelMall:adminUser';
@@ -13,12 +14,13 @@ const groupLabelMap = {
   roles: '角色权限',
 };
 
-class AdminService {
+class AdminService extends SubscribableService {
   admins = [];
   currentAdmin = null;
   roles = [];
 
   constructor() {
+    super();
     this._loadData();
   }
 
@@ -111,18 +113,25 @@ class AdminService {
     role.permissions = normalizedPermissions;
     role.menus = normalizedMenus;
     this._saveRoles();
+    this.notify();
     return { success: true, message: '角色权限已更新。' };
   }
 
   resetRoles() {
     this.roles = cloneValue(defaultRoleDefinitions);
     this._saveRoles();
+    this.notify();
     return { success: true, message: '角色权限已恢复默认配置。' };
   }
 
   getMenuKeys() {
     const currentRole = this._findRole(this.currentAdmin?.role);
     return currentRole ? [...currentRole.menus] : [];
+  }
+
+  reload() {
+    this._loadData();
+    this.notify();
   }
 
   _findRole(roleId) {

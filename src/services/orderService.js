@@ -1,15 +1,18 @@
 import { defaultOrders } from '../mock/data';
+import { getProductPriceInfo } from '../utils/productDisplay';
 import cartService from './cartService';
 import goodService from './goodService';
 import userService from './userService';
 import { cloneValue, loadFromStorage, saveToStorage } from '../utils/storage';
+import SubscribableService from './subscribableService';
 
 const ORDER_KEY = 'pixelMall:orders';
 
-class OrderService {
+class OrderService extends SubscribableService {
   list = [];
 
   constructor() {
+    super();
     this._loadData();
   }
 
@@ -22,15 +25,23 @@ class OrderService {
       return null;
     }
 
-    const linePrice = (Number(price) || product.price) * parsedQuantity;
+    const priceInfo = getProductPriceInfo(product);
+    const unitPrice = priceInfo.currentPrice || Number(price) || 0;
+    const linePrice = unitPrice * parsedQuantity;
     const itemSnapshot = {
       goodId: product.id,
       quantity: parsedQuantity,
-      price: product.price,
+      price: unitPrice,
+      originalPrice: priceInfo.originalPrice,
+      currentPrice: priceInfo.currentPrice,
+      saleTag: priceInfo.saleTag,
       goodSnapshot: {
         id: product.id,
         name: product.name,
-        price: product.price,
+        price: unitPrice,
+        originalPrice: priceInfo.originalPrice,
+        currentPrice: priceInfo.currentPrice,
+        saleTag: priceInfo.saleTag,
         cover: product.cover,
         categoryName: product.categoryName,
       },
@@ -50,6 +61,7 @@ class OrderService {
     this.list.unshift(order);
     goodService.updateGood({ ...product, stock: product.stock - parsedQuantity });
     this._saveData();
+    this.notify();
     return cloneValue(order);
   }
 
@@ -61,18 +73,27 @@ class OrderService {
     }
 
     const user = userService.getUserById(userId) || userService.getCurrentUser();
-    const items = validation.items.map((cartItem) => ({
-      goodId: cartItem.goodId,
-      quantity: cartItem.count,
-      price: cartItem.product.price,
-      goodSnapshot: {
-        id: cartItem.product.id,
-        name: cartItem.product.name,
-        price: cartItem.product.price,
-        cover: cartItem.product.cover,
-        categoryName: cartItem.product.categoryName,
-      },
-    }));
+    const items = validation.items.map((cartItem) => {
+      const priceInfo = getProductPriceInfo(cartItem.product);
+      return {
+        goodId: cartItem.goodId,
+        quantity: cartItem.count,
+        price: priceInfo.currentPrice,
+        originalPrice: priceInfo.originalPrice,
+        currentPrice: priceInfo.currentPrice,
+        saleTag: priceInfo.saleTag,
+        goodSnapshot: {
+          id: cartItem.product.id,
+          name: cartItem.product.name,
+          price: priceInfo.currentPrice,
+          originalPrice: priceInfo.originalPrice,
+          currentPrice: priceInfo.currentPrice,
+          saleTag: priceInfo.saleTag,
+          cover: cartItem.product.cover,
+          categoryName: cartItem.product.categoryName,
+        },
+      };
+    });
 
     const totalPrice = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
     const order = this._buildOrder({
@@ -95,6 +116,7 @@ class OrderService {
 
     this.list.unshift(order);
     this._saveData();
+    this.notify();
     return { success: true, order: cloneValue(order) };
   }
 
@@ -117,6 +139,7 @@ class OrderService {
     }
 
     this._saveData();
+    this.notify();
     return { success: true };
   }
 
@@ -132,6 +155,7 @@ class OrderService {
       text: '支付失败或已取消，可稍后重试。',
     });
     this._saveData();
+    this.notify();
     return { success: true };
   }
 
@@ -145,6 +169,7 @@ class OrderService {
     order.status = 2;
     order.logistics.unshift({ time: new Date().toLocaleString(), text: `订单已发货，物流单号 ${trackingNo || `PIXEL-${order.id}`}` });
     this._saveData();
+    this.notify();
     return true;
   }
 
@@ -182,6 +207,7 @@ class OrderService {
       text: `订单状态已更新为 ${this.getStatusText(order.status)}。`,
     });
     this._saveData();
+    this.notify();
     return { success: true, message: '订单状态已更新。' };
   }
 
@@ -236,6 +262,10 @@ class OrderService {
     };
   }
 
+  reload() {
+    this._loadData();
+  }
+
   _buildOrder({ user, userId, items, goodId, price, source, goodSnapshot, address }) {
     return {
       id: this._nextId(),
@@ -264,28 +294,68 @@ class OrderService {
   _normalizeOrder(input) {
     const product = goodService.getGoodById(input.goodId);
     const user = userService.getUserById(input.userId);
+    const legacyPrice = Number(input.price) || 0;
+    const productPriceInfo = getProductPriceInfo(product);
+    const legacySnapshot = input.goodSnapshot || null;
+    const legacySnapshotPriceInfo = getProductPriceInfo(legacySnapshot || { price: legacyPrice });
     const legacyItem = product
       ? {
         goodId: product.id,
         quantity: 1,
-        price: product.price,
-        goodSnapshot: input.goodSnapshot || {
+        price: legacyPrice || productPriceInfo.currentPrice,
+        originalPrice: legacySnapshotPriceInfo.originalPrice,
+        currentPrice: legacySnapshotPriceInfo.currentPrice,
+        saleTag: legacySnapshotPriceInfo.saleTag,
+        goodSnapshot: legacySnapshot || {
           id: product.id,
           name: product.name,
-          price: product.price,
+          price: legacyPrice || productPriceInfo.currentPrice,
+          originalPrice: legacySnapshotPriceInfo.originalPrice,
+          currentPrice: legacySnapshotPriceInfo.currentPrice,
+          saleTag: legacySnapshotPriceInfo.saleTag,
           cover: product.cover,
           categoryName: product.categoryName,
         },
       }
       : null;
+    const normalizedItems = (Array.isArray(input.items) && input.items.length ? input.items : legacyItem ? [legacyItem] : []).map((item) => {
+      const snapshot = item.goodSnapshot || legacySnapshot || null;
+      const priceInfo = getProductPriceInfo({
+        price: item.price ?? snapshot?.price,
+        currentPrice: item.currentPrice ?? snapshot?.currentPrice,
+        originalPrice: item.originalPrice ?? snapshot?.originalPrice,
+        saleTag: item.saleTag ?? snapshot?.saleTag,
+      });
+
+      return {
+        ...item,
+        goodId: Number(item.goodId),
+        quantity: Number(item.quantity) || 1,
+        price: Number(item.price) || priceInfo.currentPrice,
+        originalPrice: priceInfo.originalPrice,
+        currentPrice: priceInfo.currentPrice,
+        saleTag: priceInfo.saleTag,
+        goodSnapshot: snapshot
+          ? {
+            ...snapshot,
+            price: Number(snapshot.price) || priceInfo.currentPrice,
+            originalPrice: priceInfo.originalPrice,
+            currentPrice: priceInfo.currentPrice,
+            saleTag: priceInfo.saleTag,
+          }
+          : snapshot,
+      };
+    });
+
+    const normalizedTotalPrice = legacyPrice || normalizedItems.reduce((sum, item) => sum + (Number(item.price) || 0) * (Number(item.quantity) || 1), 0);
 
     return {
       ...input,
       userId: Number(input.userId),
       goodId: Number(input.goodId),
-      items: Array.isArray(input.items) && input.items.length ? input.items : legacyItem ? [legacyItem] : [],
+      items: normalizedItems,
       status: Number(input.status) || 0,
-      price: Number(input.price) || 0,
+      price: normalizedTotalPrice,
       source: input.source || 'buy-now',
       payTime: input.payTime || '',
       address: input.address || {
@@ -296,7 +366,15 @@ class OrderService {
       userSnapshot: input.userSnapshot || (user
         ? { id: user.id, nickname: user.nickname, username: user.username }
         : null),
-      goodSnapshot: input.goodSnapshot || legacyItem?.goodSnapshot || null,
+      goodSnapshot: legacySnapshot
+        ? {
+          ...legacySnapshot,
+          price: Number(legacySnapshot.price) || legacySnapshotPriceInfo.currentPrice,
+          originalPrice: legacySnapshotPriceInfo.originalPrice,
+          currentPrice: legacySnapshotPriceInfo.currentPrice,
+          saleTag: legacySnapshotPriceInfo.saleTag,
+        }
+        : legacyItem?.goodSnapshot || null,
       logistics: Array.isArray(input.logistics)
         ? input.logistics
         : [{ time: input.createTime || new Date().toLocaleString(), text: '订单已创建，等待后续处理。' }],
@@ -321,6 +399,7 @@ class OrderService {
     const orders = loadFromStorage([ORDER_KEY], legacyOrders.length ? legacyOrders : defaultOrders);
     this.list = orders.map((order) => this._normalizeOrder(order));
     this._saveData();
+    this.notify();
   }
 }
 

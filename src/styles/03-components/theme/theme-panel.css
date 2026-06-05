@@ -26,6 +26,49 @@
   border: 2px solid var(--pm-color-line);
 }
 
+.pm-theme-profile-admin {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+.pm-theme-profile-admin .pm-theme-profile-current {
+  font-size: 10px;
+}
+
+.pm-theme-profile-list-admin {
+  display: grid;
+  gap: 8px;
+}
+
+.pm-theme-profile-list-admin > li {
+  list-style: none;
+}
+
+.pm-theme-profile-option-admin {
+  min-height: 40px;
+  padding: 7px 10px;
+  gap: 10px;
+}
+
+.pm-theme-profile-option-admin .pm-theme-profile-option-main strong {
+  font-size: 12px;
+}
+
+.pm-theme-profile-option-admin .pm-theme-profile-option-hint {
+  font-size: 9px;
+}
+
+.pm-theme-profile-option-admin .pm-theme-swatch {
+  width: 14px;
+  height: 14px;
+  border-width: 1px;
+}
+
 /* DIY 颜色输入行：多个颜色选择器自适应排列。 */
 .pm-color-picker-row {
   display: grid;

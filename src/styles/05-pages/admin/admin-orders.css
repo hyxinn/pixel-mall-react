@@ -16,18 +16,18 @@
   gap: 3px;
   padding: 10px 12px;
   background:
-    linear-gradient(90deg, rgba(255, 255, 255, 0.24) 1px, transparent 1px),
-    linear-gradient(rgba(255, 255, 255, 0.24) 1px, transparent 1px),
-    linear-gradient(135deg, rgba(255, 248, 240, 0.96), rgba(255, 226, 236, 0.78));
+    linear-gradient(90deg, color-mix(in srgb, var(--pm-color-surface) 24%, transparent) 1px, transparent 1px),
+    linear-gradient(color-mix(in srgb, var(--pm-color-surface) 24%, transparent) 1px, transparent 1px),
+    linear-gradient(135deg, color-mix(in srgb, var(--pm-color-surface-warm) 94%, var(--pm-color-surface)), color-mix(in srgb, var(--pm-color-primary-soft) 80%, var(--pm-color-surface)));
   background-size: 12px 12px, 12px 12px, auto;
   border: 2px solid rgba(61, 47, 59, 0.18);
-  box-shadow: inset 4px 0 0 rgba(128, 231, 200, 0.42), 3px 3px 0 rgba(255, 215, 101, 0.16);
+  box-shadow: inset 4px 0 0 color-mix(in srgb, var(--pm-color-accent-2) 42%, transparent), 3px 3px 0 color-mix(in srgb, var(--pm-color-accent) 16%, transparent);
   transition: transform 120ms ease, box-shadow 120ms ease;
  }
 
  .pm-admin-order-logistics li:hover {
   transform: translate(-1px, -1px);
-  box-shadow: inset 4px 0 0 rgba(255, 111, 168, 0.36), 5px 5px 0 rgba(255, 215, 101, 0.18);
+  box-shadow: inset 4px 0 0 color-mix(in srgb, var(--pm-color-primary) 36%, transparent), 5px 5px 0 color-mix(in srgb, var(--pm-color-accent) 18%, transparent);
  }
 
  .pm-admin-order-logistics strong {
@@ -37,6 +37,12 @@
  .pm-admin-order-logistics span {
   color: var(--pm-color-text-muted);
   font-size: var(--pm-text-xs);
+ }
+
+ .pm-admin-orders-page .pm-table-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
  }
 
  .pm-admin-orders-page .pm-table-actions .pm-btn {

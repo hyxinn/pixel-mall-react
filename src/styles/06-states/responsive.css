@@ -10,9 +10,26 @@
     grid-template-columns: 1fr;
   }
 
+  .pm-admin-app {
+    height: auto;
+    overflow: visible;
+  }
+
   /* 后台整体布局：侧边栏和主内容上下排列。 */
   .pm-admin-layout {
     grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto 1fr;
+    grid-template-areas:
+      "brand"
+      "header"
+      "side"
+      "main";
+    height: auto;
+    overflow: visible;
+  }
+
+  .pm-admin-brand-panel {
+    padding-bottom: 0;
   }
 
   /* 后台侧边栏：窄屏时改为两列菜单并移动到底部边框。 */
@@ -20,12 +37,14 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 10px;
     padding: 12px;
+    overflow: visible;
     border-right: 0;
     border-bottom: var(--pm-border-width) solid var(--pm-color-line);
   }
 
   .pm-admin-main {
     padding: var(--pm-space-4);
+    overflow: visible;
   }
 
   .pm-admin-logo {
@@ -40,6 +59,26 @@
   .pm-role-editor-head,
   .pm-role-section {
     padding-inline: var(--pm-space-4);
+  }
+
+  .pm-admin-header {
+    top: 0;
+  }
+
+  .pm-admin-header-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .pm-admin-theme-popover {
+    left: 0;
+    right: auto;
+    min-width: min(100%, 320px);
+  }
+
+  .pm-admin-pagination {
+    gap: 10px;
+    justify-content: flex-start;
   }
 
   .pm-admin-page-filters .pm-control {
@@ -130,6 +169,25 @@
   .pm-role-editor-head,
   .pm-role-section {
     padding-inline: var(--pm-space-3);
+  }
+
+  .pm-admin-header {
+    min-height: 74px;
+  }
+
+  .pm-admin-header-actions {
+    gap: 8px;
+  }
+
+  .pm-admin-theme-popover {
+    position: static;
+    min-width: 100%;
+    max-width: none;
+    margin-top: 6px;
+  }
+
+  .pm-admin-pagination {
+    padding: 12px var(--pm-space-3) var(--pm-space-3);
   }
 
   .pm-admin-page-filters .pm-control {

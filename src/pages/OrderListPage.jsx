@@ -7,7 +7,7 @@ import Pagination from '../components/h5/Pagination';
 import { ORDER_STATUS_TABS, orderListPathForStatus } from '../constants/orderTabs';
 import { usePagination } from '../hooks/usePagination';
 import { useServices } from '../hooks/useServices';
-import { formatPrice } from '../utils/productDisplay';
+import { formatPrice, getProductPriceInfo } from '../utils/productDisplay';
 
 const OrderListPage = () => {
   'use no memo';
@@ -69,31 +69,39 @@ const OrderListPage = () => {
         ) : (
           <>
             <section className="pm-order-list">
-              {slice.map((item) => (
-                <article className="pm-order-card" key={item.id}>
-                  <header className="pm-order-head">
-                    <h2 className="pm-order-title">{item.orderNo}</h2>
-                    <StatusTag>{order.getStatusText(item.status)}</StatusTag>
-                  </header>
-                  <p className="pm-order-desc">{item.createTime}</p>
-                  <div className="pm-order-product pm-order-product-row">
-                    <span className="pm-order-product-name">
-                      {item.goodSnapshot?.name || '组合订单'}
-                    </span>
-                    <strong className="pm-price">{formatPrice(item.price)}</strong>
-                  </div>
-                  <footer className="pm-order-foot">
-                    <Link className="pm-btn pm-btn-ghost" to={`/orderDetail/${item.id}`}>
-                      查看详情
-                    </Link>
-                    {item.status === 0 ? (
-                      <Link className="pm-btn pm-btn-primary" to={`/pay/${item.id}`}>
-                        去支付
+              {slice.map((item) => {
+                const priceInfo = getProductPriceInfo(item.goodSnapshot || { price: item.price });
+
+                return (
+                  <article className="pm-order-card" key={item.id}>
+                    <header className="pm-order-head">
+                      <h2 className="pm-order-title">{item.orderNo}</h2>
+                      <StatusTag>{order.getStatusText(item.status)}</StatusTag>
+                    </header>
+                    <p className="pm-order-desc">{item.createTime}</p>
+                    <div className="pm-order-product pm-order-product-row">
+                      <span className="pm-order-product-name">
+                        {item.goodSnapshot?.name || '组合订单'}
+                      </span>
+                      <div>
+                        <strong className="pm-price">{formatPrice(item.price)}</strong>
+                        {priceInfo.hasDiscount ? <span className="pm-old-price">{formatPrice(priceInfo.originalPrice)}</span> : null}
+                        {priceInfo.saleTag ? <span className="pm-tag pm-tag-sale">{priceInfo.saleTag}</span> : null}
+                      </div>
+                    </div>
+                    <footer className="pm-order-foot">
+                      <Link className="pm-btn pm-btn-ghost" to={`/orderDetail/${item.id}`}>
+                        查看详情
                       </Link>
-                    ) : null}
-                  </footer>
-                </article>
-              ))}
+                      {item.status === 0 ? (
+                        <Link className="pm-btn pm-btn-primary" to={`/pay/${item.id}`}>
+                          去支付
+                        </Link>
+                      ) : null}
+                    </footer>
+                  </article>
+                );
+              })}
             </section>
 
             <Pagination

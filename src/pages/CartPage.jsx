@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import Button from '../components/common/Button';
 import EmptyState from '../components/common/EmptyState';
 import { useServices } from '../hooks/useServices';
-import { formatPrice } from '../utils/productDisplay';
+import { formatPrice, getProductPriceInfo } from '../utils/productDisplay';
 
 const CartHeader = () => (
   <header className="pm-cart-header">
@@ -106,66 +106,74 @@ const CartPage = () => {
       <CartHeader />
 
       <section className="pm-cart-list">
-        {items.map((item) => (
-          <article className="pm-cart-item" key={item.id}>
-            <label className="pm-cart-check">
-              <input
-                className="pm-cart-check-input"
-                type="checkbox"
-                checked={Boolean(item.checked)}
-                onChange={(event) => handleToggleItem(item.id, event.target.checked)}
-              />
-              <span className="pm-cart-check-ui" aria-hidden />
-            </label>
-            <div className="pm-cart-media">
-              {item.product?.cover ? (
-                <img src={item.product.cover} alt={item.product.name} />
-              ) : (
-                <div className="pm-pixel-product pm-pixel-product-pink" />
-              )}
-            </div>
-            <div className="pm-cart-info">
-              <h3 className="pm-cart-title">{item.product?.name || '商品已失效'}</h3>
-              <p className="pm-cart-spec">
-                {item.isAvailable ? item.product?.categoryName || '像素好物' : '已下架或售罄'}
-              </p>
-              <strong className="pm-cart-price pm-price">
-                {item.isAvailable ? formatPrice(item.product.price) : '--'}
-              </strong>
-              <div className="pm-quantity pm-quantity-compact">
-                <button
-                  type="button"
-                  className="pm-quantity-btn"
-                  aria-label="减少数量"
-                  onClick={() => handleDecrease(item)}
-                >
-                  -
-                </button>
-                <span className="pm-quantity-value">{item.count}</span>
-                <button
-                  type="button"
-                  className="pm-quantity-btn"
-                  aria-label="增加数量"
-                  disabled={!item.isAvailable}
-                  onClick={() => handleIncrease(item)}
-                >
-                  +
-                </button>
+        {items.map((item) => {
+          const priceInfo = getProductPriceInfo(item.product || item.goodSnapshot);
+
+          return (
+            <article className="pm-cart-item" key={item.id}>
+              <label className="pm-cart-check">
+                <input
+                  className="pm-cart-check-input"
+                  type="checkbox"
+                  checked={Boolean(item.checked)}
+                  onChange={(event) => handleToggleItem(item.id, event.target.checked)}
+                />
+                <span className="pm-cart-check-ui" aria-hidden />
+              </label>
+              <div className="pm-cart-media">
+                {item.product?.cover ? (
+                  <img src={item.product.cover} alt={item.product.name} />
+                ) : (
+                  <div className="pm-pixel-product pm-pixel-product-pink" />
+                )}
               </div>
-            </div>
-            <button
-              type="button"
-              className="pm-cart-remove pm-icon-btn"
-              aria-label="删除商品"
-              onClick={() => {
-                cart.removeItem(item.id);
-                refresh();
-              }}
-            >
-              ×
-            </button>
-          </article>
-        ))}
+              <div className="pm-cart-info">
+                <h3 className="pm-cart-title">{item.product?.name || '商品已失效'}</h3>
+                <p className="pm-cart-spec">
+                  {item.isAvailable ? item.product?.categoryName || '像素好物' : '已下架或售罄'}
+                </p>
+                <div>
+                  <strong className="pm-cart-price pm-price">
+                    {item.isAvailable ? formatPrice(priceInfo.currentPrice) : '--'}
+                  </strong>
+                  {item.isAvailable && priceInfo.hasDiscount ? <span className="pm-old-price">{formatPrice(priceInfo.originalPrice)}</span> : null}
+                  {item.isAvailable && priceInfo.saleTag ? <span className="pm-tag pm-tag-sale">{priceInfo.saleTag}</span> : null}
+                </div>
+                <div className="pm-quantity pm-quantity-compact">
+                  <button
+                    type="button"
+                    className="pm-quantity-btn"
+                    aria-label="减少数量"
+                    onClick={() => handleDecrease(item)}
+                  >
+                    -
+                  </button>
+                  <span className="pm-quantity-value">{item.count}</span>
+                  <button
+                    type="button"
+                    className="pm-quantity-btn"
+                    aria-label="增加数量"
+                    disabled={!item.isAvailable}
+                    onClick={() => handleIncrease(item)}
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+              <button
+                type="button"
+                className="pm-cart-remove pm-icon-btn"
+                aria-label="删除商品"
+                onClick={() => {
+                  cart.removeItem(item.id);
+                  refresh();
+                }}
+              >
+                ×
+              </button>
+            </article>
+          );
+        })}
       </section>
 
       <footer className="pm-cart-summary">

@@ -3,7 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import EmptyState from '../components/common/EmptyState';
 import StatusTag from '../components/common/StatusTag';
 import { useServices } from '../hooks/useServices';
-import { formatPrice } from '../utils/productDisplay';
+import { formatPrice, getProductPriceInfo } from '../utils/productDisplay';
 
 const OrderDetailPage = () => {
   const { orderId } = useParams();
@@ -54,15 +54,23 @@ const OrderDetailPage = () => {
 
       <section className="pm-cart-list">
         <h2>商品清单</h2>
-        {(currentOrder.items?.length ? currentOrder.items : [{ goodSnapshot: currentOrder.goodSnapshot, quantity: 1, price: currentOrder.price }]).map((item, index) => (
-          <article className="pm-cart-item" key={`${item.goodId || index}-${index}`}>
-            <div className="pm-cart-info">
-              <h3 className="pm-cart-title">{item.goodSnapshot?.name}</h3>
-              <p className="pm-cart-spec">x{item.quantity || 1}</p>
-            </div>
-            <strong className="pm-price">{formatPrice((item.price || 0) * (item.quantity || 1))}</strong>
-          </article>
-        ))}
+        {(currentOrder.items?.length ? currentOrder.items : [{ goodSnapshot: currentOrder.goodSnapshot, quantity: 1, price: currentOrder.price }]).map((item, index) => {
+          const priceInfo = getProductPriceInfo(item.goodSnapshot || item);
+
+          return (
+            <article className="pm-cart-item" key={`${item.goodId || index}-${index}`}>
+              <div className="pm-cart-info">
+                <h3 className="pm-cart-title">{item.goodSnapshot?.name}</h3>
+                <p className="pm-cart-spec">x{item.quantity || 1}</p>
+                {priceInfo.saleTag ? <span className="pm-tag pm-tag-sale">{priceInfo.saleTag}</span> : null}
+              </div>
+              <div>
+                <strong className="pm-price">{formatPrice((item.price || 0) * (item.quantity || 1))}</strong>
+                {priceInfo.hasDiscount ? <span className="pm-old-price">{formatPrice(priceInfo.originalPrice * (item.quantity || 1))}</span> : null}
+              </div>
+            </article>
+          );
+        })}
       </section>
 
       <section className="pm-order-card">

@@ -5,7 +5,7 @@ import Button from '../components/common/Button';
 import EmptyState from '../components/common/EmptyState';
 import OrderAddressSummary from '../components/h5/OrderAddressSummary';
 import { useServices } from '../hooks/useServices';
-import { formatPrice, getProductTone } from '../utils/productDisplay';
+import { formatPrice, getProductPriceInfo, getProductTone } from '../utils/productDisplay';
 import { readSelectedAddressId } from '../utils/orderAddress';
 import { collectErrors, validatePhone, validateRequired } from '../utils/validation';
 
@@ -57,7 +57,8 @@ const CreateOrderPage = () => {
     );
   }
 
-  const lineTotal = product.price * quantity;
+  const priceInfo = getProductPriceInfo(product);
+  const lineTotal = priceInfo.currentPrice * quantity;
 
   const handleSubmit = () => {
     if (!shippingAddress) {
@@ -86,7 +87,7 @@ const CreateOrderPage = () => {
     const created = order.createOrder(
       currentUser.id,
       product.id,
-      product.price,
+      priceInfo.currentPrice,
       quantity,
       payload,
     );
@@ -121,7 +122,9 @@ const CreateOrderPage = () => {
         <div className="pm-create-order-product-body">
           <h2 className="pm-create-order-product-name">{product.name}</h2>
           <p className="pm-create-order-product-meta">
-            <span className="pm-price">{formatPrice(product.price)}</span>
+            <span className="pm-price">{formatPrice(priceInfo.currentPrice)}</span>
+            {priceInfo.hasDiscount ? <span className="pm-old-price">{formatPrice(priceInfo.originalPrice)}</span> : null}
+            {priceInfo.saleTag ? <span className="pm-tag pm-tag-sale">{priceInfo.saleTag}</span> : null}
             <span className="pm-create-order-stock">库存 {product.stock}</span>
           </p>
           <div className="pm-quantity pm-quantity-compact">

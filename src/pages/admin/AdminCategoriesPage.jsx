@@ -4,6 +4,7 @@ import Button from '../../components/common/Button';
 import EmptyState from '../../components/common/EmptyState';
 import Modal from '../../components/common/Modal';
 import { ServiceContext } from '../../contexts/ServiceContext';
+import { useServiceVersion } from '../../hooks/useServices';
 
 const createInitialForm = () => ({ id: '', name: '', description: '', sort: 1 });
 
@@ -14,6 +15,9 @@ const AdminCategoriesPage = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [message, setMessage] = useState('');
   const [deletingCategory, setDeletingCategory] = useState(null);
+  const [viewingCategory, setViewingCategory] = useState(null);
+
+  useServiceVersion(good);
 
   const categories = good.getCategoryList();
 
@@ -60,12 +64,22 @@ const AdminCategoriesPage = () => {
   };
 
   const handleDelete = () => {
-    const result = good.deleteCategory(deletingCategory.id);
+    if (!deletingCategory) {
+      return;
+    }
+
+    const deletingId = deletingCategory.id;
+    const result = good.deleteCategory(deletingId);
     setDeletingCategory(null);
     setMessage(result.success ? '分类已删除。' : result.message);
-    if (result.success && editingId === deletingCategory.id) {
+    if (result.success && editingId === deletingId) {
       closeForm();
     }
+  };
+
+  const handleRefresh = () => {
+    good.reload();
+    setMessage('分类数据已刷新。');
   };
 
   return (
@@ -75,9 +89,12 @@ const AdminCategoriesPage = () => {
           <h2 className="pm-section-title">分类管理</h2>
           <p className="pm-help">维护商品分类，并联动商品筛选和商品表单。</p>
         </div>
-        <PermissionGate permission="categories:manage">
-          <Button type="button" onClick={openCreateForm}>新增分类</Button>
-        </PermissionGate>
+        <div className="pm-admin-inline-actions">
+          <Button type="button" variant="ghost" onClick={handleRefresh}>刷新</Button>
+          <PermissionGate permission="categories:manage">
+            <Button type="button" onClick={openCreateForm}>新增分类</Button>
+          </PermissionGate>
+        </div>
       </div>
 
       {message ? <div className="pm-alert">{message}</div> : null}
@@ -92,6 +109,7 @@ const AdminCategoriesPage = () => {
               </div>
               <p>{category.description}</p>
               <div className="pm-admin-category-actions">
+                <Button type="button" variant="ghost" onClick={() => setViewingCategory(category)}>查看</Button>
                 <PermissionGate permission="categories:manage">
                   <Button type="button" variant="ghost" onClick={() => handleEdit(category)}>编辑</Button>
                 </PermissionGate>
@@ -137,6 +155,38 @@ const AdminCategoriesPage = () => {
           </div>
         </Modal>
       </PermissionGate>
+
+      <Modal
+        cancelText=""
+        confirmText=""
+        onClose={() => setViewingCategory(null)}
+        onConfirm={() => setViewingCategory(null)}
+        open={Boolean(viewingCategory)}
+        title="分类详情"
+      >
+        {viewingCategory ? (
+          <div className="pm-admin-panel pm-admin-detail-panel">
+            <div className="pm-admin-detail-grid">
+              <div>
+                <p className="pm-label">分类名称</p>
+                <h3 className="pm-admin-card-title">{viewingCategory.name}</h3>
+              </div>
+              <div>
+                <p className="pm-label">排序</p>
+                <p>{viewingCategory.sort}</p>
+              </div>
+              <div>
+                <p className="pm-label">关联商品数</p>
+                <p>{good.getGoodList({ categoryId: viewingCategory.id }).length}</p>
+              </div>
+            </div>
+            <div>
+              <p className="pm-label">分类描述</p>
+              <p className="pm-admin-detail-copy">{viewingCategory.description}</p>
+            </div>
+          </div>
+        ) : null}
+      </Modal>
 
       <Modal
         cancelText="取消"

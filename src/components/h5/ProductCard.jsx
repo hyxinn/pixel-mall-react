@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 
-import { formatPrice, getProductTone } from '../../utils/productDisplay';
+import { formatPrice, getProductPriceInfo, getProductTone } from '../../utils/productDisplay';
 
 const ProductCard = ({
   product,
@@ -13,6 +13,7 @@ const ProductCard = ({
   const tone = getProductTone(product.id);
   const sticker = String(index + 1).padStart(2, '0');
   const isSoldOut = product.stock <= 0 || product.status !== 'on-sale';
+  const priceInfo = getProductPriceInfo(product);
 
   return (
     <article className={`pm-product-card pm-product-card-collectible pm-home-product-card ${className}`.trim()}>
@@ -28,7 +29,11 @@ const ProductCard = ({
         <span>{product.categoryName || '像素好物'}</span>
         <h3 className="pm-product-title">{product.name}</h3>
         <div className="pm-product-foot">
-          <strong className="pm-price">{formatPrice(product.price)}</strong>
+          <div className="pm-product-price-stack">
+            <strong className="pm-price">{formatPrice(priceInfo.currentPrice)}</strong>
+            {priceInfo.hasDiscount ? <span className="pm-old-price">原价 {formatPrice(priceInfo.originalPrice)}</span> : null}
+            {priceInfo.saleTag ? <span className="pm-tag pm-tag-sale">{priceInfo.saleTag}</span> : null}
+          </div>
           <Link to={`/detail/${product.id}`}>详情</Link>
           {showAddLink && onAddToCart ? (
             <button

@@ -3,9 +3,21 @@ import { Link } from 'react-router-dom';
 import PermissionGate from '../../components/admin/PermissionGate';
 import Button from '../../components/common/Button';
 import { ServiceContext } from '../../contexts/ServiceContext';
+import { useServiceVersion } from '../../hooks/useServices';
 
 const AdminDashboardPage = () => {
   const { admin, good, order } = useContext(ServiceContext);
+
+  useServiceVersion(admin);
+  useServiceVersion(good);
+  useServiceVersion(order);
+
+  const handleRefresh = () => {
+    admin.reload();
+    good.reload();
+    order.reload();
+  };
+
   const productStats = good.getDashboardStats();
   const orderStats = order.getDashboardStats();
 
@@ -17,6 +29,7 @@ const AdminDashboardPage = () => {
           <p className="pm-help">这里汇总了商城后台的商品、分类和订单状态。</p>
         </div>
         <div className="pm-admin-dashboard-actions">
+          <Button type="button" variant="ghost" onClick={handleRefresh}>刷新</Button>
           <PermissionGate permission="products:manage">
             <Link className="pm-btn pm-btn-primary" to="/admin/products">管理商品</Link>
           </PermissionGate>

@@ -1,9 +1,14 @@
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import PermissionGate from '../../components/admin/PermissionGate';
 import Button from '../../components/common/Button';
 import EmptyState from '../../components/common/EmptyState';
+import Modal from '../../components/common/Modal';
 import StatusTag from '../../components/common/StatusTag';
+import Pagination from '../../components/h5/Pagination';
 import { ServiceContext } from '../../contexts/ServiceContext';
+import { useServiceVersion } from '../../hooks/useServices';
+import { usePagination } from '../../hooks/usePagination';
+import { formatPrice, getProductPriceInfo } from '../../utils/productDisplay';
 
 const statusTextMap = {
   0: { tag: 'unpaid', label: '未支付' },
@@ -16,8 +21,24 @@ const AdminOrdersPage = () => {
   const { order } = useContext(ServiceContext);
   const [filters, setFilters] = useState({ keyword: '', status: 'all' });
   const [message, setMessage] = useState('');
+  const [viewingOrder, setViewingOrder] = useState(null);
+
+  useServiceVersion(order);
 
   const orders = order.getOrderList(filters);
+  const {
+    page,
+    setPage,
+    totalPages,
+    total,
+    slice: pagedOrders,
+    hasPrev,
+    hasNext,
+  } = usePagination(orders, 10);
+
+  useEffect(() => {
+    setPage(1);
+  }, [filters, setPage]);
 
   const handleFilterChange = (event) => {
     const { name, value } = event.target;
@@ -34,6 +55,11 @@ const AdminOrdersPage = () => {
     setMessage(result.message);
   };
 
+  const handleRefresh = () => {
+    order.reload();
+    setMessage('订单数据已刷新。');
+  };
+
   return (
     <div className="pm-admin-orders-page">
       <div className="pm-admin-page-header">
@@ -41,6 +67,7 @@ const AdminOrdersPage = () => {
           <h2 className="pm-section-title">订单管理</h2>
           <p className="pm-help">支持订单筛选、发货、状态调整和物流信息展示。</p>
         </div>
+        <Button type="button" variant="ghost" onClick={handleRefresh}>刷新</Button>
       </div>
 
       {message ? <div className="pm-alert">{message}</div> : null}
@@ -78,7 +105,7 @@ const AdminOrdersPage = () => {
                 </tr>
               </thead>
               <tbody>
-                {orders.map((currentOrder) => {
+                {pagedOrders.map((currentOrder) => {
                   const statusView = statusTextMap[currentOrder.status] || statusTextMap[3];
                   return (
                     <tr key={currentOrder.id}>
@@ -102,6 +129,7 @@ const AdminOrdersPage = () => {
                       </td>
                       <td>
                         <div className="pm-admin-inline-actions">
+                          <Button type="button" variant="ghost" onClick={() => setViewingOrder(currentOrder)}>查看</Button>
                           <PermissionGate permission="orders:manage">
                             <Button type="button" variant="mint" onClick={() => handleShip(currentOrder.id)} disabled={currentOrder.status < 1 || currentOrder.status > 1}>发货</Button>
                           </PermissionGate>
@@ -116,10 +144,96 @@ const AdminOrdersPage = () => {
               </tbody>
             </table>
           </div>
+          <Pagination
+            className="pm-admin-pagination"
+            page={page}
+            totalPages={totalPages}
+            total={total}
+            onPrev={() => hasPrev && setPage(page - 1)}
+            onNext={() => hasNext && setPage(page + 1)}
+          />
         </div>
       ) : (
         <EmptyState title="暂无订单" description="当前筛选条件下没有订单数据。" />
       )}
+
+      <Modal
+        cancelText=""
+        confirmText=""
+        onClose={() => setViewingOrder(null)}
+        onConfirm={() => setViewingOrder(null)}
+        open={Boolean(viewingOrder)}
+        title="订单详情"
+      >
+        {viewingOrder ? (
+          <div className="pm-admin-panel pm-admin-detail-panel">
+            <div className="pm-admin-detail-grid">
+              <div>
+                <p className="pm-label">订单号</p>
+                <h3 className="pm-admin-card-title">{viewingOrder.orderNo}</h3>
+              </div>
+              <div>
+                <p className="pm-label">状态</p>
+                <StatusTag value={(statusTextMap[viewingOrder.status] || statusTextMap[3]).tag}>{(statusTextMap[viewingOrder.status] || statusTextMap[3]).label}</StatusTag>
+              </div>
+              <div>
+                <p className="pm-label">用户</p>
+                <p>{viewingOrder.userSnapshot?.nickname || '匿名用户'}</p>
+              </div>
+              <div>
+                <p className="pm-label">金额</p>
+                <strong className="pm-price">{formatPrice(viewingOrder.price)}</strong>
+              </div>
+            </div>
+            <div className="pm-admin-detail-grid">
+              <div>
+                <p className="pm-label">下单时间</p>
+                <p>{viewingOrder.createTime}</p>
+              </div>
+              <div>
+                <p className="pm-label">支付时间</p>
+                <p>{viewingOrder.payTime || '未支付'}</p>
+              </div>
+              <div className="pm-admin-detail-span">
+                <p className="pm-label">收货信息</p>
+                <p className="pm-admin-detail-copy">{viewingOrder.address?.receiver} / {viewingOrder.address?.phone} / {viewingOrder.address?.detail}</p>
+              </div>
+            </div>
+            <div>
+              <p className="pm-label">商品清单</p>
+              <div className="pm-admin-detail-list">
+                {(viewingOrder.items?.length ? viewingOrder.items : [{ goodSnapshot: viewingOrder.goodSnapshot, quantity: 1, price: viewingOrder.price }]).map((item, index) => {
+                  const priceInfo = getProductPriceInfo(item.goodSnapshot || item);
+                  return (
+                    <article className="pm-admin-detail-item" key={`${item.goodId || index}-${index}`}>
+                      <div>
+                        <strong>{item.goodSnapshot?.name || '历史商品'}</strong>
+                        <p className="pm-help">x{item.quantity || 1}</p>
+                      </div>
+                      <div>
+                        <strong className="pm-price">{formatPrice((item.price || 0) * (item.quantity || 1))}</strong>
+                        {priceInfo.hasDiscount ? <span className="pm-old-price">{formatPrice(priceInfo.originalPrice * (item.quantity || 1))}</span> : null}
+                        {priceInfo.saleTag ? <span className="pm-tag pm-tag-sale">{priceInfo.saleTag}</span> : null}
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            </div>
+            <div>
+              <p className="pm-label">物流记录</p>
+              <ul className="pm-admin-detail-timeline">
+                {(viewingOrder.logistics || []).map((log, index) => (
+                  <li key={`${log.time}-${index}`}>
+                    <strong>{log.time}</strong>
+                    <span>{log.text}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        ) : null}
+      </Modal>
     </div>
   );
 };
