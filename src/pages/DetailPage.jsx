@@ -3,15 +3,16 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 
 import Button from '../components/common/Button';
 import EmptyState from '../components/common/EmptyState';
-import { useServices } from '../hooks/useServices';
+import { useServices, useServiceVersion } from '../hooks/useServices';
 import { formatPrice, getProductPriceInfo, getProductTone } from '../utils/productDisplay';
 
 const DetailPage = () => {
   const { goodId } = useParams();
   const navigate = useNavigate();
   const { good, cart, user, favorite } = useServices();
+  useServiceVersion(good);
+  useServiceVersion(favorite);
   const [message, setMessage] = useState('');
-  const [favTick, setFavTick] = useState(0);
 
   useEffect(() => {
     if (!message) return undefined;
@@ -24,7 +25,6 @@ const DetailPage = () => {
   const priceInfo = getProductPriceInfo(product);
   const isSoldOut = !product || product.status !== 'on-sale' || product.stock <= 0;
 
-  void favTick;
   const isFavorited =
     currentUser && favorite.isFavorite(currentUser.id, parsedGoodId);
 
@@ -73,7 +73,6 @@ const DetailPage = () => {
     }
     const result = favorite.toggleFavorite(currentUser.id, product.id);
     setMessage(result.message);
-    setFavTick((value) => value + 1);
   };
 
   return (

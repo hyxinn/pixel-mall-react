@@ -2,12 +2,13 @@ import { Link, useParams } from 'react-router-dom';
 
 import EmptyState from '../components/common/EmptyState';
 import StatusTag from '../components/common/StatusTag';
-import { useServices } from '../hooks/useServices';
+import { useServices, useServiceVersion } from '../hooks/useServices';
 import { formatPrice, getProductPriceInfo } from '../utils/productDisplay';
 
 const OrderDetailPage = () => {
   const { orderId } = useParams();
   const { order } = useServices();
+  useServiceVersion(order);
   const parsedOrderId = Number(orderId);
   const currentOrder = order.getOrderById(parsedOrderId);
 

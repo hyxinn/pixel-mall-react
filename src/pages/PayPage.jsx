@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 
 import Button from '../components/common/Button';
 import EmptyState from '../components/common/EmptyState';
-import { useServices } from '../hooks/useServices';
+import { useServices, useServiceVersion } from '../hooks/useServices';
 import { formatPrice, getProductPriceInfo } from '../utils/productDisplay';
 
 const PAY_TIMEOUT_SECONDS = 15 * 60;
@@ -22,6 +22,7 @@ const formatCountdown = (seconds) => {
 const PayPage = () => {
   const { orderId } = useParams();
   const { order } = useServices();
+  useServiceVersion(order);
   const navigate = useNavigate();
   const parsedOrderId = Number(orderId);
   const currentOrder = order.getOrderById(parsedOrderId);
@@ -96,7 +97,15 @@ const PayPage = () => {
     navigate('/home');
   };
 
-  const snapshotPriceInfo = getProductPriceInfo(currentOrder?.goodSnapshot || { price: currentOrder?.price });
+  const orderItems = currentOrder?.items?.length
+    ? currentOrder.items
+    : [{ goodSnapshot: currentOrder?.goodSnapshot, quantity: 1, price: currentOrder?.price }];
+  const firstItem = orderItems[0] || null;
+  const originalTotal = orderItems.reduce((sum, item) => {
+    const priceInfo = getProductPriceInfo(item.goodSnapshot || item);
+    return sum + priceInfo.originalPrice * (item.quantity || 1);
+  }, 0);
+  const saleTags = [...new Set(orderItems.map((item) => getProductPriceInfo(item.goodSnapshot || item).saleTag).filter(Boolean))];
   const countdownText = !isPendingPay
     ? '订单已支付'
     : failed
@@ -121,12 +130,12 @@ const PayPage = () => {
             <h2 className="pm-order-title">订单号 {currentOrder.orderNo}</h2>
             <span className="pm-tag pm-tag-info">{order.getStatusText(currentOrder.status)}</span>
           </header>
-          <p className="pm-order-desc">商品：{currentOrder.goodSnapshot?.name || '组合商品'}</p>
+          <p className="pm-order-desc">商品：{firstItem?.goodSnapshot?.name || '历史商品'}{orderItems.length > 1 ? ` 等 ${orderItems.length} 件商品` : ''}</p>
           <footer className="pm-order-foot">
             <div>
               <strong className="pm-price">{formatPrice(currentOrder.price)}</strong>
-              {snapshotPriceInfo.hasDiscount ? <span className="pm-old-price">{formatPrice(snapshotPriceInfo.originalPrice)}</span> : null}
-              {snapshotPriceInfo.saleTag ? <span className="pm-tag pm-tag-sale">{snapshotPriceInfo.saleTag}</span> : null}
+              {originalTotal > currentOrder.price ? <span className="pm-old-price">{formatPrice(originalTotal)}</span> : null}
+              {saleTags.length === 1 ? <span className="pm-tag pm-tag-sale">{saleTags[0]}</span> : null}
             </div>
           </footer>
         </section>

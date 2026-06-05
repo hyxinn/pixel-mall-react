@@ -21,11 +21,12 @@ const AdminOrdersPage = () => {
   const { order } = useContext(ServiceContext);
   const [filters, setFilters] = useState({ keyword: '', status: 'all' });
   const [message, setMessage] = useState('');
-  const [viewingOrder, setViewingOrder] = useState(null);
+  const [viewingOrderId, setViewingOrderId] = useState(null);
 
   useServiceVersion(order);
 
   const orders = order.getOrderList(filters);
+  const viewingOrder = viewingOrderId ? order.getOrderById(viewingOrderId) : null;
   const {
     page,
     setPage,
@@ -107,6 +108,10 @@ const AdminOrdersPage = () => {
               <tbody>
                 {pagedOrders.map((currentOrder) => {
                   const statusView = statusTextMap[currentOrder.status] || statusTextMap[3];
+                  const orderItems = currentOrder.items?.length
+                    ? currentOrder.items
+                    : [{ goodSnapshot: currentOrder.goodSnapshot, quantity: 1, price: currentOrder.price }];
+                  const firstItem = orderItems[0] || null;
                   return (
                     <tr key={currentOrder.id}>
                       <td>
@@ -114,8 +119,8 @@ const AdminOrdersPage = () => {
                         <p className="pm-help">{currentOrder.createTime}</p>
                       </td>
                       <td>{currentOrder.userSnapshot?.nickname || '匿名用户'}</td>
-                      <td>{currentOrder.goodSnapshot?.name || '历史商品'}</td>
-                      <td>¥{currentOrder.price}</td>
+                      <td>{firstItem?.goodSnapshot?.name || '历史商品'}{orderItems.length > 1 ? ` 等 ${orderItems.length} 件` : ''}</td>
+                      <td>{formatPrice(currentOrder.price)}</td>
                       <td><StatusTag value={statusView.tag}>{statusView.label}</StatusTag></td>
                       <td>
                         <ul className="pm-admin-order-logistics">
@@ -129,7 +134,7 @@ const AdminOrdersPage = () => {
                       </td>
                       <td>
                         <div className="pm-admin-inline-actions">
-                          <Button type="button" variant="ghost" onClick={() => setViewingOrder(currentOrder)}>查看</Button>
+                          <Button type="button" variant="ghost" onClick={() => setViewingOrderId(currentOrder.id)}>查看</Button>
                           <PermissionGate permission="orders:manage">
                             <Button type="button" variant="mint" onClick={() => handleShip(currentOrder.id)} disabled={currentOrder.status < 1 || currentOrder.status > 1}>发货</Button>
                           </PermissionGate>
@@ -160,8 +165,8 @@ const AdminOrdersPage = () => {
       <Modal
         cancelText=""
         confirmText=""
-        onClose={() => setViewingOrder(null)}
-        onConfirm={() => setViewingOrder(null)}
+        onClose={() => setViewingOrderId(null)}
+        onConfirm={() => setViewingOrderId(null)}
         open={Boolean(viewingOrder)}
         title="订单详情"
       >

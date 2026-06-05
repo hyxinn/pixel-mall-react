@@ -15,11 +15,12 @@ const AdminCategoriesPage = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [message, setMessage] = useState('');
   const [deletingCategory, setDeletingCategory] = useState(null);
-  const [viewingCategory, setViewingCategory] = useState(null);
+  const [viewingCategoryId, setViewingCategoryId] = useState(null);
 
   useServiceVersion(good);
 
   const categories = good.getCategoryList();
+  const viewingCategory = viewingCategoryId ? good.getCategoryById(viewingCategoryId) : null;
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -109,7 +110,7 @@ const AdminCategoriesPage = () => {
               </div>
               <p>{category.description}</p>
               <div className="pm-admin-category-actions">
-                <Button type="button" variant="ghost" onClick={() => setViewingCategory(category)}>查看</Button>
+                <Button type="button" variant="ghost" onClick={() => setViewingCategoryId(category.id)}>查看</Button>
                 <PermissionGate permission="categories:manage">
                   <Button type="button" variant="ghost" onClick={() => handleEdit(category)}>编辑</Button>
                 </PermissionGate>
@@ -159,8 +160,8 @@ const AdminCategoriesPage = () => {
       <Modal
         cancelText=""
         confirmText=""
-        onClose={() => setViewingCategory(null)}
-        onConfirm={() => setViewingCategory(null)}
+        onClose={() => setViewingCategoryId(null)}
+        onConfirm={() => setViewingCategoryId(null)}
         open={Boolean(viewingCategory)}
         title="分类详情"
       >

@@ -1,5 +1,5 @@
 import { defaultCategories, defaultProducts } from '../mock/data';
-import { getProductPriceInfo } from '../utils/productDisplay';
+import { buildProductSnapshot, getProductPriceInfo } from '../utils/productDisplay';
 import { cloneValue, loadFromStorage, saveToStorage } from '../utils/storage';
 import SubscribableService from './subscribableService';
 
@@ -18,6 +18,8 @@ const normalizeCategory = (input, fallbackSort = 1) => ({
   description: normalizeText(input.description),
   sort: Number(input.sort) || fallbackSort,
 });
+
+const hasStoredValue = (key) => typeof window !== 'undefined' && window.localStorage.getItem(key) !== null;
 
 class GoodService extends SubscribableService {
   products = [];
@@ -100,6 +102,10 @@ class GoodService extends SubscribableService {
       lowStockCount,
       categoryCount: this.categories.length,
     };
+  }
+
+  buildProductSnapshot(product) {
+    return buildProductSnapshot(product);
   }
 
   reload() {
@@ -271,27 +277,29 @@ class GoodService extends SubscribableService {
   }
 
   _loadData() {
-    const storedCategories = loadFromStorage([CATEGORY_KEY], defaultCategories)
+    const hasCategoryStorage = hasStoredValue(CATEGORY_KEY);
+    const hasProductStorage = hasStoredValue(PRODUCT_KEY);
+
+    const legacyCategories = hasCategoryStorage ? [] : loadFromStorage([CATEGORY_KEY], defaultCategories);
+    const categorySource = hasCategoryStorage
+      ? loadFromStorage([CATEGORY_KEY], [])
+      : legacyCategories.length
+        ? legacyCategories
+        : defaultCategories;
+
+    this.categories = categorySource
       .filter(hasCategoryId)
-      .map((category, index) => normalizeCategory(category, index + 1));
-    const storedCategoryIds = new Set(storedCategories.map((category) => category.id));
-    const mergedCategories = [
-      ...storedCategories,
-      ...defaultCategories
-        .filter((category) => !storedCategoryIds.has(category.id))
-        .map((category, index) => normalizeCategory(category, storedCategories.length + index + 1)),
-    ];
-    this.categories = mergedCategories.sort((a, b) => a.sort - b.sort);
+      .map((category, index) => normalizeCategory(category, index + 1))
+      .sort((a, b) => a.sort - b.sort);
 
-    const legacyProducts = loadFromStorage(['goodList'], []);
-    const storedProducts = loadFromStorage([PRODUCT_KEY], legacyProducts.length ? legacyProducts : defaultProducts);
-    const storedProductIds = new Set(storedProducts.map((p) => Number(p.id)));
-    const mergedProducts = [
-      ...storedProducts,
-      ...defaultProducts.filter((p) => !storedProductIds.has(p.id)),
-    ];
+    const legacyProducts = hasProductStorage ? [] : loadFromStorage(['goodList'], []);
+    const productSource = hasProductStorage
+      ? loadFromStorage([PRODUCT_KEY], [])
+      : legacyProducts.length
+        ? legacyProducts
+        : defaultProducts;
 
-    this.products = mergedProducts.map((product) =>
+    this.products = productSource.map((product) =>
       this._normalizeProduct({
         stock: 0,
         description: '',

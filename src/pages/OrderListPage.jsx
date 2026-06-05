@@ -6,13 +6,14 @@ import StatusTag from '../components/common/StatusTag';
 import Pagination from '../components/h5/Pagination';
 import { ORDER_STATUS_TABS, orderListPathForStatus } from '../constants/orderTabs';
 import { usePagination } from '../hooks/usePagination';
-import { useServices } from '../hooks/useServices';
+import { useServices, useServiceVersion } from '../hooks/useServices';
 import { formatPrice, getProductPriceInfo } from '../utils/productDisplay';
 
 const OrderListPage = () => {
   'use no memo';
 
   const { order, user } = useServices();
+  useServiceVersion(order);
   const [searchParams] = useSearchParams();
   const currentUser = user.getCurrentUser();
   const status = searchParams.get('status') || 'all';
@@ -70,7 +71,17 @@ const OrderListPage = () => {
           <>
             <section className="pm-order-list">
               {slice.map((item) => {
-                const priceInfo = getProductPriceInfo(item.goodSnapshot || { price: item.price });
+                const items = item.items?.length
+                  ? item.items
+                  : [{ goodSnapshot: item.goodSnapshot, quantity: 1, price: item.price }];
+                const firstItem = items[0] || null;
+                const extraCount = Math.max(0, items.length - 1);
+                const originalTotal = items.reduce((sum, orderItem) => {
+                  const priceInfo = getProductPriceInfo(orderItem.goodSnapshot || orderItem);
+                  return sum + priceInfo.originalPrice * (orderItem.quantity || 1);
+                }, 0);
+                const hasDiscount = originalTotal > item.price;
+                const saleTags = [...new Set(items.map((orderItem) => getProductPriceInfo(orderItem.goodSnapshot || orderItem).saleTag).filter(Boolean))];
 
                 return (
                   <article className="pm-order-card" key={item.id}>
@@ -81,12 +92,12 @@ const OrderListPage = () => {
                     <p className="pm-order-desc">{item.createTime}</p>
                     <div className="pm-order-product pm-order-product-row">
                       <span className="pm-order-product-name">
-                        {item.goodSnapshot?.name || '组合订单'}
+                        {firstItem?.goodSnapshot?.name || '历史商品'}{extraCount ? ` 等 ${items.length} 件商品` : ''}
                       </span>
                       <div>
                         <strong className="pm-price">{formatPrice(item.price)}</strong>
-                        {priceInfo.hasDiscount ? <span className="pm-old-price">{formatPrice(priceInfo.originalPrice)}</span> : null}
-                        {priceInfo.saleTag ? <span className="pm-tag pm-tag-sale">{priceInfo.saleTag}</span> : null}
+                        {hasDiscount ? <span className="pm-old-price">{formatPrice(originalTotal)}</span> : null}
+                        {saleTags.length === 1 ? <span className="pm-tag pm-tag-sale">{saleTags[0]}</span> : null}
                       </div>
                     </div>
                     <footer className="pm-order-foot">

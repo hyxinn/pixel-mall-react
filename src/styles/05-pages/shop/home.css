@@ -687,17 +687,9 @@
   font-size: var(--pm-text-xl);
 }
 
-.pm-home-scroll-sentinel {
-  width: 100%;
-  height: 1px;
-}
-
-.pm-home-scroll-hint {
-  margin: 0;
-  padding: var(--pm-space-2) 0 var(--pm-space-4);
-  color: var(--pm-color-text-muted);
-  font-size: var(--pm-text-xs);
-  text-align: center;
+.pm-home-pagination {
+  margin-top: 4px;
+  box-shadow: 6px 6px 0 color-mix(in srgb, var(--pm-color-primary) 18%, transparent);
 }
 
 .pm-home-carousel-media {

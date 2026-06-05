@@ -1,5 +1,5 @@
 import { defaultOrders } from '../mock/data';
-import { getProductPriceInfo } from '../utils/productDisplay';
+import { buildProductSnapshot, getProductPriceInfo } from '../utils/productDisplay';
 import cartService from './cartService';
 import goodService from './goodService';
 import userService from './userService';
@@ -35,16 +35,7 @@ class OrderService extends SubscribableService {
       originalPrice: priceInfo.originalPrice,
       currentPrice: priceInfo.currentPrice,
       saleTag: priceInfo.saleTag,
-      goodSnapshot: {
-        id: product.id,
-        name: product.name,
-        price: unitPrice,
-        originalPrice: priceInfo.originalPrice,
-        currentPrice: priceInfo.currentPrice,
-        saleTag: priceInfo.saleTag,
-        cover: product.cover,
-        categoryName: product.categoryName,
-      },
+      goodSnapshot: buildProductSnapshot(product),
     };
 
     const order = this._buildOrder({
@@ -82,16 +73,7 @@ class OrderService extends SubscribableService {
         originalPrice: priceInfo.originalPrice,
         currentPrice: priceInfo.currentPrice,
         saleTag: priceInfo.saleTag,
-        goodSnapshot: {
-          id: cartItem.product.id,
-          name: cartItem.product.name,
-          price: priceInfo.currentPrice,
-          originalPrice: priceInfo.originalPrice,
-          currentPrice: priceInfo.currentPrice,
-          saleTag: priceInfo.saleTag,
-          cover: cartItem.product.cover,
-          categoryName: cartItem.product.categoryName,
-        },
+        goodSnapshot: buildProductSnapshot(cartItem.product),
       };
     });
 
@@ -148,6 +130,16 @@ class OrderService extends SubscribableService {
 
     if (!order || order.status !== 0) {
       return { success: false, message: '订单不可取消支付。' };
+    }
+
+    if (!order.stockReleased) {
+      (order.items || []).forEach((item) => {
+        const product = goodService.getGoodById(item.goodId);
+        if (product) {
+          goodService.updateGood({ ...product, stock: product.stock + (Number(item.quantity) || 1) });
+        }
+      });
+      order.stockReleased = true;
     }
 
     order.logistics.unshift({
@@ -229,9 +221,12 @@ class OrderService extends SubscribableService {
           return true;
         }
 
-        return [order.orderNo, order.goodSnapshot?.name, order.userSnapshot?.nickname].some((field) =>
-          String(field ?? '').toLowerCase().includes(normalizedKeyword),
-        );
+        return [
+          order.orderNo,
+          order.userSnapshot?.nickname,
+          order.goodSnapshot?.name,
+          ...(order.items || []).map((item) => item.goodSnapshot?.name),
+        ].some((field) => String(field ?? '').toLowerCase().includes(normalizedKeyword));
       })
       .map((order) => cloneValue(order));
   }
@@ -378,6 +373,7 @@ class OrderService extends SubscribableService {
       logistics: Array.isArray(input.logistics)
         ? input.logistics
         : [{ time: input.createTime || new Date().toLocaleString(), text: '订单已创建，等待后续处理。' }],
+      stockReleased: Boolean(input.stockReleased),
     };
   }
 

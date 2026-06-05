@@ -17,10 +17,8 @@ export const useCurrentUser = () => {
   return user.getCurrentUser();
 };
 
-export const useServiceVersion = (service) => {
-  useSyncExternalStore(
-    (listener) => (service?.subscribe ? service.subscribe(listener) : () => {}),
-    () => (service?.getRevision ? service.getRevision() : 0),
-    () => 0,
-  );
-};
+export const useServiceVersion = (service) => useSyncExternalStore(
+  (listener) => (service?.subscribe ? service.subscribe(listener) : () => {}),
+  () => (service?.getRevision ? service.getRevision() : 0),
+  () => 0,
+);

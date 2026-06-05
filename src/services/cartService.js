@@ -1,4 +1,5 @@
 import { defaultCarts } from '../mock/data';
+import { buildProductSnapshot, getProductPriceInfo } from '../utils/productDisplay';
 import goodService from './goodService';
 import { cloneValue, loadFromStorage, saveToStorage } from '../utils/storage';
 
@@ -28,10 +29,12 @@ class CartService {
   getEnrichedCartItems(userId) {
     return this.getCartItems(userId).map((item) => {
       const product = goodService.getGoodById(item.goodId);
+      const productSource = product || item.goodSnapshot;
+      const priceInfo = getProductPriceInfo(productSource);
       return {
         ...item,
         product,
-        lineTotal: product ? product.price * item.count : 0,
+        lineTotal: productSource ? priceInfo.currentPrice * item.count : 0,
         isAvailable: Boolean(product && product.status === 'on-sale' && product.stock > 0),
         stock: product?.stock ?? 0,
       };
@@ -48,7 +51,7 @@ class CartService {
         return sum;
       }
       const maxCount = Math.min(item.count, item.stock);
-      return sum + item.product.price * maxCount;
+      return sum + getProductPriceInfo(item.product).currentPrice * maxCount;
     }, 0);
   }
 
@@ -103,13 +106,7 @@ class CartService {
 
       return {
         ...item,
-        goodSnapshot: {
-          id: product.id,
-          name: product.name,
-          price: product.price,
-          cover: product.cover,
-          status: product.status,
-        },
+        goodSnapshot: buildProductSnapshot(product),
       };
     });
     this._saveData();
@@ -130,13 +127,7 @@ class CartService {
         return { success: false, message: '超过库存上限。' };
       }
       existing.count = nextCount;
-      existing.goodSnapshot = {
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        cover: product.cover,
-        status: product.status,
-      };
+      existing.goodSnapshot = buildProductSnapshot(product);
     } else {
       if (count > product.stock) {
         return { success: false, message: '超过库存上限。' };
@@ -147,13 +138,7 @@ class CartService {
         goodId: Number(goodId),
         count,
         checked: true,
-        goodSnapshot: {
-          id: product.id,
-          name: product.name,
-          price: product.price,
-          cover: product.cover,
-          status: product.status,
-        },
+        goodSnapshot: buildProductSnapshot(product),
       });
     }
 

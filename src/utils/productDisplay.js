@@ -31,6 +31,22 @@ export const getProductPriceInfo = (product = {}) => {
 
 export const getEffectivePrice = (product) => getProductPriceInfo(product).currentPrice;
 
+export const buildProductSnapshot = (product = {}) => {
+  const priceInfo = getProductPriceInfo(product);
+
+  return {
+    id: Number(product.id) || 0,
+    name: String(product.name ?? '').trim(),
+    price: priceInfo.currentPrice,
+    originalPrice: priceInfo.originalPrice,
+    currentPrice: priceInfo.currentPrice,
+    saleTag: priceInfo.saleTag,
+    cover: String(product.cover ?? product.img ?? '').trim(),
+    categoryName: String(product.categoryName ?? '').trim(),
+    status: String(product.status ?? '').trim(),
+  };
+};
+
 export const formatPrice = (value) => {
   const amount = Number(value) || 0;
   return `¥${amount.toFixed(amount % 1 === 0 ? 0 : 2)}`;

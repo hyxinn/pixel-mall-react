@@ -1,10 +1,9 @@
-import { useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 import EmptyState from '../components/common/EmptyState';
 import ProductCard from '../components/h5/ProductCard';
 import { useInfiniteScroll } from '../hooks/useInfiniteScroll';
-import { useServices } from '../hooks/useServices';
+import { useServices, useServiceVersion } from '../hooks/useServices';
 import { splitCategoryLabel } from '../utils/categoryLabel';
 
 const CategoryChipLabel = ({ name }) => {
@@ -52,15 +51,14 @@ const CategoryProductFeed = ({ products }) => {
 
 const CategoryPage = () => {
   const { good } = useServices();
+  useServiceVersion(good);
   const [searchParams, setSearchParams] = useSearchParams();
   const activeCategoryId = searchParams.get('categoryId') || 'all';
 
   const categories = good.getCategoryList();
-  const products = useMemo(() => {
-    return good.getPublicGoodList({
-      categoryId: activeCategoryId,
-    });
-  }, [good, activeCategoryId]);
+  const products = good.getPublicGoodList({
+    categoryId: activeCategoryId,
+  });
 
   const selectCategory = (categoryId) => {
     const next = new URLSearchParams(searchParams);

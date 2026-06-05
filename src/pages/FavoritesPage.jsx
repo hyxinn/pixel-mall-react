@@ -1,4 +1,3 @@
-import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import EmptyState from '../components/common/EmptyState';
@@ -6,23 +5,20 @@ import Button from '../components/common/Button';
 import ProductCard from '../components/h5/ProductCard';
 import Pagination from '../components/h5/Pagination';
 import { usePagination } from '../hooks/usePagination';
-import { useServices } from '../hooks/useServices';
+import { useServices, useServiceVersion } from '../hooks/useServices';
 
 const FavoritesPage = () => {
-  const { favorite, user } = useServices();
+  const { good, favorite, user } = useServices();
+  useServiceVersion(good);
+  useServiceVersion(favorite);
   const currentUser = user.getCurrentUser();
-  const [tick, setTick] = useState(0);
 
-  const products = useMemo(() => {
-    void tick;
-    return favorite.getFavoriteProducts(currentUser.id);
-  }, [favorite, currentUser.id, tick]);
+  const products = favorite.getFavoriteProducts(currentUser.id);
 
   const { page, setPage, totalPages, slice, total, hasPrev, hasNext } = usePagination(products, 6);
 
   const handleRemove = (productId) => {
     favorite.removeFavorite(currentUser.id, productId);
-    setTick((value) => value + 1);
   };
 
   if (!products.length) {

@@ -1,13 +1,15 @@
 import { defaultFavorites } from '../mock/data';
 import goodService from './goodService';
 import { cloneValue, loadFromStorage, saveToStorage } from '../utils/storage';
+import SubscribableService from './subscribableService';
 
 const FAVORITE_KEY = 'pixelMall:favorites';
 
-class FavoriteService {
+class FavoriteService extends SubscribableService {
   list = [];
 
   constructor() {
+    super();
     this._loadData();
   }
 
@@ -72,6 +74,7 @@ class FavoriteService {
 
   _saveData() {
     saveToStorage(FAVORITE_KEY, this.list);
+    this.notify();
   }
 }
 

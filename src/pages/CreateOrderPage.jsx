@@ -4,7 +4,7 @@ import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import Button from '../components/common/Button';
 import EmptyState from '../components/common/EmptyState';
 import OrderAddressSummary from '../components/h5/OrderAddressSummary';
-import { useServices } from '../hooks/useServices';
+import { useServices, useServiceVersion } from '../hooks/useServices';
 import { formatPrice, getProductPriceInfo, getProductTone } from '../utils/productDisplay';
 import { readSelectedAddressId } from '../utils/orderAddress';
 import { collectErrors, validatePhone, validateRequired } from '../utils/validation';
@@ -16,6 +16,7 @@ const CreateOrderPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { good, order, user, address } = useServices();
+  useServiceVersion(good);
   const currentUser = user.getCurrentUser();
   const parsedGoodId = Number(goodId);
   const product = good.getGoodById(parsedGoodId);

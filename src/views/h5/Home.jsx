@@ -1,15 +1,16 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 
+import EmptyState from '../../components/common/EmptyState';
+import Pagination from '../../components/h5/Pagination';
+import Carousel from '../../components/h5/Carousel';
 import ProductCard from '../../components/h5/ProductCard';
 import SearchBar from '../../components/h5/SearchBar';
-import Carousel from '../../components/h5/Carousel';
-import EmptyState from '../../components/common/EmptyState';
-import { useInfiniteScroll } from '../../hooks/useInfiniteScroll';
-import { useServices } from '../../hooks/useServices';
+import { usePagination } from '../../hooks/usePagination';
+import { useServices, useServiceVersion } from '../../hooks/useServices';
 
 const HomeProductFeed = ({ products, keywordLabel, onAddToCart }) => {
-  const { visibleItems, hasMore, sentinelRef } = useInfiniteScroll(products, 6);
+  const { page, setPage, totalPages, slice, total, hasPrev, hasNext, pageSize } = usePagination(products, 6);
 
   if (!products.length) {
     return (
@@ -30,26 +31,31 @@ const HomeProductFeed = ({ products, keywordLabel, onAddToCart }) => {
   return (
     <>
       <section className="pm-product-grid pm-home-product-grid">
-        {visibleItems.map((product, index) => (
+        {slice.map((product, index) => (
           <ProductCard
             key={product.id}
             product={product}
-            index={index}
+            index={(page - 1) * pageSize + index}
             showAddLink
             onAddToCart={onAddToCart}
           />
         ))}
       </section>
-      <div className="pm-home-scroll-sentinel" ref={sentinelRef} aria-hidden />
-      {hasMore ? (
-        <p className="pm-home-scroll-hint">继续下滑加载更多...</p>
-      ) : null}
+      <Pagination
+        className="pm-home-pagination"
+        page={page}
+        totalPages={totalPages}
+        total={total}
+        onPrev={() => hasPrev && setPage(page - 1)}
+        onNext={() => hasNext && setPage(page + 1)}
+      />
     </>
   );
 };
 
 const Home = () => {
   const { good, user, cart } = useServices();
+  useServiceVersion(good);
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const keywordFromUrl = searchParams.get('keyword') || '';
@@ -57,12 +63,9 @@ const Home = () => {
   const currentUser = user.getCurrentUser();
 
   const carouselProducts = good.getPublicGoodList().slice(0, 4);
-  const hotProducts = useMemo(() => {
-    if (keywordFromUrl) {
-      return good.searchProducts(keywordFromUrl);
-    }
-    return good.getPublicGoodList();
-  }, [good, keywordFromUrl]);
+  const hotProducts = keywordFromUrl
+    ? good.searchProducts(keywordFromUrl)
+    : good.getPublicGoodList();
 
   const handleSearch = (value) => {
     const nextKeyword = value.trim();

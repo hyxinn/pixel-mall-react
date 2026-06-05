@@ -32,7 +32,7 @@ const AdminProductsPage = () => {
   const [editingId, setEditingId] = useState(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [deletingProduct, setDeletingProduct] = useState(null);
-  const [viewingProduct, setViewingProduct] = useState(null);
+  const [viewingProductId, setViewingProductId] = useState(null);
   const [message, setMessage] = useState('');
   const [formMode, setFormMode] = useState('edit');
 
@@ -41,6 +41,7 @@ const AdminProductsPage = () => {
   const canManage = admin.hasPermission('products:manage');
   const canEditDiscount = admin.hasPermission('products:discount');
   const products = good.getGoodList(filters);
+  const viewingProduct = viewingProductId ? good.getGoodById(viewingProductId) : null;
   const {
     page,
     setPage,
@@ -268,7 +269,7 @@ const AdminProductsPage = () => {
                       <td>{product.updatedAt}</td>
                       <td>
                         <div className="pm-table-actions">
-                          <Button type="button" variant="ghost" onClick={() => setViewingProduct(product)}>查看</Button>
+                          <Button type="button" variant="ghost" onClick={() => setViewingProductId(product.id)}>查看</Button>
                           <PermissionGate permission="products:discount">
                             <Button type="button" variant="accent" onClick={() => handleDiscount(product)}>折扣</Button>
                           </PermissionGate>
@@ -339,8 +340,8 @@ const AdminProductsPage = () => {
       <Modal
         cancelText=""
         confirmText=""
-        onClose={() => setViewingProduct(null)}
-        onConfirm={() => setViewingProduct(null)}
+        onClose={() => setViewingProductId(null)}
+        onConfirm={() => setViewingProductId(null)}
         open={Boolean(viewingProduct)}
         title="商品详情"
       >
