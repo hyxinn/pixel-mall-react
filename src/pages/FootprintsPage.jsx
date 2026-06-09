@@ -1,0 +1,73 @@
+import { Link } from 'react-router-dom';
+
+import Button from '../components/common/Button';
+import EmptyState from '../components/common/EmptyState';
+import Pagination from '../components/h5/Pagination';
+import ProductCard from '../components/h5/ProductCard';
+import { usePagination } from '../hooks/usePagination';
+import { useServices, useServiceSnapshot, useServiceVersion } from '../hooks/useServices';
+
+const FootprintsPage = () => {
+  const { footprint, good, user } = useServices();
+  useServiceVersion(good);
+  const currentUser = useServiceSnapshot(user, (service) => service.getCurrentUser());
+  const products = useServiceSnapshot(footprint, (service) => (
+    currentUser ? service.getFootprintProducts(currentUser.id) : []
+  ));
+  const { page, setPage, totalPages, slice, total, hasPrev, hasNext } = usePagination(products, 6);
+
+  const handleRemove = (productId) => {
+    footprint.removeFootprint(currentUser.id, productId);
+  };
+
+  const handleClear = () => {
+    footprint.clearFootprints(currentUser.id);
+  };
+
+  if (!products.length) {
+    return (
+      <main className="pm-page pm-footprints-page">
+        <h1>我的足迹</h1>
+        <EmptyState
+          title="还没有浏览足迹"
+          description="浏览商品详情后，最近看过的商品会出现在这里。"
+          action={<Link className="pm-btn pm-btn-primary" to="/home">去逛逛</Link>}
+        />
+      </main>
+    );
+  }
+
+  return (
+    <main className="pm-page pm-footprints-page">
+      <header className="pm-footprints-toolbar">
+        <div>
+          <p className="pm-section-eyebrow">Browsing History</p>
+          <h1>我的足迹</h1>
+        </div>
+        <div className="pm-footprints-actions">
+          <Link className="pm-btn pm-btn-ghost" to="/profile">返回我的</Link>
+          <Button type="button" variant="danger" onClick={handleClear}>清空足迹</Button>
+        </div>
+      </header>
+
+      <section className="pm-footprints-grid">
+        {slice.map((product, index) => (
+          <div className="pm-footprints-item" key={product.id}>
+            <ProductCard product={product} index={index} showSticker={false} />
+            <Button type="button" variant="ghost" onClick={() => handleRemove(product.id)}>移除</Button>
+          </div>
+        ))}
+      </section>
+
+      <Pagination
+        page={page}
+        totalPages={totalPages}
+        total={total}
+        onPrev={() => hasPrev && setPage(page - 1)}
+        onNext={() => hasNext && setPage(page + 1)}
+      />
+    </main>
+  );
+};
+
+export default FootprintsPage;

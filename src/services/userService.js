@@ -1,14 +1,16 @@
 import { defaultUsers } from '../mock/data';
 import { cloneValue, loadFromStorage, saveToStorage } from '../utils/storage';
+import SubscribableService from './subscribableService';
 
 const USER_LIST_KEY = 'pixelMall:users';
 const CURRENT_USER_KEY = 'pixelMall:currentUser';
 
-class UserService {
+class UserService extends SubscribableService {
   users = [];
   currentUser = null;
 
   constructor() {
+    super();
     this._loadData();
   }
 
@@ -30,6 +32,7 @@ class UserService {
 
     this.currentUser = { id: user.id, username: user.username, nickname: user.nickname };
     saveToStorage(CURRENT_USER_KEY, this.currentUser);
+    this.notify();
     return { success: true, user: this.getCurrentUser() };
   }
 
@@ -51,12 +54,14 @@ class UserService {
     saveToStorage(USER_LIST_KEY, this.users);
     this.currentUser = { id: user.id, username: user.username, nickname: user.nickname };
     saveToStorage(CURRENT_USER_KEY, this.currentUser);
+    this.notify();
     return { success: true, user: this.getCurrentUser() };
   }
 
   logout() {
     this.currentUser = null;
     saveToStorage(CURRENT_USER_KEY, null);
+    this.notify();
   }
 
   _loadData() {

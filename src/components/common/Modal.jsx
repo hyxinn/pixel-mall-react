@@ -16,7 +16,7 @@ const Modal = ({ open, title, children, onClose, onConfirm, confirmText = '确�
             ×
           </button>
         </div>
-        <div>{children}</div>
+        <div className="pm-modal-body">{children}</div>
         {showActions ? (
           <div className="pm-modal-actions">
             {cancelText ? <Button type="button" variant="ghost" onClick={onClose}>{cancelText}</Button> : null}

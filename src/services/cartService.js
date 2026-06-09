@@ -1,21 +1,17 @@
 import { defaultCarts } from '../mock/data';
 import { buildProductSnapshot, getProductPriceInfo } from '../utils/productDisplay';
 import goodService from './goodService';
+import SubscribableService from './subscribableService';
 import { cloneValue, loadFromStorage, saveToStorage } from '../utils/storage';
 
 const CART_KEY = 'pixelMall:carts';
 
-class CartService {
+class CartService extends SubscribableService {
   carts = [];
 
-  revision = 0;
-
   constructor() {
+    super();
     this._loadData();
-  }
-
-  getRevision() {
-    return this.revision;
   }
 
   getCartItems(userId) {
@@ -24,6 +20,11 @@ class CartService {
 
   getCartCount(userId) {
     return this.getCartItems(userId).reduce((count, item) => count + item.count, 0);
+  }
+
+  getItemCountByGoodId(userId, goodId) {
+    const item = this.carts.find((cartItem) => cartItem.userId === Number(userId) && cartItem.goodId === Number(goodId));
+    return item ? item.count : 0;
   }
 
   getEnrichedCartItems(userId) {
@@ -236,8 +237,8 @@ class CartService {
   }
 
   _saveData() {
-    this.revision += 1;
     saveToStorage(CART_KEY, this.carts);
+    this.notify();
   }
 }
 

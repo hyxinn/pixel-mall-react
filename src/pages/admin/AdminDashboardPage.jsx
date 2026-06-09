@@ -3,14 +3,14 @@ import { Link } from 'react-router-dom';
 import PermissionGate from '../../components/admin/PermissionGate';
 import Button from '../../components/common/Button';
 import { ServiceContext } from '../../contexts/ServiceContext';
-import { useServiceVersion } from '../../hooks/useServices';
+import { useServiceSnapshot } from '../../hooks/useServices';
 
 const AdminDashboardPage = () => {
   const { admin, good, order } = useContext(ServiceContext);
 
-  useServiceVersion(admin);
-  useServiceVersion(good);
-  useServiceVersion(order);
+  const currentAdmin = useServiceSnapshot(admin, (service) => service.getCurrentAdmin());
+  const productStats = useServiceSnapshot(good, (service) => service.getDashboardStats());
+  const orderStats = useServiceSnapshot(order, (service) => service.getDashboardStats());
 
   const handleRefresh = () => {
     admin.reload();
@@ -18,14 +18,11 @@ const AdminDashboardPage = () => {
     order.reload();
   };
 
-  const productStats = good.getDashboardStats();
-  const orderStats = order.getDashboardStats();
-
   return (
     <div className="pm-admin-dashboard-page">
       <section className="pm-admin-dashboard-hero">
         <div>
-          <h2 className="pm-admin-dashboard-title">欢迎回来，{admin.getCurrentAdmin()?.nickname}</h2>
+          <h2 className="pm-admin-dashboard-title">欢迎回来，{currentAdmin?.nickname}</h2>
           <p className="pm-help">这里汇总了商城后台的商品、分类和订单状态。</p>
         </div>
         <div className="pm-admin-dashboard-actions">

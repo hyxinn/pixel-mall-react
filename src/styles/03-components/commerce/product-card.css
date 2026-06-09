@@ -40,6 +40,60 @@
   border: var(--pm-border-width-thin) solid var(--pm-color-line);
 }
 
+.pm-product-cart-badge,
+.pm-product-cart-pop {
+  position: absolute;
+  z-index: 2;
+  border: var(--pm-border-width-thin) solid var(--pm-color-line);
+  box-shadow: 3px 3px 0 color-mix(in srgb, var(--pm-color-line) 18%, transparent);
+}
+
+.pm-product-cart-badge {
+  right: var(--pm-space-2);
+  bottom: var(--pm-space-2);
+  padding: 4px 8px;
+  font-size: var(--pm-text-xs);
+  font-weight: var(--pm-weight-bold);
+  color: var(--pm-color-text);
+  background: var(--pm-color-accent);
+}
+
+.pm-product-cart-pop {
+  top: var(--pm-space-3);
+  right: var(--pm-space-3);
+  display: grid;
+  place-items: center;
+  min-width: 36px;
+  min-height: 36px;
+  padding: 4px;
+  font-weight: var(--pm-weight-black);
+  color: var(--pm-white);
+  background: var(--pm-color-primary-deep);
+  border-radius: 999px;
+  animation: pm-cart-pop 700ms ease-out both;
+}
+
+@keyframes pm-cart-pop {
+  0% {
+    opacity: 0;
+    transform: translateY(12px) scale(0.7);
+  }
+  28% {
+    opacity: 1;
+    transform: translateY(0) scale(1.08);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-26px) scale(0.9);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pm-product-cart-pop {
+    animation: none;
+  }
+}
+
 /* 商品图片：保持像素硬边显示，避免浏览器模糊缩放。 */
 .pm-product-media img {
   width: 100%;
@@ -73,18 +127,51 @@
   line-height: var(--pm-line-card);
 }
 
+.pm-product-stock {
+  display: inline-flex;
+  width: max-content;
+  padding: 3px 7px;
+  color: var(--pm-color-text-muted);
+  font-size: var(--pm-text-xs);
+  background: color-mix(in srgb, var(--pm-color-bg-soft) 82%, white);
+  border: 1px solid color-mix(in srgb, var(--pm-color-line) 22%, transparent);
+}
+
+.pm-product-stock.is-low {
+  color: var(--pm-color-primary-deep);
+  font-weight: var(--pm-weight-black);
+  background: color-mix(in srgb, var(--pm-color-accent) 58%, white);
+  border-color: var(--pm-color-line);
+  box-shadow: 3px 3px 0 color-mix(in srgb, var(--pm-color-primary) 20%, transparent);
+}
+
 /* 商品卡底部：价格和操作按钮左右分布。 */
 .pm-product-foot {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--pm-space-3);
+  gap: var(--pm-space-2);
+  min-width: 0;
 }
 
 .pm-product-price-stack {
   display: grid;
   justify-items: start;
   gap: 5px;
+  min-width: 0;
+}
+
+.pm-product-foot a,
+.pm-product-add-btn {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.pm-product-add-btn {
+  min-height: 30px;
+  padding: 4px 8px;
+  font-size: var(--pm-text-xs);
+  line-height: 1;
 }
 
 /* 当前价格：全站价格主视觉，使用主题深色。 */

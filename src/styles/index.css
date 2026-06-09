@@ -51,7 +51,9 @@
 /* 05-pages/shop：前台商城页面专属布局和占位样式。 */
 @import "./05-pages/shop/home.css";
 @import "./05-pages/shop/category.css";
+@import "./05-pages/shop/search.css";
 @import "./05-pages/shop/detail.css";
+@import "./05-pages/shop/shop.css";
 @import "./05-pages/shop/cart.css";
 @import "./05-pages/shop/create-order.css";
 @import "./05-pages/shop/pay.css";
@@ -59,7 +61,10 @@
 @import "./05-pages/shop/profile.css";
 @import "./05-pages/shop/login.css";
 @import "./05-pages/shop/favorites.css";
+@import "./05-pages/shop/messages.css";
+@import "./05-pages/shop/footprints.css";
 @import "./05-pages/shop/address.css";
+@import "./05-pages/shop/activity.css";
 
 /* 05-pages/admin：后台管理页面专属布局和占位样式。 */
 @import "./05-pages/admin/admin-login.css";

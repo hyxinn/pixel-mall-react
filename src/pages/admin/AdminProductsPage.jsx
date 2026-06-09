@@ -7,7 +7,7 @@ import Modal from '../../components/common/Modal';
 import StatusTag from '../../components/common/StatusTag';
 import Pagination from '../../components/h5/Pagination';
 import { ServiceContext } from '../../contexts/ServiceContext';
-import { useServiceVersion } from '../../hooks/useServices';
+import { useServiceSnapshot } from '../../hooks/useServices';
 import { usePagination } from '../../hooks/usePagination';
 import { formatPrice, getProductPriceInfo } from '../../utils/productDisplay';
 
@@ -26,7 +26,7 @@ const createInitialForm = (categories) => ({
 
 const AdminProductsPage = () => {
   const { admin, good } = useContext(ServiceContext);
-  const categories = good.getCategoryList();
+  const categories = useServiceSnapshot(good, (service) => service.getCategoryList());
   const [filters, setFilters] = useState({ keyword: '', categoryId: 'all', status: 'all' });
   const [form, setForm] = useState(createInitialForm(categories));
   const [editingId, setEditingId] = useState(null);
@@ -36,12 +36,12 @@ const AdminProductsPage = () => {
   const [message, setMessage] = useState('');
   const [formMode, setFormMode] = useState('edit');
 
-  useServiceVersion(good);
-
-  const canManage = admin.hasPermission('products:manage');
-  const canEditDiscount = admin.hasPermission('products:discount');
-  const products = good.getGoodList(filters);
-  const viewingProduct = viewingProductId ? good.getGoodById(viewingProductId) : null;
+  const canManage = useServiceSnapshot(admin, (service) => service.hasPermission('products:manage'));
+  const canEditDiscount = useServiceSnapshot(admin, (service) => service.hasPermission('products:discount'));
+  const products = useServiceSnapshot(good, (service) => service.getGoodList(filters));
+  const viewingProduct = useServiceSnapshot(good, (service) => (
+    viewingProductId ? service.getGoodById(viewingProductId) : null
+  ));
   const {
     page,
     setPage,

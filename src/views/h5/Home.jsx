@@ -7,10 +7,10 @@ import Carousel from '../../components/h5/Carousel';
 import ProductCard from '../../components/h5/ProductCard';
 import SearchBar from '../../components/h5/SearchBar';
 import { usePagination } from '../../hooks/usePagination';
-import { useServices, useServiceVersion } from '../../hooks/useServices';
+import { useServices, useServiceSnapshot, useServiceVersion } from '../../hooks/useServices';
 import { carouselActivities } from '../../mock/activities';
 
-const HomeProductFeed = ({ products, keywordLabel, onAddToCart }) => {
+const HomeProductFeed = ({ products, keywordLabel, onAddToCart, cartQuantityMap, animatingProductId }) => {
   const { page, setPage, totalPages, slice, total, hasPrev, hasNext, pageSize } = usePagination(products, 6);
   const productColumns = slice.reduce(
     (columns, product, index) => {
@@ -47,6 +47,8 @@ const HomeProductFeed = ({ products, keywordLabel, onAddToCart }) => {
                 product={product}
                 index={(page - 1) * pageSize + index}
                 showAddLink
+                cartQuantity={cartQuantityMap[product.id] || 0}
+                isCartAnimating={animatingProductId === product.id}
                 onAddToCart={onAddToCart}
               />
             ))}
@@ -72,9 +74,20 @@ const Home = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const keywordFromUrl = searchParams.get('keyword') || '';
   const [keyword, setKeyword] = useState(keywordFromUrl);
+  const [animatingProductId, setAnimatingProductId] = useState(null);
   const currentUser = user.getCurrentUser();
+  const cartQuantityMap = useServiceSnapshot(cart, (service) => {
+    if (!currentUser) {
+      return {};
+    }
+    return service.getCartItems(currentUser.id).reduce((map, item) => ({
+      ...map,
+      [item.goodId]: item.count,
+    }), {});
+  });
 
   const carouselItems = carouselActivities;
+  const featuredShops = good.getFeaturedShops(3);
   const hotProducts = keywordFromUrl
     ? good.searchProducts(keywordFromUrl)
     : good.getPublicGoodList();
@@ -82,8 +95,9 @@ const Home = () => {
   const handleSearch = (value) => {
     const nextKeyword = value.trim();
     if (nextKeyword) {
-      setSearchParams({ keyword: nextKeyword });
+      navigate(`/search?keyword=${encodeURIComponent(nextKeyword)}`);
     } else {
+      navigate('/search');
       setSearchParams({});
     }
   };
@@ -96,7 +110,13 @@ const Home = () => {
     const result = cart.addItem(currentUser.id, product.id, 1);
     if (!result.success) {
       window.alert(result.message);
+      return;
     }
+    setAnimatingProductId(null);
+    window.requestAnimationFrame(() => {
+      setAnimatingProductId(product.id);
+      window.setTimeout(() => setAnimatingProductId(null), 700);
+    });
   };
 
   return (
@@ -111,6 +131,16 @@ const Home = () => {
         />
       </div>
 
+      {featuredShops.length ? (
+        <Link className="pm-home-shop-entry" to="/featured-shops">
+          <span>
+            <strong>特色店铺</strong>
+            <small>{featuredShops.length} 家精选店铺 · 逛店内好物</small>
+          </span>
+          <em>去逛逛</em>
+        </Link>
+      ) : null}
+
       {carouselItems.length ? <Carousel items={carouselItems} /> : null}
 
       <section className="pm-home-section-heading">
@@ -121,6 +151,8 @@ const Home = () => {
         key={keywordFromUrl || 'all'}
         products={hotProducts}
         keywordLabel={keywordFromUrl}
+        cartQuantityMap={cartQuantityMap}
+        animatingProductId={animatingProductId}
         onAddToCart={handleAddToCart}
       />
     </main>

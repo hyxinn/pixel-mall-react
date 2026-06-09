@@ -75,8 +75,11 @@ const OrderDetailPage = () => {
 
       <section className="pm-cart-list pm-order-detail-goods">
         <h2 className="pm-order-detail-section-title">商品清单</h2>
-        {(currentOrder.items?.length ? currentOrder.items : [{ goodSnapshot: currentOrder.goodSnapshot, quantity: 1, price: currentOrder.price }]).map((item, index) => {
+        {(currentOrder.items?.length ? currentOrder.items : [{ goodId: currentOrder.goodId, goodSnapshot: currentOrder.goodSnapshot, quantity: 1, price: currentOrder.price }]).map((item, index) => {
           const priceInfo = getProductPriceInfo(item.goodSnapshot || item);
+          const goodId = Number(item.goodId || currentOrder.goodId || index);
+          const review = (currentOrder.reviews || []).find((entry) => Number(entry.goodId) === goodId);
+          const returnRequest = (currentOrder.returns || []).find((entry) => Number(entry.goodId) === goodId);
 
           return (
             <article className="pm-cart-item pm-order-detail-good-item" key={`${item.goodId || index}-${index}`}>
@@ -84,6 +87,12 @@ const OrderDetailPage = () => {
                 <h3 className="pm-cart-title">{item.goodSnapshot?.name}</h3>
                 <p className="pm-cart-spec">x{item.quantity || 1}</p>
                 {priceInfo.saleTag ? <span className="pm-tag pm-tag-sale">{priceInfo.saleTag}</span> : null}
+                {currentOrder.status === 3 ? (
+                  <div className="pm-order-item-service-tags">
+                    <span className="pm-tag">{review ? '已评价' : '待评价'}</span>
+                    <span className="pm-tag">{returnRequest ? order.getReturnStatusText(returnRequest.status) : '可申请售后'}</span>
+                  </div>
+                ) : null}
               </div>
               <div>
                 <strong className="pm-price">{formatPrice((item.price || 0) * (item.quantity || 1))}</strong>
@@ -119,6 +128,16 @@ const OrderDetailPage = () => {
         <button className="pm-btn pm-btn-primary" type="button" onClick={handleConfirmReceipt}>
           确认收货
         </button>
+      ) : null}
+      {currentOrder.status === 3 ? (
+        <section className="pm-order-card pm-order-service-actions">
+          <h2 className="pm-order-detail-section-title">售后服务</h2>
+          <p>已收货订单可以评价商品，也可以按商品发起退货/售后申请。</p>
+          <div>
+            <Link className="pm-btn pm-btn-mint" to={`/orderReview/${currentOrder.id}`}>评价订单</Link>
+            <Link className="pm-btn pm-btn-primary" to={`/orderReturn/${currentOrder.id}`}>申请售后/退货</Link>
+          </div>
+        </section>
       ) : null}
     </main>
   );

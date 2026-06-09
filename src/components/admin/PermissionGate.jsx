@@ -1,15 +1,15 @@
 import { useContext } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { ServiceContext } from '../../contexts/ServiceContext';
-import { useServiceVersion } from '../../hooks/useServices';
+import { useServiceSnapshot } from '../../hooks/useServices';
 
 export const RequireAdminAuth = ({ children }) => {
   const { admin } = useContext(ServiceContext);
   const location = useLocation();
 
-  useServiceVersion(admin);
+  const isAuthenticated = useServiceSnapshot(admin, (service) => service.isAuthenticated());
 
-  if (!admin.isAuthenticated()) {
+  if (!isAuthenticated) {
     return <Navigate to="/admin/login" replace state={{ from: location.pathname }} />;
   }
 
@@ -19,9 +19,9 @@ export const RequireAdminAuth = ({ children }) => {
 export const RequirePermission = ({ permission, redirectTo = '/admin', children }) => {
   const { admin } = useContext(ServiceContext);
 
-  useServiceVersion(admin);
+  const hasPermission = useServiceSnapshot(admin, (service) => service.hasPermission(permission));
 
-  if (!admin.hasPermission(permission)) {
+  if (!hasPermission) {
     return <Navigate replace to={redirectTo} />;
   }
 
@@ -31,9 +31,9 @@ export const RequirePermission = ({ permission, redirectTo = '/admin', children 
 const PermissionGate = ({ permission, fallback = null, children }) => {
   const { admin } = useContext(ServiceContext);
 
-  useServiceVersion(admin);
+  const hasPermission = useServiceSnapshot(admin, (service) => service.hasPermission(permission));
 
-  if (!admin.hasPermission(permission)) {
+  if (!hasPermission) {
     return fallback;
   }
 

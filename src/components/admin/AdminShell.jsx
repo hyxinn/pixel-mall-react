@@ -1,7 +1,7 @@
 import { useContext, useState } from 'react';
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { ServiceContext } from '../../contexts/ServiceContext';
-import { useServiceVersion } from '../../hooks/useServices';
+import { useServiceSnapshot } from '../../hooks/useServices';
 import ThemePanel from '../common/ThemePanel';
 import Button from '../common/Button';
 
@@ -17,10 +17,8 @@ const AdminShell = () => {
   const { admin } = useContext(ServiceContext);
   const navigate = useNavigate();
 
-  useServiceVersion(admin);
-
-  const currentAdmin = admin.getCurrentAdmin();
-  const menuKeys = admin.getMenuKeys();
+  const currentAdmin = useServiceSnapshot(admin, (service) => service.getCurrentAdmin());
+  const menuKeys = useServiceSnapshot(admin, (service) => service.getMenuKeys());
   const [isThemePanelOpen, setIsThemePanelOpen] = useState(false);
 
   const handleLogout = () => {

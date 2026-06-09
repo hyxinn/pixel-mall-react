@@ -1,6 +1,7 @@
 import { useSearchParams } from 'react-router-dom';
 
 import EmptyState from '../components/common/EmptyState';
+import FeaturedShopSection from '../components/h5/FeaturedShopSection';
 import ProductCard from '../components/h5/ProductCard';
 import { useInfiniteScroll } from '../hooks/useInfiniteScroll';
 import { useServices, useServiceVersion } from '../hooks/useServices';
@@ -59,6 +60,7 @@ const CategoryPage = () => {
   const products = good.getPublicGoodList({
     categoryId: activeCategoryId,
   });
+  const featuredShops = good.getFeaturedShops(3);
 
   const selectCategory = (categoryId) => {
     const next = new URLSearchParams(searchParams);
@@ -102,6 +104,7 @@ const CategoryPage = () => {
         </nav>
 
         <section className="pm-category-main">
+          <FeaturedShopSection shops={featuredShops} id="category-shops-title" className="pm-category-shop-section" />
           <CategoryProductFeed key={activeCategoryId} products={products} />
         </section>
       </div>

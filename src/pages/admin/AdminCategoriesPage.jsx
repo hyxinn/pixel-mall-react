@@ -4,7 +4,7 @@ import Button from '../../components/common/Button';
 import EmptyState from '../../components/common/EmptyState';
 import Modal from '../../components/common/Modal';
 import { ServiceContext } from '../../contexts/ServiceContext';
-import { useServiceVersion } from '../../hooks/useServices';
+import { useServiceSnapshot } from '../../hooks/useServices';
 
 const createInitialForm = () => ({ id: '', name: '', description: '', sort: 1 });
 
@@ -17,10 +17,10 @@ const AdminCategoriesPage = () => {
   const [deletingCategory, setDeletingCategory] = useState(null);
   const [viewingCategoryId, setViewingCategoryId] = useState(null);
 
-  useServiceVersion(good);
-
-  const categories = good.getCategoryList();
-  const viewingCategory = viewingCategoryId ? good.getCategoryById(viewingCategoryId) : null;
+  const categories = useServiceSnapshot(good, (service) => service.getCategoryList());
+  const viewingCategory = useServiceSnapshot(good, (service) => (
+    viewingCategoryId ? service.getCategoryById(viewingCategoryId) : null
+  ));
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -75,6 +75,9 @@ const AdminCategoriesPage = () => {
     setMessage(result.success ? '分类已删除。' : result.message);
     if (result.success && editingId === deletingId) {
       closeForm();
+    }
+    if (result.success && viewingCategoryId === deletingId) {
+      setViewingCategoryId(null);
     }
   };
 

@@ -2,12 +2,12 @@ import { Link, useNavigate } from 'react-router-dom';
 
 import ThemePanel from '../components/common/ThemePanel';
 import { ORDER_STATUS_TABS, orderListPathForStatus } from '../constants/orderTabs';
-import { useServices } from '../hooks/useServices';
+import { useServices, useServiceSnapshot } from '../hooks/useServices';
 
 const ProfilePage = () => {
   const { user } = useServices();
   const navigate = useNavigate();
-  const currentUser = user.getCurrentUser();
+  const currentUser = useServiceSnapshot(user, (service) => service.getCurrentUser());
   const displayName = currentUser.nickname || currentUser.username;
   const avatarChar = displayName.trim().slice(0, 1) || 'U';
 
@@ -77,6 +77,12 @@ const ProfilePage = () => {
           </Link>
           <Link className="pm-profile-link" to="/address">
             <span className="pm-profile-link-label">地址管理</span>
+            <span className="pm-profile-link-arrow" aria-hidden>
+              →
+            </span>
+          </Link>
+          <Link className="pm-profile-link" to="/footprints">
+            <span className="pm-profile-link-label">我的足迹</span>
             <span className="pm-profile-link-arrow" aria-hidden>
               →
             </span>

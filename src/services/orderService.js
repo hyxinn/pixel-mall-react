@@ -8,6 +8,22 @@ import SubscribableService from './subscribableService';
 
 const ORDER_KEY = 'pixelMall:orders';
 
+const RETURN_STATUS_TEXT = {
+  pending: '待审核',
+  approved: '已同意',
+  rejected: '已拒绝',
+  shipped: '买家已寄回',
+  received: '商家已收货',
+  refunded: '已退款',
+};
+
+const RETURN_TYPE_TEXT = {
+  refund: '仅退款',
+  'return-refund': '退货退款',
+};
+
+const ACTIVE_RETURN_STATUSES = ['pending', 'approved', 'shipped', 'received'];
+
 class OrderService extends SubscribableService {
   list = [];
 
@@ -235,17 +251,290 @@ class OrderService extends SubscribableService {
     return { success: true, message: '订单状态已更新。' };
   }
 
+  submitReview(orderId, userId, payload = {}) {
+    const order = this._findOrder(orderId);
+    const goodId = Number(payload.goodId);
+    const rating = Number(payload.rating);
+    const content = String(payload.content ?? '').trim();
+
+    if (!order) {
+      return { success: false, message: '订单不存在。' };
+    }
+
+    if (Number(userId) !== order.userId) {
+      return { success: false, message: '无权评价此订单。' };
+    }
+
+    if (order.status !== 3) {
+      return { success: false, message: '确认收货后才能评价。' };
+    }
+
+    const item = this._findOrderItem(order, goodId);
+    if (!item) {
+      return { success: false, message: '评价商品不存在。' };
+    }
+
+    if ((order.reviews || []).some((review) => Number(review.goodId) === goodId)) {
+      return { success: false, message: '该商品已评价。' };
+    }
+
+    if (!rating || rating < 1 || rating > 5) {
+      return { success: false, message: '请选择 1-5 星评分。' };
+    }
+
+    if (!content) {
+      return { success: false, message: '请填写评价内容。' };
+    }
+
+    const createdAt = new Date().toLocaleString();
+    const review = {
+      id: `review-${order.id}-${goodId}-${Date.now()}`,
+      goodId,
+      rating: Math.round(rating),
+      content,
+      createdAt,
+      status: 'published',
+      adminReply: '',
+      repliedAt: '',
+    };
+
+    order.reviews = [review, ...(order.reviews || [])];
+    order.logistics.unshift({
+      time: createdAt,
+      text: `买家已评价商品「${item.goodSnapshot?.name || '历史商品'}」。`,
+    });
+    this._saveData();
+    this.notify();
+    return { success: true, review: cloneValue(review), message: '评价已提交。' };
+  }
+
+  requestReturn(orderId, userId, payload = {}) {
+    const order = this._findOrder(orderId);
+    const goodId = Number(payload.goodId);
+    const type = payload.type === 'return-refund' ? 'return-refund' : 'refund';
+    const reason = String(payload.reason ?? '').trim();
+    const description = String(payload.description ?? '').trim();
+
+    if (!order) {
+      return { success: false, message: '订单不存在。' };
+    }
+
+    if (Number(userId) !== order.userId) {
+      return { success: false, message: '无权申请此订单售后。' };
+    }
+
+    if (order.status !== 3) {
+      return { success: false, message: '确认收货后才能申请售后。' };
+    }
+
+    const item = this._findOrderItem(order, goodId);
+    if (!item) {
+      return { success: false, message: '售后商品不存在。' };
+    }
+
+    const hasActiveReturn = (order.returns || []).some((request) => (
+      Number(request.goodId) === goodId && ACTIVE_RETURN_STATUSES.includes(request.status)
+    ));
+
+    if (hasActiveReturn) {
+      return { success: false, message: '该商品已有进行中的售后申请。' };
+    }
+
+    if (!reason) {
+      return { success: false, message: '请选择售后原因。' };
+    }
+
+    if (!description) {
+      return { success: false, message: '请填写问题描述。' };
+    }
+
+    const createdAt = new Date().toLocaleString();
+    const returnRequest = {
+      id: `return-${order.id}-${goodId}-${Date.now()}`,
+      goodId,
+      type,
+      reason,
+      description,
+      status: 'pending',
+      createdAt,
+      handledAt: '',
+      returnTrackingNo: '',
+      adminNote: '',
+    };
+
+    order.returns = [returnRequest, ...(order.returns || [])];
+    order.logistics.unshift({
+      time: createdAt,
+      text: `买家已提交「${item.goodSnapshot?.name || '历史商品'}」${this.getReturnTypeText(type)}申请。`,
+    });
+    this._saveData();
+    this.notify();
+    return { success: true, returnRequest: cloneValue(returnRequest), message: '售后申请已提交。' };
+  }
+
+  submitReturnShipment(orderId, userId, returnId, trackingNo) {
+    const order = this._findOrder(orderId);
+    const normalizedTrackingNo = String(trackingNo ?? '').trim();
+
+    if (!order) {
+      return { success: false, message: '订单不存在。' };
+    }
+
+    if (Number(userId) !== order.userId) {
+      return { success: false, message: '无权填写此售后物流。' };
+    }
+
+    const returnRequest = this._findReturn(order, returnId);
+    if (!returnRequest) {
+      return { success: false, message: '售后申请不存在。' };
+    }
+
+    if (returnRequest.status !== 'approved') {
+      return { success: false, message: '只有已同意的退货申请才能填写物流。' };
+    }
+
+    if (returnRequest.type !== 'return-refund') {
+      return { success: false, message: '仅退货退款需要填写寄回物流。' };
+    }
+
+    if (!normalizedTrackingNo) {
+      return { success: false, message: '请填写退货物流单号。' };
+    }
+
+    const handledAt = new Date().toLocaleString();
+    returnRequest.status = 'shipped';
+    returnRequest.returnTrackingNo = normalizedTrackingNo;
+    returnRequest.handledAt = handledAt;
+    order.logistics.unshift({
+      time: handledAt,
+      text: `买家已寄回退货商品，物流单号 ${normalizedTrackingNo}。`,
+    });
+    this._saveData();
+    this.notify();
+    return { success: true, message: '退货物流已提交。' };
+  }
+
+  handleReturnRequest(orderId, returnId, action, note = '') {
+    const order = this._findOrder(orderId);
+    const adminNote = String(note ?? '').trim();
+
+    if (!order) {
+      return { success: false, message: '订单不存在。' };
+    }
+
+    const returnRequest = this._findReturn(order, returnId);
+    if (!returnRequest) {
+      return { success: false, message: '售后申请不存在。' };
+    }
+
+    const handledAt = new Date().toLocaleString();
+    const typeText = this.getReturnTypeText(returnRequest.type);
+    const actionMap = {
+      approve: {
+        from: ['pending'],
+        next: 'approved',
+        text: returnRequest.type === 'refund' ? `${typeText}申请已通过，等待退款。` : `${typeText}申请已通过，等待买家寄回商品。`,
+      },
+      reject: {
+        from: ['pending'],
+        next: 'rejected',
+        text: `${typeText}申请已拒绝。`,
+      },
+      markReceived: {
+        from: ['shipped'],
+        next: 'received',
+        text: '商家已确认收到退货商品。',
+      },
+      refund: {
+        from: returnRequest.type === 'refund' ? ['approved'] : ['received'],
+        next: 'refunded',
+        text: `${typeText}已完成退款。`,
+      },
+    };
+    const actionConfig = actionMap[action];
+
+    if (!actionConfig) {
+      return { success: false, message: '售后操作无效。' };
+    }
+
+    if (!actionConfig.from.includes(returnRequest.status)) {
+      return { success: false, message: '当前售后状态不能执行该操作。' };
+    }
+
+    returnRequest.status = actionConfig.next;
+    returnRequest.handledAt = handledAt;
+    returnRequest.adminNote = adminNote;
+    order.logistics.unshift({ time: handledAt, text: actionConfig.text });
+    this._saveData();
+    this.notify();
+    return { success: true, message: actionConfig.text };
+  }
+
+  replyReview(orderId, reviewId, reply) {
+    const order = this._findOrder(orderId);
+    const content = String(reply ?? '').trim();
+
+    if (!order) {
+      return { success: false, message: '订单不存在。' };
+    }
+
+    const review = this._findReview(order, reviewId);
+    if (!review) {
+      return { success: false, message: '评价不存在。' };
+    }
+
+    if (!content) {
+      return { success: false, message: '请填写回复内容。' };
+    }
+
+    review.adminReply = content;
+    review.repliedAt = new Date().toLocaleString();
+    this._saveData();
+    this.notify();
+    return { success: true, message: '评价回复已保存。' };
+  }
+
   getOrderList(filters = {}) {
-    const { status = 'all', keyword = '', userId } = filters;
+    const {
+      status = 'all',
+      keyword = '',
+      userId,
+      afterSaleStatus = 'all',
+      hasReview = 'all',
+      hasReturn = 'all',
+    } = filters;
     const normalizedKeyword = String(keyword ?? '').trim().toLowerCase();
 
     return this.list
       .filter((order) => {
+        const reviews = order.reviews || [];
+        const returns = order.returns || [];
+
         if (status !== 'all' && Number(status) !== order.status) {
           return false;
         }
 
         if (userId && Number(userId) !== order.userId) {
+          return false;
+        }
+
+        if (hasReview === 'yes' && !reviews.length) {
+          return false;
+        }
+
+        if (hasReview === 'no' && reviews.length) {
+          return false;
+        }
+
+        if (hasReturn === 'yes' && !returns.length) {
+          return false;
+        }
+
+        if (hasReturn === 'no' && returns.length) {
+          return false;
+        }
+
+        if (afterSaleStatus !== 'all' && !returns.some((request) => request.status === afterSaleStatus)) {
           return false;
         }
 
@@ -257,7 +546,10 @@ class OrderService extends SubscribableService {
           order.orderNo,
           order.userSnapshot?.nickname,
           order.goodSnapshot?.name,
-          ...(order.items || []).map((item) => item.goodSnapshot?.name),
+          order.goodSnapshot?.categoryName,
+          ...(order.items || []).flatMap((item) => [item.goodSnapshot?.name, item.goodSnapshot?.categoryName]),
+          ...reviews.map((review) => review.content),
+          ...returns.flatMap((request) => [request.reason, request.description, request.returnTrackingNo]),
         ].some((field) => String(field ?? '').toLowerCase().includes(normalizedKeyword));
       })
       .map((order) => cloneValue(order));
@@ -272,11 +564,30 @@ class OrderService extends SubscribableService {
     return order ? cloneValue(order) : null;
   }
 
+  getReturnRequests(filters = {}) {
+    const { status = 'all' } = filters;
+
+    return this.list.flatMap((order) => (order.returns || []).map((request) => ({
+      ...cloneValue(request),
+      orderId: order.id,
+      orderNo: order.orderNo,
+      userSnapshot: cloneValue(order.userSnapshot),
+    }))).filter((request) => status === 'all' || request.status === status);
+  }
+
   getStatusText(status) {
     if (status === 0) return '待支付';
     if (status === 1) return '已支付';
     if (status === 2) return '已发货';
     return '已完成';
+  }
+
+  getReturnStatusText(status) {
+    return RETURN_STATUS_TEXT[status] || '售后中';
+  }
+
+  getReturnTypeText(type) {
+    return RETURN_TYPE_TEXT[type] || '售后申请';
   }
 
   getDashboardStats() {
@@ -315,6 +626,8 @@ class OrderService extends SubscribableService {
         : null,
       goodSnapshot,
       logistics: [{ time: new Date().toLocaleString(), text: '订单创建成功，等待支付。' }],
+      reviews: [],
+      returns: [],
     };
   }
 
@@ -406,12 +719,63 @@ class OrderService extends SubscribableService {
         ? input.logistics
         : [{ time: input.createTime || new Date().toLocaleString(), text: '订单已创建，等待后续处理。' }],
       stockReleased: Boolean(input.stockReleased),
+      reviews: this._normalizeReviews(input.reviews, input),
+      returns: this._normalizeReturns(input.returns, input),
     };
+  }
+
+  _normalizeReviews(reviews, order) {
+    if (!Array.isArray(reviews)) {
+      return [];
+    }
+
+    return reviews.map((review, index) => ({
+      id: review.id || `review-${order.id}-${review.goodId || index}`,
+      goodId: Number(review.goodId || order.goodId),
+      rating: Math.min(5, Math.max(1, Math.round(Number(review.rating) || 5))),
+      content: String(review.content || ''),
+      createdAt: review.createdAt || order.createTime || new Date().toLocaleString(),
+      status: review.status || 'published',
+      adminReply: review.adminReply || '',
+      repliedAt: review.repliedAt || '',
+    }));
+  }
+
+  _normalizeReturns(returns, order) {
+    if (!Array.isArray(returns)) {
+      return [];
+    }
+
+    return returns.map((request, index) => ({
+      id: request.id || `return-${order.id}-${request.goodId || index}`,
+      goodId: Number(request.goodId || order.goodId),
+      type: request.type === 'return-refund' ? 'return-refund' : 'refund',
+      reason: request.reason || '其他原因',
+      description: request.description || '',
+      status: RETURN_STATUS_TEXT[request.status] ? request.status : 'pending',
+      createdAt: request.createdAt || order.createTime || new Date().toLocaleString(),
+      handledAt: request.handledAt || '',
+      returnTrackingNo: request.returnTrackingNo || '',
+      adminNote: request.adminNote || '',
+    }));
   }
 
   _findOrder(orderId) {
     const parsedId = Number(orderId);
     return this.list.find((item) => item.id === parsedId);
+  }
+
+  _findOrderItem(order, goodId) {
+    const parsedGoodId = Number(goodId);
+    return (order.items || []).find((item) => Number(item.goodId) === parsedGoodId);
+  }
+
+  _findReview(order, reviewId) {
+    return (order.reviews || []).find((review) => review.id === reviewId);
+  }
+
+  _findReturn(order, returnId) {
+    return (order.returns || []).find((request) => request.id === returnId);
   }
 
   _nextId() {

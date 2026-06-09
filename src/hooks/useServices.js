@@ -22,3 +22,8 @@ export const useServiceVersion = (service) => useSyncExternalStore(
   () => (service?.getRevision ? service.getRevision() : 0),
   () => 0,
 );
+
+export const useServiceSnapshot = (service, selector) => {
+  const version = useServiceVersion(service);
+  return selector(service, version);
+};

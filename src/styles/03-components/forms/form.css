@@ -82,6 +82,7 @@
 .pm-search {
   display: flex;
   gap: var(--pm-space-2);
+  box-sizing: border-box;
   width: 100%;
   padding: 6px;
   background: var(--pm-color-surface);

@@ -9,12 +9,17 @@
   display: grid;
   place-items: center;
   padding: var(--pm-space-4);
+  overflow-y: auto;
   background: rgba(59, 47, 58, 0.28);
 }
 
 /* 弹窗主体：像素描边白底面板。 */
 .pm-modal {
+  display: flex;
+  flex-direction: column;
   width: min(100%, 420px);
+  max-height: calc(100dvh - var(--pm-space-8));
+  min-height: 0;
   padding: var(--pm-space-5);
   background: var(--pm-color-surface);
   border: var(--pm-border-width) solid var(--pm-color-line);
@@ -47,6 +52,11 @@
   cursor: pointer;
   background: var(--pm-color-primary-soft);
   border: var(--pm-border-width-thin) solid var(--pm-color-line);
+}
+
+.pm-modal-body {
+  min-height: 0;
+  overflow-y: auto;
 }
 
 /* 弹窗操作区：确认、取消等按钮靠右排列。 */

@@ -98,6 +98,12 @@
 }
 
 .pm-bottom-bar-chip-4 {
+  --pm-tab-tilt: 1.8deg;
+  --pm-tab-shadow: color-mix(in srgb, var(--pm-color-accent) 34%, transparent);
+  background: color-mix(in srgb, var(--pm-color-accent) 22%, var(--pm-color-surface));
+}
+
+.pm-bottom-bar-chip-5 {
   --pm-tab-tilt: -2deg;
   --pm-tab-shadow: color-mix(in srgb, var(--pm-color-primary-deep) 28%, transparent);
   background: color-mix(in srgb, var(--pm-color-bg-soft) 70%, var(--pm-color-surface));
@@ -124,6 +130,12 @@
 .pm-bottom-bar-chip-4:hover,
 .pm-bottom-bar-chip-4:focus-visible,
 .pm-bottom-bar-chip-4.is-active {
+  --pm-tab-tilt: 2.6deg;
+}
+
+.pm-bottom-bar-chip-5:hover,
+.pm-bottom-bar-chip-5:focus-visible,
+.pm-bottom-bar-chip-5.is-active {
   --pm-tab-tilt: -2.8deg;
 }
 

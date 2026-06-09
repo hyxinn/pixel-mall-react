@@ -88,6 +88,8 @@ const OrderListPage = () => {
                 }, 0);
                 const hasDiscount = originalTotal > item.price;
                 const saleTags = [...new Set(items.map((orderItem) => getProductPriceInfo(orderItem.goodSnapshot || orderItem).saleTag).filter(Boolean))];
+                const reviewCount = item.reviews?.length || 0;
+                const pendingReturnCount = (item.returns || []).filter((request) => ['pending', 'approved', 'shipped', 'received'].includes(request.status)).length;
 
                 return (
                   <article className="pm-order-card" key={item.id}>
@@ -106,6 +108,12 @@ const OrderListPage = () => {
                         {saleTags.length === 1 ? <span className="pm-tag pm-tag-sale">{saleTags[0]}</span> : null}
                       </div>
                     </div>
+                    {item.status === 3 ? (
+                      <div className="pm-order-service-note">
+                        <span>已评价 {reviewCount}/{items.length}</span>
+                        <span>{pendingReturnCount ? `${pendingReturnCount} 个售后处理中` : '暂无售后处理中'}</span>
+                      </div>
+                    ) : null}
                     <footer className="pm-order-foot">
                       <Link className="pm-btn pm-btn-ghost" to={`/orderDetail/${item.id}`}>
                         查看详情
@@ -123,6 +131,16 @@ const OrderListPage = () => {
                         >
                           确认收货
                         </button>
+                      ) : null}
+                      {item.status === 3 ? (
+                        <>
+                          <Link className="pm-btn pm-btn-mint" to={`/orderReview/${item.id}`}>
+                            评价
+                          </Link>
+                          <Link className="pm-btn pm-btn-primary" to={`/orderReturn/${item.id}`}>
+                            申请售后
+                          </Link>
+                        </>
                       ) : null}
                     </footer>
                   </article>

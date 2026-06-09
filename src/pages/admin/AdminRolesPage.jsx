@@ -3,7 +3,7 @@ import Button from '../../components/common/Button';
 import EmptyState from '../../components/common/EmptyState';
 import Modal from '../../components/common/Modal';
 import { ServiceContext } from '../../contexts/ServiceContext';
-import { useServiceVersion } from '../../hooks/useServices';
+import { useServiceSnapshot } from '../../hooks/useServices';
 
 const createRoleForm = (role) => ({
   permissions: [...(role?.permissions || [])],
@@ -12,15 +12,14 @@ const createRoleForm = (role) => ({
 
 const AdminRolesPage = () => {
   const { admin } = useContext(ServiceContext);
-  useServiceVersion(admin);
-  const roles = admin.getRoles();
-  const permissionCatalog = admin.getPermissionCatalog();
-  const menuCatalog = admin.getMenuCatalog();
+  const roles = useServiceSnapshot(admin, (service) => service.getRoles());
+  const permissionCatalog = useServiceSnapshot(admin, (service) => service.getPermissionCatalog());
+  const menuCatalog = useServiceSnapshot(admin, (service) => service.getMenuCatalog());
   const initialRole = roles[0] || null;
   const [selectedRoleId, setSelectedRoleId] = useState(initialRole?.id || '');
   const [form, setForm] = useState(createRoleForm(initialRole));
   const [message, setMessage] = useState('');
-  const [viewingRole, setViewingRole] = useState(null);
+  const [viewingRoleId, setViewingRoleId] = useState(null);
 
   const groupedPermissions = useMemo(() => {
     return permissionCatalog.reduce((groups, permission) => {
@@ -37,7 +36,17 @@ const AdminRolesPage = () => {
     }, {});
   }, [permissionCatalog]);
 
-  const selectedRole = roles.find((role) => role.id === selectedRoleId) || initialRole;
+  const activeRoleId = roles.some((role) => role.id === selectedRoleId) ? selectedRoleId : initialRole?.id || '';
+  const selectedRole = roles.find((role) => role.id === activeRoleId) || initialRole;
+  const viewingRole = viewingRoleId ? roles.find((role) => role.id === viewingRoleId) : null;
+
+  const syncSelectedRole = (preferredRoleId = selectedRoleId) => {
+    const nextRoles = admin.getRoles();
+    const nextRole = nextRoles.find((role) => role.id === preferredRoleId) || nextRoles[0] || null;
+    setSelectedRoleId(nextRole?.id || '');
+    setForm(createRoleForm(nextRole));
+    return nextRole;
+  };
 
   if (!roles.length) {
     return <EmptyState title="暂无角色" description="当前没有可展示的后台角色。" iconSrc="/images/admin/role/admin-badge.svg" />;
@@ -72,7 +81,10 @@ const AdminRolesPage = () => {
   };
 
   const handleSave = () => {
-    const result = admin.updateRoleAccess(selectedRoleId, form);
+    const result = admin.updateRoleAccess(activeRoleId, form);
+    if (result.success) {
+      syncSelectedRole(activeRoleId);
+    }
     setMessage(result.message);
   };
 
@@ -90,19 +102,13 @@ const AdminRolesPage = () => {
 
   const handleRestoreDefaults = () => {
     const result = admin.resetRoles();
+    syncSelectedRole(activeRoleId);
     setMessage(result.message);
-    const nextRoles = admin.getRoles();
-    const nextRole = nextRoles.find((role) => role.id === selectedRoleId) || nextRoles[0] || null;
-    setSelectedRoleId(nextRole?.id || '');
-    setForm(createRoleForm(nextRole));
   };
 
   const handleRefresh = () => {
     admin.reload();
-    const nextRoles = admin.getRoles();
-    const nextRole = nextRoles.find((role) => role.id === selectedRoleId) || nextRoles[0] || null;
-    setSelectedRoleId(nextRole?.id || '');
-    setForm(createRoleForm(nextRole));
+    syncSelectedRole(activeRoleId);
     setMessage('角色数据已刷新。');
   };
 
@@ -124,7 +130,7 @@ const AdminRolesPage = () => {
       <div className="pm-role-workspace">
         <section className="pm-role-list">
           {roles.map((role) => {
-            const isActive = role.id === selectedRoleId;
+            const isActive = role.id === activeRoleId;
             return (
               <button
                 key={role.id}
@@ -147,7 +153,7 @@ const AdminRolesPage = () => {
                 <div className="pm-admin-inline-actions">
                   <Button type="button" variant="ghost" onClick={(event) => {
                     event.stopPropagation();
-                    setViewingRole(role);
+                    setViewingRoleId(role.id);
                   }}>
                     查看详情
                   </Button>
@@ -231,8 +237,8 @@ const AdminRolesPage = () => {
       <Modal
         cancelText=""
         confirmText=""
-        onClose={() => setViewingRole(null)}
-        onConfirm={() => setViewingRole(null)}
+        onClose={() => setViewingRoleId(null)}
+        onConfirm={() => setViewingRoleId(null)}
         open={Boolean(viewingRole)}
         title="角色详情"
       >
