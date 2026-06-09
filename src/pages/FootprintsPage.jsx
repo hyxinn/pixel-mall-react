@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import Button from '../components/common/Button';
 import EmptyState from '../components/common/EmptyState';
@@ -8,6 +8,7 @@ import { usePagination } from '../hooks/usePagination';
 import { useServices, useServiceSnapshot, useServiceVersion } from '../hooks/useServices';
 
 const FootprintsPage = () => {
+  const navigate = useNavigate();
   const { footprint, good, user } = useServices();
   useServiceVersion(good);
   const currentUser = useServiceSnapshot(user, (service) => service.getCurrentUser());
@@ -45,7 +46,7 @@ const FootprintsPage = () => {
           <h1>我的足迹</h1>
         </div>
         <div className="pm-footprints-actions">
-          <Link className="pm-btn pm-btn-ghost" to="/profile">返回我的</Link>
+          <button className="pm-btn pm-btn-ghost pm-back-btn" type="button" onClick={() => navigate(-1)}>返回</button>
           <Button type="button" variant="danger" onClick={handleClear}>清空足迹</Button>
         </div>
       </header>

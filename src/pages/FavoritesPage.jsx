@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import EmptyState from '../components/common/EmptyState';
 import Button from '../components/common/Button';
@@ -9,6 +9,7 @@ import { usePagination } from '../hooks/usePagination';
 import { useServices, useServiceVersion } from '../hooks/useServices';
 
 const FavoritesPage = () => {
+  const navigate = useNavigate();
   const { good, favorite, user, api } = useServices();
   const goodRevision = useServiceVersion(good);
   const favoriteRevision = useServiceVersion(favorite);
@@ -60,9 +61,9 @@ const FavoritesPage = () => {
           <p className="pm-section-eyebrow">My Favorites</p>
           <h1>我的收藏</h1>
         </div>
-        <Link className="pm-btn pm-btn-ghost" to="/profile">
-          返回我的
-        </Link>
+        <button className="pm-btn pm-btn-ghost pm-back-btn" type="button" onClick={() => navigate(-1)}>
+          返回
+        </button>
       </header>
 
       <section className="pm-favorites-grid">

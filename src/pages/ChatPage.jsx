@@ -1,11 +1,12 @@
 import { useEffect } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 import EmptyState from '../components/common/EmptyState';
 import { useServices, useServiceSnapshot } from '../hooks/useServices';
 
 const ChatPage = () => {
   const { messageId } = useParams();
+  const navigate = useNavigate();
   const { message, user } = useServices();
   const currentUser = useServiceSnapshot(user, (service) => service.getCurrentUser());
   const selectedMessage = useServiceSnapshot(message, (service) => (
@@ -26,7 +27,7 @@ const ChatPage = () => {
   if (!selectedMessage) {
     return (
       <main className="pm-page pm-chat-page">
-        <Link className="pm-btn pm-btn-ghost" to="/messages">← 返回消息</Link>
+        <button className="pm-btn pm-btn-ghost pm-back-btn" type="button" onClick={() => navigate(-1)}>返回</button>
         <EmptyState title="消息不存在" description="这条消息可能已被清理。" iconSrc="/images/admin/empty/no-data-shop.svg" />
       </main>
     );
@@ -35,7 +36,7 @@ const ChatPage = () => {
   return (
     <main className="pm-page pm-chat-page">
       <header className="pm-chat-header">
-        <Link className="pm-btn pm-btn-ghost" to="/messages">← 返回消息</Link>
+        <button className="pm-btn pm-btn-ghost pm-back-btn" type="button" onClick={() => navigate(-1)}>返回</button>
         <div>
           <p className="pm-section-eyebrow">{selectedMessage.type === 'chat' ? 'Merchant Chat' : 'Notice Detail'}</p>
           <h1>{selectedMessage.title}</h1>

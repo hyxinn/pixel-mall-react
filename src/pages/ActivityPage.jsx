@@ -1,10 +1,11 @@
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 
 import EmptyState from '../components/common/EmptyState';
 import { carouselActivities } from '../mock/activities';
 
 const ActivityPage = () => {
   const { slug } = useParams();
+  const navigate = useNavigate();
   const activity = carouselActivities.find((item) => item.slug === slug);
 
   if (!activity) {
@@ -21,7 +22,7 @@ const ActivityPage = () => {
 
   return (
     <main className="pm-page pm-activity-page">
-      <Link className="pm-btn pm-btn-ghost" to="/home">← 返回首页</Link>
+      <button className="pm-btn pm-btn-ghost pm-back-btn" type="button" onClick={() => navigate(-1)}>返回</button>
       <section className="pm-activity-hero">
         <div className="pm-activity-copy">
           <p className="pm-activity-kicker">Pixel Mall 活动</p>

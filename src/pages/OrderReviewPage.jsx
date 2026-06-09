@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 
 import EmptyState from '../components/common/EmptyState';
 import StatusTag from '../components/common/StatusTag';
@@ -12,6 +12,7 @@ const getOrderItems = (order) => (order.items?.length
 
 const OrderReviewPage = () => {
   const { orderId } = useParams();
+  const navigate = useNavigate();
   const { order, user } = useServices();
   useServiceVersion(order);
   const currentUser = user.getCurrentUser();
@@ -21,7 +22,7 @@ const OrderReviewPage = () => {
 
   if (!currentOrder || currentOrder.userId !== currentUser.id || currentOrder.status !== 3) {
     return (
-      <main className="pm-page pm-order-detail-page pm-order-service-page">
+      <main className="pm-page pm-order-detail-page pm-order-service-page pm-order-review-page">
         <EmptyState
           title="暂不能评价"
           description="只有已收货完成的订单可以评价。"
@@ -45,7 +46,7 @@ const OrderReviewPage = () => {
 
   const handleSubmit = (goodId) => {
     const form = forms[goodId] || { rating: 5, content: '' };
-    const result = order.submitReview(currentOrder.id, currentUser.id, { goodId, ...form });
+    const result = order.submitReview(currentOrder.id, currentUser.id, { goodId, ...form, rating: Number(form.rating) || 5 });
     setMessage(result.message);
     if (result.success) {
       setForms((current) => ({ ...current, [goodId]: { rating: 5, content: '' } }));
@@ -53,9 +54,9 @@ const OrderReviewPage = () => {
   };
 
   return (
-    <main className="pm-page pm-order-detail-page pm-order-service-page">
+    <main className="pm-page pm-order-detail-page pm-order-service-page pm-order-review-page">
       <header className="pm-order-detail-hero">
-        <Link className="pm-btn pm-btn-ghost pm-order-detail-back" to={`/orderDetail/${currentOrder.id}`}>← 订单详情</Link>
+        <button className="pm-btn pm-btn-ghost pm-back-btn pm-order-detail-back" type="button" onClick={() => navigate(-1)}>返回</button>
         <p className="pm-order-detail-brand">
           <span className="pm-order-detail-pixel" aria-hidden />
           Pixel Review
@@ -104,13 +105,21 @@ const OrderReviewPage = () => {
                 <div className="pm-order-service-form">
                   <label className="pm-control">
                     <span className="pm-label">评分</span>
-                    <select className="pm-select" value={form.rating} onChange={(event) => updateForm(goodId, { rating: event.target.value })}>
-                      <option value="5">5 星 非常满意</option>
-                      <option value="4">4 星 满意</option>
-                      <option value="3">3 星 一般</option>
-                      <option value="2">2 星 待改进</option>
-                      <option value="1">1 星 不满意</option>
-                    </select>
+                    <span className="pm-rating-stars" role="radiogroup" aria-label="评分">
+                      {[1, 2, 3, 4, 5].map((rating) => (
+                        <button
+                          aria-checked={Number(form.rating) === rating}
+                          aria-label={`${rating} 星`}
+                          className={`pm-rating-star${Number(form.rating) >= rating ? ' is-active' : ''}`}
+                          key={rating}
+                          role="radio"
+                          type="button"
+                          onClick={() => updateForm(goodId, { rating })}
+                        >
+                          ★
+                        </button>
+                      ))}
+                    </span>
                   </label>
                   <label className="pm-control">
                     <span className="pm-label">评价内容</span>

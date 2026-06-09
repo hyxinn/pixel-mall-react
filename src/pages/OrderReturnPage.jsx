@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 
 import EmptyState from '../components/common/EmptyState';
 import StatusTag from '../components/common/StatusTag';
@@ -23,6 +23,7 @@ const getReturnTagValue = (status) => ({
 
 const OrderReturnPage = () => {
   const { orderId } = useParams();
+  const navigate = useNavigate();
   const { order, user } = useServices();
   useServiceVersion(order);
   const currentUser = user.getCurrentUser();
@@ -33,7 +34,7 @@ const OrderReturnPage = () => {
 
   if (!currentOrder || currentOrder.userId !== currentUser.id || currentOrder.status !== 3) {
     return (
-      <main className="pm-page pm-order-detail-page pm-order-service-page">
+      <main className="pm-page pm-order-detail-page pm-order-service-page pm-order-return-page">
         <EmptyState
           title="暂不能申请售后"
           description="只有已收货完成的订单可以申请评价后的退货/售后。"
@@ -74,9 +75,9 @@ const OrderReturnPage = () => {
   };
 
   return (
-    <main className="pm-page pm-order-detail-page pm-order-service-page">
+    <main className="pm-page pm-order-detail-page pm-order-service-page pm-order-return-page">
       <header className="pm-order-detail-hero">
-        <Link className="pm-btn pm-btn-ghost pm-order-detail-back" to={`/orderDetail/${currentOrder.id}`}>← 订单详情</Link>
+        <button className="pm-btn pm-btn-ghost pm-back-btn pm-order-detail-back" type="button" onClick={() => navigate(-1)}>返回</button>
         <p className="pm-order-detail-brand">
           <span className="pm-order-detail-pixel" aria-hidden />
           Pixel Service

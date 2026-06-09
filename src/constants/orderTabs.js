@@ -1,9 +1,9 @@
 export const ORDER_STATUS_TABS = [
   { key: 'all', label: '全部' },
-  { key: '0', label: '待支付' },
-  { key: '1', label: '已支付' },
-  { key: '2', label: '已发货' },
-  { key: '3', label: '已完成' },
+  { key: '0', label: '待付款' },
+  { key: '1', label: '待发货' },
+  { key: '2', label: '待收货' },
+  { key: 'service', label: '退款/售后' },
 ];
 
 export const orderListPathForStatus = (statusKey) => {

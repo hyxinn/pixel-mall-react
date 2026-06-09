@@ -158,9 +158,9 @@ const DetailPage = () => {
 
   return (
     <main className="pm-page pm-detail-page">
-      <Link className="pm-btn pm-btn-ghost" to="/home">
-        ← 返回
-      </Link>
+      <button className="pm-btn pm-btn-ghost pm-back-btn" type="button" onClick={() => navigate(-1)}>
+        返回
+      </button>
 
       <article className="pm-product-card">
         <div className="pm-product-media">

@@ -9,6 +9,7 @@ import SearchBar from '../../components/h5/SearchBar';
 import { usePagination } from '../../hooks/usePagination';
 import { useServices, useServiceSnapshot, useServiceVersion } from '../../hooks/useServices';
 import { carouselActivities } from '../../mock/activities';
+import { showPixelToast } from '../../utils/pixelToast';
 
 const HomeProductFeed = ({ products, keywordLabel, onAddToCart, cartQuantityMap, animatingProductId }) => {
   const { page, setPage, totalPages, slice, total, hasPrev, hasNext, pageSize } = usePagination(products, 6);
@@ -86,7 +87,6 @@ const Home = () => {
     }), {});
   });
   const [hotProducts, setHotProducts] = useState([]);
-  const [featuredShops, setFeaturedShops] = useState([]);
 
   const carouselItems = carouselActivities;
   useEffect(() => {
@@ -95,13 +95,9 @@ const Home = () => {
       ? api.products.search(keywordFromUrl)
       : api.products.list();
 
-    Promise.all([
-      productsRequest,
-      api.products.featuredShops(3),
-    ]).then(([list, shops]) => {
+    productsRequest.then((list) => {
       if (isMounted) {
         setHotProducts(list);
-        setFeaturedShops(shops);
       }
     });
 
@@ -127,7 +123,7 @@ const Home = () => {
     }
     const result = await api.cart.add(currentUser.id, product.id, 1);
     if (!result.success) {
-      window.alert(result.message);
+      showPixelToast(result.message);
       return;
     }
     setAnimatingProductId(null);
@@ -148,16 +144,6 @@ const Home = () => {
           placeholder="搜索像素包、发夹、香氛..."
         />
       </div>
-
-      {featuredShops.length ? (
-        <Link className="pm-home-shop-entry" to="/featured-shops">
-          <span>
-            <strong>特色店铺</strong>
-            <small>{featuredShops.length} 家精选店铺 · 逛店内好物</small>
-          </span>
-          <em>去逛逛</em>
-        </Link>
-      ) : null}
 
       {carouselItems.length ? <Carousel items={carouselItems} /> : null}
 

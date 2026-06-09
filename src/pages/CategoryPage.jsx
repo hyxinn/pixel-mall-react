@@ -2,11 +2,11 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import EmptyState from '../components/common/EmptyState';
-import FeaturedShopSection from '../components/h5/FeaturedShopSection';
 import ProductCard from '../components/h5/ProductCard';
 import { useInfiniteScroll } from '../hooks/useInfiniteScroll';
 import { useServices, useServiceSnapshot, useServiceVersion } from '../hooks/useServices';
 import { splitCategoryLabel } from '../utils/categoryLabel';
+import { showPixelToast } from '../utils/pixelToast';
 
 const CategoryChipLabel = ({ name }) => {
   const { line1, line2 } = splitCategoryLabel(name);
@@ -76,19 +76,15 @@ const CategoryPage = () => {
     }), {});
   });
 
-  const [featuredShops, setFeaturedShops] = useState([]);
-
   useEffect(() => {
     let isMounted = true;
     Promise.all([
       api.categories.list(),
       api.products.list({ categoryId: activeCategoryId }),
-      api.products.featuredShops(3),
-    ]).then(([nextCategories, nextProducts, nextFeaturedShops]) => {
+    ]).then(([nextCategories, nextProducts]) => {
       if (isMounted) {
         setCategories(nextCategories);
         setProducts(nextProducts);
-        setFeaturedShops(nextFeaturedShops);
       }
     });
 
@@ -115,7 +111,7 @@ const CategoryPage = () => {
 
     const result = await api.cart.add(currentUser.id, product.id, 1);
     if (!result.success) {
-      window.alert(result.message);
+      showPixelToast(result.message);
       return;
     }
 
@@ -128,14 +124,6 @@ const CategoryPage = () => {
 
   return (
     <main className="pm-page pm-category-page">
-      <header className="pm-category-header">
-        <p className="pm-category-header-brand">
-          <span className="pm-category-header-pixel" aria-hidden />
-          Pixel Mall
-        </p>
-        <h1 className="pm-category-header-title">分类</h1>
-      </header>
-
       <div className="pm-category-layout">
         <nav className="pm-category-side" aria-label="商品分类">
           <button
@@ -158,7 +146,6 @@ const CategoryPage = () => {
         </nav>
 
         <section className="pm-category-main">
-          <FeaturedShopSection shops={featuredShops} id="category-shops-title" className="pm-category-shop-section" />
           <CategoryProductFeed
             key={activeCategoryId}
             products={products}

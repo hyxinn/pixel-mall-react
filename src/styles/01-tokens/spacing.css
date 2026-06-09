@@ -45,8 +45,9 @@
   /* 页面宽度：前台、后台和移动预览统一从这里取值。 */
   --pm-page-max: 1200px;
   --pm-admin-max: 1280px;
-  /* 手机逻辑宽度：桌面预览占位与真机窄屏共用。 */
-  --pm-mobile-max: 360px;
+  /* 手机逻辑画布：iPhone 17 Pro Max 设计宽度，上层外壳按 19.5:9 比例缩放。 */
+  --pm-mobile-max: 480px;
+  --pm-mobile-height: 1040px;
 
   /* 固定栏高度：用于顶部栏、底部栏和 sticky 布局计算。 */
   --pm-header-height: 64px;

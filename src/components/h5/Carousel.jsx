@@ -70,18 +70,6 @@ const Carousel = ({ items, intervalMs = 2500, className = '' }) => {
           />
         ))}
       </div>
-      <div className="pm-home-carousel-links" aria-label="活动入口">
-        {items.map((item, index) => (
-          <button
-            key={`${item.id}-entry`}
-            type="button"
-            className={`pm-home-carousel-entry${index === activeIndex ? ' is-active' : ''}`}
-            onClick={() => setActiveIndex(index)}
-          >
-            {item.title || item.name}
-          </button>
-        ))}
-      </div>
     </section>
   );
 };

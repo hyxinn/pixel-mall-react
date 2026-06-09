@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import Button from '../components/common/Button';
 import EmptyState from '../components/common/EmptyState';
 import { useServices } from '../hooks/useServices';
+import { showPixelToast } from '../utils/pixelToast';
 import { formatPrice, getProductPriceInfo } from '../utils/productDisplay';
 
 const CartHeader = () => (
@@ -60,7 +61,7 @@ const CartPage = () => {
 
     const result = await api.cart.updateCount(item.id, item.count - 1);
     if (!result.success) {
-      window.alert(result.message);
+      showPixelToast(result.message);
     }
     refresh();
   };
@@ -68,7 +69,7 @@ const CartPage = () => {
   const handleIncrease = async (item) => {
     const result = await api.cart.updateCount(item.id, item.count + 1);
     if (!result.success) {
-      window.alert(result.message);
+      showPixelToast(result.message);
     }
     refresh();
   };
@@ -76,7 +77,7 @@ const CartPage = () => {
   const handleCheckout = async () => {
     const validation = await api.cart.validateCheckout(currentUser.id);
     if (!validation.success) {
-      window.alert(validation.message);
+      showPixelToast(validation.message);
       return;
     }
     navigate('/checkout');

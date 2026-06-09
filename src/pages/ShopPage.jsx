@@ -1,9 +1,10 @@
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 import Button from '../components/common/Button';
 import EmptyState from '../components/common/EmptyState';
 import ProductCard from '../components/h5/ProductCard';
 import { useServices, useServiceVersion } from '../hooks/useServices';
+import { showPixelToast } from '../utils/pixelToast';
 
 const ShopPage = () => {
   const { shopId } = useParams();
@@ -21,14 +22,14 @@ const ShopPage = () => {
     }
     const result = cart.addItem(currentUser.id, product.id, 1);
     if (!result.success) {
-      window.alert(result.message);
+      showPixelToast(result.message);
     }
   };
 
   if (!shop) {
     return (
       <main className="pm-page pm-shop-page">
-        <Link className="pm-btn pm-btn-ghost" to="/home">← 返回首页</Link>
+        <button className="pm-btn pm-btn-ghost pm-back-btn" type="button" onClick={() => navigate(-1)}>返回</button>
         <EmptyState title="店铺不存在" description="这家店铺可能暂时休息了。" iconSrc="/images/admin/empty/no-data-shop.svg" />
       </main>
     );
@@ -36,7 +37,7 @@ const ShopPage = () => {
 
   return (
     <main className="pm-page pm-shop-page">
-      <Link className="pm-btn pm-btn-ghost" to="/home">← 返回首页</Link>
+      <button className="pm-btn pm-btn-ghost pm-back-btn" type="button" onClick={() => navigate(-1)}>返回</button>
 
       <section className="pm-shop-hero" aria-labelledby="shop-title">
         <div className="pm-shop-cover">

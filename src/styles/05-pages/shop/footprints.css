@@ -1,24 +1,24 @@
 .pm-footprints-page {
   display: grid;
-  gap: var(--pm-space-4);
+  gap: var(--pm-space-3);
 }
 
 .pm-footprints-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--pm-space-2);
+  gap: 6px;
 }
 
 .pm-footprints-grid,
 .pm-profile-footprint-preview {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--pm-space-3);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--pm-space-2);
 }
 
 .pm-footprints-item {
   display: grid;
-  gap: var(--pm-space-2);
+  gap: 6px;
 }
 
 .pm-profile-panel-head {
@@ -37,12 +37,12 @@
 @media (max-width: 760px) {
   .pm-footprints-grid,
   .pm-profile-footprint-preview {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 .pm-h5-shell .pm-footprints-page {
-  gap: var(--pm-space-3);
+  gap: var(--pm-space-2);
 }
 
 .pm-h5-shell .pm-footprints-toolbar {
@@ -58,19 +58,19 @@
 }
 
 .pm-h5-shell .pm-footprints-actions .pm-btn {
-  min-height: 34px;
-  padding: 6px 9px;
+  min-height: 30px;
+  padding: 4px 8px;
   font-size: var(--pm-text-xs);
 }
 
 .pm-h5-shell .pm-footprints-grid,
 .pm-h5-shell .pm-profile-footprint-preview {
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--pm-space-2);
+  gap: 6px;
 }
 
 .pm-h5-shell .pm-footprints-item .pm-btn {
-  min-height: 32px;
-  padding: 5px 8px;
+  min-height: 29px;
+  padding: 4px 8px;
   font-size: var(--pm-text-xs);
 }

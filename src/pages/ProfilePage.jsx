@@ -4,6 +4,21 @@ import ThemePanel from '../components/common/ThemePanel';
 import { ORDER_STATUS_TABS, orderListPathForStatus } from '../constants/orderTabs';
 import { useServices, useServiceSnapshot } from '../hooks/useServices';
 
+const orderIconClassMap = {
+  all: 'pm-profile-icon-orders',
+  0: 'pm-profile-icon-wallet',
+  1: 'pm-profile-icon-receipt',
+  2: 'pm-profile-icon-truck',
+  3: 'pm-profile-icon-done',
+};
+
+const profileLinks = [
+  { to: '/favorites', label: '收藏', icon: 'pm-profile-icon-heart' },
+  { to: '/address', label: '地址', icon: 'pm-profile-icon-pin' },
+  { to: '/footprints', label: '足迹', icon: 'pm-profile-icon-clock' },
+  { to: '/admin/login', label: '后台', icon: 'pm-profile-icon-admin', className: 'pm-profile-link-admin' },
+];
+
 const ProfilePage = () => {
   const { user, api } = useServices();
   const navigate = useNavigate();
@@ -18,14 +33,6 @@ const ProfilePage = () => {
 
   return (
     <main className="pm-page pm-profile-page">
-      <header className="pm-profile-page-header">
-        <p className="pm-profile-page-brand">
-          <span className="pm-profile-page-pixel" aria-hidden />
-          Pixel Mall
-        </p>
-        <h1 className="pm-profile-page-title">我的</h1>
-      </header>
-
       <section className="pm-profile-hero" aria-label="用户信息">
         <div className="pm-profile-hero-card">
           <div className="pm-profile-hero-top">
@@ -50,7 +57,6 @@ const ProfilePage = () => {
         <h2 className="pm-profile-panel-title" id="profile-orders-title">
           我的订单
         </h2>
-        <p className="pm-profile-panel-desc">按状态查看订单，点击进入列表</p>
         <nav className="pm-profile-order-tabs" aria-label="订单筛选">
           {ORDER_STATUS_TABS.map((tab) => (
             <Link
@@ -58,7 +64,8 @@ const ProfilePage = () => {
               className="pm-profile-order-tab"
               to={orderListPathForStatus(tab.key)}
             >
-              {tab.label}
+              <span className={`pm-profile-menu-icon ${orderIconClassMap[tab.key]}`} aria-hidden />
+              <span className="pm-profile-menu-text">{tab.label}</span>
             </Link>
           ))}
         </nav>
@@ -69,30 +76,12 @@ const ProfilePage = () => {
           常用功能
         </h2>
         <nav className="pm-profile-links" aria-label="我的功能">
-          <Link className="pm-profile-link" to="/favorites">
-            <span className="pm-profile-link-label">我的收藏</span>
-            <span className="pm-profile-link-arrow" aria-hidden>
-              →
-            </span>
-          </Link>
-          <Link className="pm-profile-link" to="/address">
-            <span className="pm-profile-link-label">地址管理</span>
-            <span className="pm-profile-link-arrow" aria-hidden>
-              →
-            </span>
-          </Link>
-          <Link className="pm-profile-link" to="/footprints">
-            <span className="pm-profile-link-label">我的足迹</span>
-            <span className="pm-profile-link-arrow" aria-hidden>
-              →
-            </span>
-          </Link>
-          <Link className="pm-profile-link pm-profile-link-admin" to="/admin/login">
-            <span className="pm-profile-link-label">后台入口</span>
-            <span className="pm-profile-link-arrow" aria-hidden>
-              →
-            </span>
-          </Link>
+          {profileLinks.map((item) => (
+            <Link className={`pm-profile-link ${item.className || ''}`.trim()} to={item.to} key={item.to}>
+              <span className={`pm-profile-menu-icon ${item.icon}`} aria-hidden />
+              <span className="pm-profile-menu-text">{item.label}</span>
+            </Link>
+          ))}
         </nav>
       </section>
 

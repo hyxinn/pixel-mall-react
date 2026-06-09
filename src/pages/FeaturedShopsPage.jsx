@@ -1,17 +1,18 @@
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import EmptyState from '../components/common/EmptyState';
 import FeaturedShopSection from '../components/h5/FeaturedShopSection';
 import { useServices, useServiceVersion } from '../hooks/useServices';
 
 const FeaturedShopsPage = () => {
+  const navigate = useNavigate();
   const { good } = useServices();
   useServiceVersion(good);
   const shops = good.getFeaturedShops(12);
 
   return (
     <main className="pm-page pm-featured-shops-page pm-shop-page">
-      <Link className="pm-btn pm-btn-ghost" to="/home">← 返回首页</Link>
+      <button className="pm-btn pm-btn-ghost pm-back-btn" type="button" onClick={() => navigate(-1)}>返回</button>
 
       <section className="pm-shop-hero" aria-labelledby="featured-shops-title">
         <div className="pm-shop-hero-copy">

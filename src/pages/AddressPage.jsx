@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import Button from '../components/common/Button';
 import EmptyState from '../components/common/EmptyState';
@@ -144,8 +144,6 @@ const AddressPage = () => {
     return null;
   }
 
-  const backTo = isOrderFlow ? returnTo : '/profile';
-  const backLabel = isOrderFlow ? '返回订单' : '返回我的';
   const pageTitle = isOrderFlow ? '选择收货地址' : '地址管理';
 
   const addressForm = (
@@ -265,9 +263,9 @@ const AddressPage = () => {
             <p className="pm-address-flow-hint">选择已有地址，或在下方新增后返回订单</p>
           ) : null}
         </div>
-        <Link className="pm-btn pm-btn-ghost" to={backTo}>
-          {backLabel}
-        </Link>
+        <button className="pm-btn pm-btn-ghost pm-back-btn" type="button" onClick={() => navigate(-1)}>
+          返回
+        </button>
       </header>
 
       {isOrderFlow ? (

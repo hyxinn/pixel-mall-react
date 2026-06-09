@@ -483,25 +483,28 @@
 
 .pm-home-shop-section {
   display: grid;
-  gap: var(--pm-space-3);
+  gap: var(--pm-space-2);
 }
 
 .pm-home-shop-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--pm-space-3);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--pm-space-2);
 }
 
 .pm-home-shop-card {
+  position: relative;
   display: grid;
-  gap: var(--pm-space-2);
+  gap: 6px;
   min-width: 0;
-  padding: var(--pm-space-3);
+  padding: var(--pm-space-2);
+  overflow: hidden;
   color: var(--pm-color-text);
   text-decoration: none;
   background: var(--pm-color-surface);
   border: var(--pm-border-width-thin) solid var(--pm-color-line);
-  box-shadow: 5px 5px 0 color-mix(in srgb, var(--pm-color-primary) 18%, transparent);
+  box-shadow: 3px 3px 0 color-mix(in srgb, var(--pm-color-primary) 18%, transparent);
+  transition: transform 130ms steps(2, end), box-shadow 130ms ease, filter 130ms ease;
 }
 
 .pm-home-shop-card:nth-child(2) {
@@ -524,14 +527,17 @@
   height: 100%;
   object-fit: cover;
   image-rendering: pixelated;
+  transition: transform 150ms steps(3, end), filter 150ms ease;
 }
 
 .pm-home-shop-info {
   display: grid;
-  gap: 5px;
+  gap: 3px;
 }
 
 .pm-home-shop-info strong {
+  overflow-wrap: anywhere;
+  font-size: var(--pm-text-sm);
   font-weight: var(--pm-weight-black);
 }
 
@@ -539,7 +545,21 @@
 .pm-home-shop-info small {
   color: var(--pm-color-text-muted);
   font-size: var(--pm-text-xs);
-  line-height: 1.45;
+  line-height: 1.32;
+}
+
+.pm-home-shop-card:hover,
+.pm-home-shop-card:focus-visible {
+  outline: none;
+  filter: saturate(1.05);
+  transform: translate(1px, 1px);
+  box-shadow: 2px 2px 0 color-mix(in srgb, var(--pm-color-primary) 20%, transparent);
+}
+
+.pm-home-shop-card:hover .pm-home-shop-cover img,
+.pm-home-shop-card:focus-visible .pm-home-shop-cover img {
+  filter: saturate(1.08);
+  transform: translateY(-2px) scale(1.03);
 }
 
 /* 分区标题：更像贴纸标题和轻量链接。 */
@@ -797,15 +817,13 @@
 }
 
 .pm-h5-shell .pm-home-shop-grid {
-  grid-template-columns: 1fr;
-  gap: var(--pm-space-2);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
 }
 
 .pm-h5-shell .pm-home-shop-card {
-  grid-template-columns: 76px minmax(0, 1fr);
-  align-items: center;
-  padding: var(--pm-space-2);
-  box-shadow: 4px 4px 0 color-mix(in srgb, var(--pm-color-primary) 16%, transparent);
+  padding: 6px;
+  box-shadow: 2px 2px 0 color-mix(in srgb, var(--pm-color-primary) 16%, transparent);
 }
 
 .pm-h5-shell .pm-home-shop-cover {
@@ -845,7 +863,7 @@
 /* 首页轮播：主推商品自动切换展示。 */
 .pm-home-carousel {
   display: grid;
-  gap: var(--pm-space-3);
+  gap: 5px;
 }
 
 .pm-home-carousel-slide {
@@ -869,7 +887,7 @@
 }
 
 .pm-home-carousel-slide-visual .pm-home-carousel-media {
-  aspect-ratio: 16 / 10;
+  aspect-ratio: 16 / 7;
   border: 0;
 }
 
@@ -945,56 +963,33 @@
   bottom: 0;
   left: 0;
   right: 0;
-  padding: 12px 20px;
+  padding: 8px 14px;
   background: linear-gradient(to top, rgba(61, 47, 59, 0.9), rgba(61, 47, 59, 0.6));
   color: #fff;
 }
 
 .pm-home-carousel-title {
   margin: 0 0 4px;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: bold;
 }
 
 .pm-home-carousel-subtitle {
   margin: 0;
-  font-size: 14px;
+  font-size: 12px;
   opacity: 0.9;
 }
 
 .pm-home-carousel-cta {
   display: inline-flex;
   width: max-content;
-  margin-top: 8px;
-  padding: 4px 10px;
+  margin-top: 5px;
+  padding: 3px 8px;
   color: var(--pm-color-text);
   font-size: var(--pm-text-xs);
   font-weight: var(--pm-weight-black);
   background: var(--pm-color-accent);
   border: var(--pm-border-width-thin) solid var(--pm-color-line);
-}
-
-.pm-home-carousel-links {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: var(--pm-space-2);
-}
-
-.pm-home-carousel-entry {
-  min-height: 38px;
-  padding: 7px 8px;
-  color: var(--pm-color-text);
-  font-weight: var(--pm-weight-bold);
-  cursor: pointer;
-  background: color-mix(in srgb, var(--pm-color-surface) 90%, transparent);
-  border: var(--pm-border-width-thin) solid var(--pm-color-line);
-  box-shadow: 3px 3px 0 color-mix(in srgb, var(--pm-color-primary) 18%, transparent);
-}
-
-.pm-home-carousel-entry.is-active {
-  background: color-mix(in srgb, var(--pm-color-accent) 48%, var(--pm-color-surface));
-  transform: translate(2px, 2px);
-  box-shadow: 1px 1px 0 color-mix(in srgb, var(--pm-color-primary) 22%, transparent);
 }
 
 /* 分页条：首页与分类商品列表共用。 */

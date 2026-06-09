@@ -3,7 +3,7 @@
 .pm-profile-page {
   display: flex;
   flex-direction: column;
-  gap: var(--pm-space-5);
+  gap: var(--pm-space-3);
   padding: 0 var(--pm-space-4) calc(var(--pm-bottom-bar-height) + var(--pm-space-6));
 }
 
@@ -153,7 +153,7 @@
 /* 分区面板：订单 / 常用功能 */
 .pm-profile-panel {
   display: grid;
-  gap: var(--pm-space-3);
+  gap: var(--pm-space-2);
 }
 
 .pm-profile-panel-title {
@@ -175,82 +175,191 @@
   grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 8px;
   margin-top: var(--pm-space-1);
-  padding: var(--pm-space-4);
+  padding: var(--pm-space-3);
   background: var(--pm-color-surface);
   border: var(--pm-border-width-thin) solid var(--pm-color-line);
   box-shadow: 4px 4px 0 color-mix(in srgb, var(--pm-color-primary) 12%, transparent);
 }
 
 .pm-profile-order-tab {
-  display: flex;
+  display: grid;
   align-items: center;
   justify-content: center;
-  min-height: 40px;
-  padding: 8px 4px;
+  justify-items: center;
+  gap: 5px;
+  min-height: 58px;
+  padding: 7px 3px;
   color: var(--pm-color-text);
-  font-size: var(--pm-text-xs);
-  font-weight: var(--pm-weight-black);
-  line-height: 1.2;
+  font-size: 10px;
+  font-weight: var(--pm-weight-bold);
+  line-height: 1.1;
   text-align: center;
   text-decoration: none;
-  background: color-mix(in srgb, var(--pm-color-bg-soft) 65%, var(--pm-color-surface));
-  border: 2px solid var(--pm-color-line);
-  box-shadow: 2px 2px 0 color-mix(in srgb, var(--pm-color-primary) 14%, transparent);
+  background: transparent;
+  border: 0;
+  box-shadow: none;
   transition:
     transform 140ms ease,
-    box-shadow 140ms ease,
-    background-color 140ms ease,
     color 140ms ease;
 }
 
 .pm-profile-order-tab:hover {
   color: var(--pm-color-primary-deep);
-  background: color-mix(in srgb, var(--pm-color-primary-soft) 55%, var(--pm-color-surface));
-  box-shadow: 3px 4px 0 color-mix(in srgb, var(--pm-color-primary) 22%, transparent);
   transform: translateY(-2px);
 }
 
 .pm-profile-links {
   display: grid;
-  gap: var(--pm-space-3);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
   margin-top: var(--pm-space-1);
+  padding: var(--pm-space-3);
+  background: var(--pm-color-surface);
+  border: var(--pm-border-width-thin) solid var(--pm-color-line);
+  box-shadow: 4px 4px 0 color-mix(in srgb, var(--pm-color-primary) 12%, transparent);
 }
 
 .pm-profile-link {
-  display: flex;
+  display: grid;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--pm-space-4);
-  min-height: 56px;
-  padding: var(--pm-space-4) var(--pm-space-5);
+  justify-content: center;
+  justify-items: center;
+  gap: 5px;
+  min-height: 58px;
+  padding: 7px 3px;
   color: var(--pm-color-text);
+  font-size: 10px;
+  font-weight: var(--pm-weight-bold);
+  line-height: 1.1;
+  text-align: center;
   text-decoration: none;
-  background: var(--pm-color-surface);
-  border: var(--pm-border-width-thin) solid var(--pm-color-line);
-  box-shadow: 4px 4px 0 color-mix(in srgb, var(--pm-color-primary) 14%, transparent);
+  background: transparent;
+  border: 0;
+  box-shadow: none;
   transition:
     transform 140ms ease,
-    box-shadow 140ms ease,
-    border-color 140ms ease;
+    color 140ms ease;
 }
 
 .pm-profile-link:hover {
-  box-shadow: 6px 6px 0 color-mix(in srgb, var(--pm-color-primary) 20%, transparent);
+  color: var(--pm-color-primary-deep);
   transform: translateY(-2px);
 }
 
-.pm-profile-link-label {
-  font-size: var(--pm-text-base);
-  font-weight: var(--pm-weight-black);
-  line-height: 1.3;
+.pm-profile-menu-text {
+  font-size: 10px;
+  font-weight: var(--pm-weight-bold);
+  line-height: 1.15;
 }
 
-.pm-profile-link-arrow {
-  flex-shrink: 0;
-  color: var(--pm-color-primary);
-  font-size: var(--pm-text-lg);
-  font-weight: var(--pm-weight-black);
-  line-height: 1;
+.pm-profile-menu-icon {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  color: var(--pm-color-primary-deep);
+  background: color-mix(in srgb, var(--pm-color-primary-soft) 58%, var(--pm-color-surface));
+  border: 2px solid var(--pm-color-line);
+  box-shadow: 2px 2px 0 color-mix(in srgb, var(--pm-color-primary) 16%, transparent);
+}
+
+.pm-profile-menu-icon::before,
+.pm-profile-menu-icon::after {
+  position: absolute;
+  content: "";
+}
+
+.pm-profile-icon-orders::before {
+  width: 15px;
+  height: 17px;
+  border: 2px solid currentColor;
+  border-top-width: 5px;
+}
+
+.pm-profile-icon-wallet::before {
+  width: 17px;
+  height: 13px;
+  border: 2px solid currentColor;
+}
+
+.pm-profile-icon-wallet::after {
+  right: 5px;
+  width: 5px;
+  height: 5px;
+  background: currentColor;
+}
+
+.pm-profile-icon-receipt::before {
+  width: 14px;
+  height: 18px;
+  border: 2px solid currentColor;
+  box-shadow: inset 0 5px 0 color-mix(in srgb, var(--pm-color-accent) 62%, white);
+}
+
+.pm-profile-icon-truck::before {
+  width: 18px;
+  height: 11px;
+  border: 2px solid currentColor;
+}
+
+.pm-profile-icon-truck::after {
+  bottom: 5px;
+  width: 18px;
+  height: 4px;
+  border-inline: 3px solid currentColor;
+}
+
+.pm-profile-icon-done::before {
+  width: 16px;
+  height: 8px;
+  border-bottom: 3px solid currentColor;
+  border-left: 3px solid currentColor;
+  transform: rotate(-45deg);
+}
+
+.pm-profile-icon-heart::before {
+  width: 15px;
+  height: 15px;
+  background: currentColor;
+  clip-path: polygon(50% 86%, 12% 48%, 12% 22%, 35% 12%, 50% 26%, 65% 12%, 88% 22%, 88% 48%);
+}
+
+.pm-profile-icon-pin::before {
+  width: 14px;
+  height: 18px;
+  background: currentColor;
+  clip-path: polygon(50% 100%, 18% 54%, 18% 18%, 50% 4%, 82% 18%, 82% 54%);
+}
+
+.pm-profile-icon-pin::after {
+  width: 5px;
+  height: 5px;
+  background: var(--pm-color-surface);
+  border-radius: 50%;
+}
+
+.pm-profile-icon-clock::before {
+  width: 17px;
+  height: 17px;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+}
+
+.pm-profile-icon-clock::after {
+  width: 7px;
+  height: 7px;
+  border-top: 2px solid currentColor;
+  border-left: 2px solid currentColor;
+}
+
+.pm-profile-icon-admin::before {
+  width: 16px;
+  height: 16px;
+  border: 2px solid currentColor;
+  box-shadow:
+    inset 5px 0 0 color-mix(in srgb, var(--pm-color-accent-2) 50%, white),
+    inset 0 5px 0 color-mix(in srgb, var(--pm-color-accent) 50%, white);
 }
 
 .pm-profile-link-admin {

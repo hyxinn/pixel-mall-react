@@ -4,10 +4,11 @@
 /* 商品卡外壳：统一像素描边、白底和粉色块状阴影。 */
 .pm-product-card {
   position: relative;
+  isolation: isolate;
   display: grid;
-  gap: var(--pm-space-3);
+  gap: var(--pm-space-2);
   min-width: 0;
-  padding: var(--pm-space-3);
+  padding: var(--pm-space-2);
   background: var(--pm-color-surface);
   border: var(--pm-border-width) solid var(--pm-color-line);
   border-radius: var(--pm-radius);
@@ -16,15 +17,20 @@
 
 /* 商品卡右上角装饰块：增强像素贴纸感。 */
 .pm-product-card::before {
+  display: none;
+}
+
+.pm-product-card::after {
   position: absolute;
-  top: calc(var(--pm-border-width) * -1);
-  right: calc(var(--pm-border-width) * -1);
+  right: 8px;
+  bottom: -4px;
+  left: 10px;
+  z-index: -1;
+  height: 7px;
   content: "";
-  width: 18px;
-  height: 18px;
-  background: var(--pm-color-accent);
-  border-left: var(--pm-border-width) solid var(--pm-color-line);
-  border-bottom: var(--pm-border-width) solid var(--pm-color-line);
+  background: color-mix(in srgb, var(--pm-color-primary) 24%, transparent);
+  border: 1px solid color-mix(in srgb, var(--pm-color-line) 38%, transparent);
+  transform: rotate(-0.8deg);
 }
 
 /* 商品图片区域：固定正方形比例，防止商品列表高度混乱。 */
@@ -35,9 +41,26 @@
   aspect-ratio: 1 / 1;
   overflow: hidden;
   background:
+    linear-gradient(90deg, color-mix(in srgb, var(--pm-color-accent) 28%, transparent) 0 8px, transparent 8px),
     linear-gradient(45deg, transparent 0 46%, rgba(255, 255, 255, 0.35) 46% 54%, transparent 54%),
     var(--pm-color-bg-soft);
   border: var(--pm-border-width-thin) solid var(--pm-color-line);
+}
+
+.pm-product-media::after {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  width: 9px;
+  height: 9px;
+  content: "";
+  background: var(--pm-white);
+  box-shadow:
+    16px 8px 0 color-mix(in srgb, var(--pm-color-accent) 62%, white),
+    34px -2px 0 color-mix(in srgb, var(--pm-color-primary) 38%, white);
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 140ms ease, transform 140ms ease;
 }
 
 .pm-product-cart-badge,
@@ -70,27 +93,75 @@
   color: var(--pm-white);
   background: var(--pm-color-primary-deep);
   border-radius: 999px;
-  animation: pm-cart-pop 700ms ease-out both;
+  animation: pm-cart-pop 760ms steps(6, end) both;
+}
+
+.pm-product-cart-pop::before,
+.pm-product-cart-pop::after {
+  position: absolute;
+  content: "";
+  width: 7px;
+  height: 7px;
+  background: var(--pm-color-accent);
+  border: 1px solid var(--pm-color-line);
+  animation: pm-cart-pop-bit 760ms steps(5, end) both;
+}
+
+.pm-product-cart-pop::before {
+  top: -7px;
+  left: -9px;
+}
+
+.pm-product-cart-pop::after {
+  right: -8px;
+  bottom: -5px;
+  background: var(--pm-white);
 }
 
 @keyframes pm-cart-pop {
   0% {
     opacity: 0;
-    transform: translateY(12px) scale(0.7);
+    transform: translate(6px, 14px) scale(0.72);
   }
   28% {
     opacity: 1;
-    transform: translateY(0) scale(1.08);
+    transform: translate(0, -2px) scale(1.1);
+  }
+  54% {
+    opacity: 1;
+    transform: translate(-3px, -10px) scale(1);
   }
   100% {
     opacity: 0;
-    transform: translateY(-26px) scale(0.9);
+    transform: translate(-6px, -32px) scale(0.88);
+  }
+}
+
+@keyframes pm-cart-pop-bit {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0);
+  }
+  26% {
+    opacity: 1;
+    transform: translate(-2px, -3px);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-10px, -15px);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .pm-product-cart-pop {
+  .pm-product-card-collectible,
+  .pm-product-card-collectible .pm-product-media img,
+  .pm-product-card-collectible .pm-pixel-product,
+  .pm-product-add-btn,
+  .pm-product-cart-pop,
+  .pm-product-cart-pop::before,
+  .pm-product-cart-pop::after {
     animation: none;
+    transition: none;
   }
 }
 
@@ -100,6 +171,7 @@
   height: 100%;
   object-fit: cover;
   image-rendering: pixelated;
+  transition: transform 150ms steps(3, end), filter 150ms ease;
 }
 
 /* 商品卡标签：默认贴在图片左上角。 */
@@ -114,7 +186,7 @@
 .pm-product-title {
   margin: 0;
   overflow-wrap: anywhere;
-  font-size: var(--pm-text-base);
+  font-size: var(--pm-text-md);
   line-height: var(--pm-line-card);
 }
 
@@ -157,7 +229,7 @@
 .pm-product-price-stack {
   display: grid;
   justify-items: start;
-  gap: 5px;
+  gap: 3px;
   min-width: 0;
 }
 
@@ -172,12 +244,17 @@
   padding: 4px 8px;
   font-size: var(--pm-text-xs);
   line-height: 1;
+  transition: transform 110ms steps(2, end), box-shadow 110ms ease, background-color 110ms ease;
+}
+
+.pm-product-add-btn:active {
+  transform: translate(2px, 2px);
 }
 
 /* 当前价格：全站价格主视觉，使用主题深色。 */
 .pm-price {
   color: var(--pm-color-primary-deep);
-  font-size: var(--pm-text-xl);
+  font-size: var(--pm-text-lg);
   font-weight: var(--pm-weight-black);
   line-height: 1;
 }
@@ -199,13 +276,13 @@
 
 /* 收藏卡商品变体：用于首页、收藏页和推荐区的错位贴纸式商品卡。 */
 .pm-product-card-collectible {
-  gap: 13px;
-  padding: 16px;
+  gap: var(--pm-space-2);
+  padding: var(--pm-space-2);
   background: color-mix(in srgb, var(--pm-color-surface) 88%, transparent);
-  border-width: 3px;
+  border-width: var(--pm-border-width-thin);
   box-shadow:
-    8px 8px 0 color-mix(in srgb, var(--pm-color-line) 12%, transparent),
-    12px 12px 0 color-mix(in srgb, var(--pm-color-primary) 18%, transparent);
+    4px 4px 0 color-mix(in srgb, var(--pm-color-line) 10%, transparent),
+    7px 7px 0 color-mix(in srgb, var(--pm-color-primary) 16%, transparent);
   transition: transform 130ms ease, box-shadow 130ms ease, filter 130ms ease;
 }
 
@@ -215,10 +292,24 @@
 
 .pm-product-card-collectible:hover {
   filter: saturate(1.05);
-  transform: translate(2px, 2px);
+  transform: translate(1px, 1px);
   box-shadow:
-    5px 5px 0 color-mix(in srgb, var(--pm-color-line) 14%, transparent),
-    8px 8px 0 color-mix(in srgb, var(--pm-color-primary) 18%, transparent);
+    3px 3px 0 color-mix(in srgb, var(--pm-color-line) 14%, transparent),
+    5px 5px 0 color-mix(in srgb, var(--pm-color-primary) 18%, transparent);
+}
+
+.pm-product-card-collectible:hover .pm-product-media::after,
+.pm-product-card-collectible:focus-within .pm-product-media::after {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.pm-product-card-collectible:hover .pm-product-media img,
+.pm-product-card-collectible:focus-within .pm-product-media img,
+.pm-product-card-collectible:hover .pm-pixel-product,
+.pm-product-card-collectible:focus-within .pm-pixel-product {
+  filter: saturate(1.08);
+  transform: translateY(-2px) scale(1.02);
 }
 
 /* 像素商品占位图：用 CSS 绘制统一像素商品图，保证无图片时也有完整风格。 */

@@ -64,6 +64,57 @@
   box-shadow: 4px 4px 0 var(--pm-color-primary-soft);
 }
 
+/* 历史返回按钮：左上角像素便签，统一使用 navigate(-1)。 */
+.pm-back-btn {
+  position: relative;
+  min-height: 32px;
+  padding: 5px 12px 5px 26px;
+  overflow: visible;
+  color: var(--pm-color-text);
+  font-size: var(--pm-text-xs);
+  background:
+    linear-gradient(135deg, var(--pm-color-surface) 0 72%, color-mix(in srgb, var(--pm-color-primary-soft) 34%, var(--pm-color-surface)) 72%),
+    var(--pm-color-surface);
+  border-width: var(--pm-border-width-thin);
+  box-shadow:
+    3px 3px 0 color-mix(in srgb, var(--pm-color-primary) 16%, transparent),
+    -2px 2px 0 color-mix(in srgb, var(--pm-color-accent) 14%, transparent);
+  transform: rotate(-1.4deg);
+}
+
+.pm-back-btn::before {
+  position: absolute;
+  top: 50%;
+  left: 7px;
+  display: grid;
+  place-items: center;
+  width: 15px;
+  height: 15px;
+  content: "‹";
+  color: var(--pm-color-primary-deep);
+  font-size: 18px;
+  line-height: 1;
+  background: color-mix(in srgb, var(--pm-color-accent) 58%, var(--pm-color-surface));
+  border: 1px solid color-mix(in srgb, var(--pm-color-line) 64%, transparent);
+  transform: translateY(-50%);
+}
+
+.pm-back-btn::after {
+  position: absolute;
+  top: -5px;
+  left: 50%;
+  width: 24px;
+  height: 6px;
+  content: "";
+  background: var(--pm-color-primary-soft);
+  border: 1px solid color-mix(in srgb, var(--pm-color-line) 58%, transparent);
+  transform: translateX(-50%) rotate(2deg);
+}
+
+.pm-back-btn:hover {
+  transform: rotate(-1.4deg) translate(1px, 1px);
+}
+
 /* 危险按钮：用于删除商品、删除地址、退出等风险操作。 */
 .pm-btn-danger {
   --pm-btn-bg: var(--pm-danger);
