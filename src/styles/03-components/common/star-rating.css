@@ -1,0 +1,30 @@
+.pm-star-rating {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.pm-star-rating-star {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--pm-color-line);
+  transition: color 140ms ease;
+}
+
+.pm-star-rating-star:hover,
+.pm-star-rating-star-filled {
+  color: var(--pm-color-accent);
+}
+
+.pm-star-rating-star svg {
+  width: 100%;
+  height: 100%;
+}
+
+.pm-star-rating-label {
+  margin-left: 8px;
+  font-size: var(--pm-text-xs);
+  color: var(--pm-color-text-secondary);
+}

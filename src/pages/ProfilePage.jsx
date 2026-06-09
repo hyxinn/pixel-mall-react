@@ -3,21 +3,27 @@ import { Link, useNavigate } from 'react-router-dom';
 import ThemePanel from '../components/common/ThemePanel';
 import { ORDER_STATUS_TABS, orderListPathForStatus } from '../constants/orderTabs';
 import { useServices, useServiceSnapshot } from '../hooks/useServices';
+import IconAll from '../assets/images/profile/icon-all.svg';
+import IconUnpaid from '../assets/images/profile/icon-unpaid.svg';
+import IconPaid from '../assets/images/profile/icon-paid.svg';
+import IconShipped from '../assets/images/profile/icon-shipped.svg';
+import IconFinished from '../assets/images/profile/icon-finished.svg';
+import IconFavorites from '../assets/images/profile/icon-favorites.svg';
+import IconAddress from '../assets/images/profile/icon-address.svg';
+import IconFootprints from '../assets/images/profile/icon-footprints.svg';
+import IconAdmin from '../assets/images/profile/icon-admin.svg';
 
-const orderIconClassMap = {
-  all: 'pm-profile-icon-orders',
-  0: 'pm-profile-icon-wallet',
-  1: 'pm-profile-icon-receipt',
-  2: 'pm-profile-icon-truck',
-  3: 'pm-profile-icon-done',
+const iconMap = {
+  all: IconAll,
+  unpaid: IconUnpaid,
+  paid: IconPaid,
+  shipped: IconShipped,
+  finished: IconFinished,
+  favorites: IconFavorites,
+  address: IconAddress,
+  footprints: IconFootprints,
+  admin: IconAdmin,
 };
-
-const profileLinks = [
-  { to: '/favorites', label: '收藏', icon: 'pm-profile-icon-heart' },
-  { to: '/address', label: '地址', icon: 'pm-profile-icon-pin' },
-  { to: '/footprints', label: '足迹', icon: 'pm-profile-icon-clock' },
-  { to: '/admin/login', label: '后台', icon: 'pm-profile-icon-admin', className: 'pm-profile-link-admin' },
-];
 
 const ProfilePage = () => {
   const { user, api } = useServices();
@@ -64,8 +70,8 @@ const ProfilePage = () => {
               className="pm-profile-order-tab"
               to={orderListPathForStatus(tab.key)}
             >
-              <span className={`pm-profile-menu-icon ${orderIconClassMap[tab.key]}`} aria-hidden />
-              <span className="pm-profile-menu-text">{tab.label}</span>
+              <img src={iconMap[tab.icon]} alt="" className="pm-profile-order-tab-icon" aria-hidden />
+              <span className="pm-profile-order-tab-label">{tab.label}</span>
             </Link>
           ))}
         </nav>
@@ -75,13 +81,23 @@ const ProfilePage = () => {
         <h2 className="pm-profile-panel-title" id="profile-menu-title">
           常用功能
         </h2>
-        <nav className="pm-profile-links" aria-label="我的功能">
-          {profileLinks.map((item) => (
-            <Link className={`pm-profile-link ${item.className || ''}`.trim()} to={item.to} key={item.to}>
-              <span className={`pm-profile-menu-icon ${item.icon}`} aria-hidden />
-              <span className="pm-profile-menu-text">{item.label}</span>
-            </Link>
-          ))}
+        <nav className="pm-profile-links-grid" aria-label="我的功能">
+          <Link className="pm-profile-link-item" to="/favorites">
+            <img src={iconMap.favorites} alt="" className="pm-profile-link-icon" aria-hidden />
+            <span className="pm-profile-link-label">收藏</span>
+          </Link>
+          <Link className="pm-profile-link-item" to="/address">
+            <img src={iconMap.address} alt="" className="pm-profile-link-icon" aria-hidden />
+            <span className="pm-profile-link-label">地址</span>
+          </Link>
+          <Link className="pm-profile-link-item" to="/footprints">
+            <img src={iconMap.footprints} alt="" className="pm-profile-link-icon" aria-hidden />
+            <span className="pm-profile-link-label">足迹</span>
+          </Link>
+          <Link className="pm-profile-link-item pm-profile-link-item-admin" to="/admin/login">
+            <img src={iconMap.admin} alt="" className="pm-profile-link-icon" aria-hidden />
+            <span className="pm-profile-link-label">后台</span>
+          </Link>
         </nav>
       </section>
 

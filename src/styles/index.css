@@ -42,6 +42,9 @@
 /* 03-components/theme：主题切换面板。 */
 @import "./03-components/theme/theme-panel.css";
 
+/* 03-components/common：通用组件。 */
+@import "./03-components/common/star-rating.css";
+
 /* 04-layouts：前台、后台、移动端和网格布局。 */
 @import "./04-layouts/app-shell.css";
 @import "./04-layouts/mobile-page.css";

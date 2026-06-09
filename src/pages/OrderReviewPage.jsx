@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 
 import EmptyState from '../components/common/EmptyState';
 import StatusTag from '../components/common/StatusTag';
+import StarRating from '../components/common/StarRating';
 import { useServices, useServiceVersion } from '../hooks/useServices';
 import { formatPrice } from '../utils/productDisplay';
 
@@ -105,20 +106,17 @@ const OrderReviewPage = () => {
                 <div className="pm-order-service-form">
                   <label className="pm-control">
                     <span className="pm-label">评分</span>
-                    <span className="pm-rating-stars" role="radiogroup" aria-label="评分">
-                      {[1, 2, 3, 4, 5].map((rating) => (
-                        <button
-                          aria-checked={Number(form.rating) === rating}
-                          aria-label={`${rating} 星`}
-                          className={`pm-rating-star${Number(form.rating) >= rating ? ' is-active' : ''}`}
-                          key={rating}
-                          role="radio"
-                          type="button"
-                          onClick={() => updateForm(goodId, { rating })}
-                        >
-                          ★
-                        </button>
-                      ))}
+                    <StarRating
+                      value={Number(form.rating)}
+                      onChange={(rating) => updateForm(goodId, { rating })}
+                      size={28}
+                    />
+                    <span className="pm-star-rating-label">
+                      {form.rating === 5 && '非常满意'}
+                      {form.rating === 4 && '满意'}
+                      {form.rating === 3 && '一般'}
+                      {form.rating === 2 && '待改进'}
+                      {form.rating === 1 && '不满意'}
                     </span>
                   </label>
                   <label className="pm-control">
