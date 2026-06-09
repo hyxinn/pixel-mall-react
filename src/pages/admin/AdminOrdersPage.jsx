@@ -38,7 +38,7 @@ const getItemName = (order, goodId) => {
 };
 
 const AdminOrdersPage = () => {
-  const { order } = useContext(ServiceContext);
+  const { order, api } = useContext(ServiceContext);
   const [filters, setFilters] = useState({ keyword: '', status: 'all', afterSaleStatus: 'all', hasReview: 'all', hasReturn: 'all' });
   const [message, setMessage] = useState('');
   const [viewingOrderId, setViewingOrderId] = useState(null);
@@ -68,29 +68,29 @@ const AdminOrdersPage = () => {
     setFilters((current) => ({ ...current, [name]: value }));
   };
 
-  const handleShip = (orderId) => {
-    const result = order.shipOrder(orderId);
+  const handleShip = async (orderId) => {
+    const result = await api.orders.ship(orderId);
     if (result.success) {
-      order.reload();
+      await api.orders.reload();
     }
     setMessage(result.message);
   };
 
-  const handleReplyReview = (orderId, reviewId) => {
-    const result = order.replyReview(orderId, reviewId, reviewReplies[reviewId] || '');
+  const handleReplyReview = async (orderId, reviewId) => {
+    const result = await api.orders.replyReview(orderId, reviewId, reviewReplies[reviewId] || '');
     setMessage(result.message);
     if (result.success) {
       setReviewReplies((current) => ({ ...current, [reviewId]: '' }));
     }
   };
 
-  const handleReturnAction = (orderId, returnId, action) => {
-    const result = order.handleReturnRequest(orderId, returnId, action, returnNotes[returnId] || '');
+  const handleReturnAction = async (orderId, returnId, action) => {
+    const result = await api.orders.handleReturn(orderId, returnId, action, returnNotes[returnId] || '');
     setMessage(result.message);
   };
 
-  const handleRefresh = () => {
-    order.reload();
+  const handleRefresh = async () => {
+    await api.orders.reload();
     setMessage('订单数据已刷新。');
   };
 

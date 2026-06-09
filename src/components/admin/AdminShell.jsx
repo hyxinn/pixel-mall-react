@@ -14,15 +14,15 @@ const navItems = [
 ];
 
 const AdminShell = () => {
-  const { admin } = useContext(ServiceContext);
+  const { admin, api } = useContext(ServiceContext);
   const navigate = useNavigate();
 
   const currentAdmin = useServiceSnapshot(admin, (service) => service.getCurrentAdmin());
   const menuKeys = useServiceSnapshot(admin, (service) => service.getMenuKeys());
   const [isThemePanelOpen, setIsThemePanelOpen] = useState(false);
 
-  const handleLogout = () => {
-    admin.logout();
+  const handleLogout = async () => {
+    await api.admin.logout();
     navigate('/admin/login');
   };
 

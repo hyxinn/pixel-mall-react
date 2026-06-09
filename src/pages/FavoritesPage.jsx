@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import EmptyState from '../components/common/EmptyState';
@@ -8,17 +9,29 @@ import { usePagination } from '../hooks/usePagination';
 import { useServices, useServiceVersion } from '../hooks/useServices';
 
 const FavoritesPage = () => {
-  const { good, favorite, user } = useServices();
-  useServiceVersion(good);
-  useServiceVersion(favorite);
+  const { good, favorite, user, api } = useServices();
+  const goodRevision = useServiceVersion(good);
+  const favoriteRevision = useServiceVersion(favorite);
   const currentUser = user.getCurrentUser();
+  const [products, setProducts] = useState([]);
 
-  const products = favorite.getFavoriteProducts(currentUser.id);
+  useEffect(() => {
+    let isMounted = true;
+    api.favorites.list(currentUser.id).then((list) => {
+      if (isMounted) {
+        setProducts(list);
+      }
+    });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [api, currentUser.id, goodRevision, favoriteRevision]);
 
   const { page, setPage, totalPages, slice, total, hasPrev, hasNext } = usePagination(products, 6);
 
-  const handleRemove = (productId) => {
-    favorite.removeFavorite(currentUser.id, productId);
+  const handleRemove = async (productId) => {
+    await api.favorites.remove(currentUser.id, productId);
   };
 
   if (!products.length) {

@@ -7,7 +7,7 @@ import { formatPrice, getProductPriceInfo } from '../utils/productDisplay';
 
 const OrderDetailPage = () => {
   const { orderId } = useParams();
-  const { order, user } = useServices();
+  const { order, user, api } = useServices();
   useServiceVersion(order);
   const currentUser = user.getCurrentUser();
   const parsedOrderId = Number(orderId);
@@ -29,12 +29,12 @@ const OrderDetailPage = () => {
     );
   }
 
-  const handleConfirmReceipt = () => {
+  const handleConfirmReceipt = async () => {
     if (!window.confirm('确认已收到商品？')) {
       return;
     }
 
-    const result = order.confirmReceipt(currentOrder.id, currentUser.id);
+    const result = await api.orders.confirmReceipt(currentOrder.id, currentUser.id);
     if (!result.success) {
       window.alert(result.message);
     }

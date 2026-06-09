@@ -11,7 +11,7 @@ import { formatPrice, getProductPriceInfo } from '../utils/productDisplay';
 const OrderListPage = () => {
   'use no memo';
 
-  const { order, user } = useServices();
+  const { order, user, api } = useServices();
   useServiceVersion(order);
   const [searchParams] = useSearchParams();
   const currentUser = user.getCurrentUser();
@@ -20,12 +20,12 @@ const OrderListPage = () => {
 
   const { page, setPage, totalPages, slice, total, hasPrev, hasNext } = usePagination(orders, 5);
 
-  const handleConfirmReceipt = (orderId) => {
+  const handleConfirmReceipt = async (orderId) => {
     if (!window.confirm('确认已收到商品？')) {
       return;
     }
 
-    const result = order.confirmReceipt(orderId, currentUser.id);
+    const result = await api.orders.confirmReceipt(orderId, currentUser.id);
     if (!result.success) {
       window.alert(result.message);
     }

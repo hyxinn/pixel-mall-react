@@ -19,7 +19,7 @@ const CartHeader = () => (
 const CartPage = () => {
   'use no memo';
 
-  const { cart, user } = useServices();
+  const { cart, user, api } = useServices();
   const navigate = useNavigate();
   const currentUser = user.getCurrentUser();
   const [updateKey, setUpdateKey] = useState(0);
@@ -41,40 +41,40 @@ const CartPage = () => {
 
   const allChecked = items.length > 0 && items.every((item) => item.checked);
 
-  const handleToggleAll = (event) => {
-    cart.toggleAll(currentUser.id, event.target.checked);
+  const handleToggleAll = async (event) => {
+    await api.cart.toggleAll(currentUser.id, event.target.checked);
     refresh();
   };
 
-  const handleToggleItem = (itemId, checked) => {
-    cart.setItemChecked(itemId, checked);
+  const handleToggleItem = async (itemId, checked) => {
+    await api.cart.setChecked(itemId, checked);
     refresh();
   };
 
-  const handleDecrease = (item) => {
+  const handleDecrease = async (item) => {
     if (item.count <= 1) {
-      cart.removeItem(item.id);
+      await api.cart.remove(item.id);
       refresh();
       return;
     }
 
-    const result = cart.updateCount(item.id, item.count - 1);
+    const result = await api.cart.updateCount(item.id, item.count - 1);
     if (!result.success) {
       window.alert(result.message);
     }
     refresh();
   };
 
-  const handleIncrease = (item) => {
-    const result = cart.updateCount(item.id, item.count + 1);
+  const handleIncrease = async (item) => {
+    const result = await api.cart.updateCount(item.id, item.count + 1);
     if (!result.success) {
       window.alert(result.message);
     }
     refresh();
   };
 
-  const handleCheckout = () => {
-    const validation = cart.validateCheckout(currentUser.id);
+  const handleCheckout = async () => {
+    const validation = await api.cart.validateCheckout(currentUser.id);
     if (!validation.success) {
       window.alert(validation.message);
       return;
@@ -164,8 +164,8 @@ const CartPage = () => {
                 type="button"
                 className="pm-cart-remove pm-icon-btn"
                 aria-label="删除商品"
-                onClick={() => {
-                  cart.removeItem(item.id);
+                onClick={async () => {
+                  await api.cart.remove(item.id);
                   refresh();
                 }}
               >

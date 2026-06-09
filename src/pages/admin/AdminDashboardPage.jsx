@@ -6,16 +6,18 @@ import { ServiceContext } from '../../contexts/ServiceContext';
 import { useServiceSnapshot } from '../../hooks/useServices';
 
 const AdminDashboardPage = () => {
-  const { admin, good, order } = useContext(ServiceContext);
+  const { admin, good, order, api } = useContext(ServiceContext);
 
   const currentAdmin = useServiceSnapshot(admin, (service) => service.getCurrentAdmin());
   const productStats = useServiceSnapshot(good, (service) => service.getDashboardStats());
   const orderStats = useServiceSnapshot(order, (service) => service.getDashboardStats());
 
-  const handleRefresh = () => {
-    admin.reload();
-    good.reload();
-    order.reload();
+  const handleRefresh = async () => {
+    await Promise.all([
+      api.admin.reload(),
+      api.products.reload(),
+      api.orders.reload(),
+    ]);
   };
 
   return (

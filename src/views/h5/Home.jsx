@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 
 import EmptyState from '../../components/common/EmptyState';
@@ -68,8 +68,8 @@ const HomeProductFeed = ({ products, keywordLabel, onAddToCart, cartQuantityMap,
 };
 
 const Home = () => {
-  const { good, user, cart } = useServices();
-  useServiceVersion(good);
+  const { good, user, cart, api } = useServices();
+  const goodRevision = useServiceVersion(good);
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const keywordFromUrl = searchParams.get('keyword') || '';
@@ -85,12 +85,30 @@ const Home = () => {
       [item.goodId]: item.count,
     }), {});
   });
+  const [hotProducts, setHotProducts] = useState([]);
+  const [featuredShops, setFeaturedShops] = useState([]);
 
   const carouselItems = carouselActivities;
-  const featuredShops = good.getFeaturedShops(3);
-  const hotProducts = keywordFromUrl
-    ? good.searchProducts(keywordFromUrl)
-    : good.getPublicGoodList();
+  useEffect(() => {
+    let isMounted = true;
+    const productsRequest = keywordFromUrl
+      ? api.products.search(keywordFromUrl)
+      : api.products.list();
+
+    Promise.all([
+      productsRequest,
+      api.products.featuredShops(3),
+    ]).then(([list, shops]) => {
+      if (isMounted) {
+        setHotProducts(list);
+        setFeaturedShops(shops);
+      }
+    });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [api, keywordFromUrl, goodRevision]);
 
   const handleSearch = (value) => {
     const nextKeyword = value.trim();
@@ -102,12 +120,12 @@ const Home = () => {
     }
   };
 
-  const handleAddToCart = (product) => {
+  const handleAddToCart = async (product) => {
     if (!currentUser) {
       navigate(`/login?redirect=${encodeURIComponent('/home')}`);
       return;
     }
-    const result = cart.addItem(currentUser.id, product.id, 1);
+    const result = await api.cart.add(currentUser.id, product.id, 1);
     if (!result.success) {
       window.alert(result.message);
       return;

@@ -11,7 +11,7 @@ const createRoleForm = (role) => ({
 });
 
 const AdminRolesPage = () => {
-  const { admin } = useContext(ServiceContext);
+  const { admin, api } = useContext(ServiceContext);
   const roles = useServiceSnapshot(admin, (service) => service.getRoles());
   const permissionCatalog = useServiceSnapshot(admin, (service) => service.getPermissionCatalog());
   const menuCatalog = useServiceSnapshot(admin, (service) => service.getMenuCatalog());
@@ -80,8 +80,8 @@ const AdminRolesPage = () => {
     }));
   };
 
-  const handleSave = () => {
-    const result = admin.updateRoleAccess(activeRoleId, form);
+  const handleSave = async () => {
+    const result = await api.admin.updateRoleAccess(activeRoleId, form);
     if (result.success) {
       syncSelectedRole(activeRoleId);
     }
@@ -100,14 +100,14 @@ const AdminRolesPage = () => {
     setMessage('当前角色改动已撤销。');
   };
 
-  const handleRestoreDefaults = () => {
-    const result = admin.resetRoles();
+  const handleRestoreDefaults = async () => {
+    const result = await api.admin.resetRoles();
     syncSelectedRole(activeRoleId);
     setMessage(result.message);
   };
 
-  const handleRefresh = () => {
-    admin.reload();
+  const handleRefresh = async () => {
+    await api.admin.reload();
     syncSelectedRole(activeRoleId);
     setMessage('角色数据已刷新。');
   };

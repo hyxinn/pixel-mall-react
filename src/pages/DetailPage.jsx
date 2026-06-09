@@ -10,11 +10,15 @@ import { formatPrice, getProductPriceInfo, getProductTone, isLowStockProduct, re
 const DetailPage = () => {
   const { goodId } = useParams();
   const navigate = useNavigate();
-  const { good, cart, user, favorite, footprint, message: messageService } = useServices();
-  useServiceVersion(good);
-  useServiceVersion(favorite);
+  const { good, user, favorite, footprint, api } = useServices();
+  const goodRevision = useServiceVersion(good);
+  const favoriteRevision = useServiceVersion(favorite);
   const [message, setMessage] = useState('');
+  const [product, setProduct] = useState(null);
+  const [loaded, setLoaded] = useState(false);
+  const [isFavorited, setIsFavorited] = useState(false);
   const [failedImageSrc, setFailedImageSrc] = useState('');
+  const [recommendedProducts, setRecommendedProducts] = useState([]);
 
   useEffect(() => {
     if (!message) return undefined;
@@ -22,18 +26,14 @@ const DetailPage = () => {
     return () => window.clearTimeout(timer);
   }, [message]);
   const parsedGoodId = Number(goodId);
-  const product = good.getGoodById(parsedGoodId);
   const currentUser = user.getCurrentUser();
+  const currentUserId = currentUser?.id;
   const priceInfo = getProductPriceInfo(product);
   const imageSrc = resolveProductImageSrc(product?.cover);
   const shouldShowImage = imageSrc && failedImageSrc !== imageSrc;
   const isSoldOut = !product || product.status !== 'on-sale' || product.stock <= 0;
   const isLowStock = isLowStockProduct(product);
   const shop = product?.shopId ? good.getShopById(product.shopId) : null;
-  const recommendedProducts = product ? good.getRecommendedGoods(product.id, product.categoryId, 4) : [];
-
-  const isFavorited =
-    currentUser && favorite.isFavorite(currentUser.id, parsedGoodId);
   const detailHighlights = [
     { label: '48小时发货', text: '现货商品由店铺仓库快速打包发出。' },
     { label: '7天无理由', text: '未使用且包装完整支持售后申请。' },
@@ -47,10 +47,57 @@ const DetailPage = () => {
   ];
 
   useEffect(() => {
-    if (currentUser && product && footprint?.recordView) {
-      footprint.recordView(currentUser.id, product.id);
+    let isMounted = true;
+
+    Promise.all([
+      api.products.detail(parsedGoodId),
+      currentUserId ? api.favorites.isFavorite(currentUserId, parsedGoodId) : Promise.resolve(false),
+    ]).then(([nextProduct, nextIsFavorited]) => {
+      if (isMounted) {
+        setProduct(nextProduct);
+        setIsFavorited(Boolean(nextIsFavorited));
+        setLoaded(true);
+      }
+    });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [api, parsedGoodId, currentUserId, goodRevision, favoriteRevision]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    if (!product) {
+      return () => {
+        isMounted = false;
+      };
     }
-  }, [currentUser, footprint, product]);
+
+    api.products.recommended(product.id, product.categoryId, 4).then((list) => {
+      if (isMounted) {
+        setRecommendedProducts(list);
+      }
+    });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [api, product]);
+
+  useEffect(() => {
+    if (currentUser && product && footprint?.recordView) {
+      api.footprints.recordView(currentUser.id, product.id);
+    }
+  }, [api, currentUser, footprint, product]);
+
+  if (!loaded) {
+    return (
+      <main className="pm-page pm-detail-page">
+        <EmptyState title="商品加载中" description="正在通过 Mock API 获取商品详情。" />
+      </main>
+    );
+  }
 
   if (!product) {
     return (
@@ -76,11 +123,11 @@ const DetailPage = () => {
     return true;
   };
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     if (!requireLogin(`/detail/${goodId}`)) {
       return;
     }
-    const result = cart.addItem(currentUser.id, product.id, 1);
+    const result = await api.cart.add(currentUser.id, product.id, 1);
     setMessage(result.success ? '已加入购物车' : result.message);
   };
 
@@ -91,11 +138,12 @@ const DetailPage = () => {
     navigate(`/createOrder/${goodId}`);
   };
 
-  const handleFavorite = () => {
+  const handleFavorite = async () => {
     if (!requireLogin(`/detail/${goodId}`)) {
       return;
     }
-    const result = favorite.toggleFavorite(currentUser.id, product.id);
+    const result = await api.favorites.toggle(currentUser.id, product.id);
+    setIsFavorited(Boolean(result.favorited));
     setMessage(result.message);
   };
 
@@ -103,8 +151,9 @@ const DetailPage = () => {
     if (!requireLogin(`/detail/${goodId}`)) {
       return;
     }
-    const chat = messageService.openProductChat(currentUser.id, product);
-    navigate(`/messages/chat/${encodeURIComponent(chat.id)}`);
+    api.messages.openProductChat(currentUser.id, product).then((chat) => {
+      navigate(`/messages/chat/${encodeURIComponent(chat.id)}`);
+    });
   };
 
   return (

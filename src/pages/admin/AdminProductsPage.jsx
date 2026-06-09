@@ -25,7 +25,7 @@ const createInitialForm = (categories) => ({
 });
 
 const AdminProductsPage = () => {
-  const { admin, good } = useContext(ServiceContext);
+  const { admin, good, api } = useContext(ServiceContext);
   const categories = useServiceSnapshot(good, (service) => service.getCategoryList());
   const [filters, setFilters] = useState({ keyword: '', categoryId: 'all', status: 'all' });
   const [form, setForm] = useState(createInitialForm(categories));
@@ -80,7 +80,7 @@ const AdminProductsPage = () => {
     setIsFormOpen(true);
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
     const originalPrice = Math.max(0, Number(form.originalPrice) || 0);
@@ -101,10 +101,10 @@ const AdminProductsPage = () => {
     };
 
     if (editingId) {
-      good.updateGood({ ...payload, id: editingId });
+      await api.products.update({ ...payload, id: editingId });
       setMessage(formMode === 'discount' ? '商品折扣已更新。' : '商品已更新。');
     } else {
-      good.addGood(payload);
+      await api.products.create(payload);
       setMessage('商品已新增。');
     }
 
@@ -149,13 +149,13 @@ const AdminProductsPage = () => {
     openProductForm(product, 'discount');
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (!deletingProduct || !canManage) {
       setDeletingProduct(null);
       return;
     }
 
-    good.deleteGood(deletingProduct.id);
+    await api.products.remove(deletingProduct.id);
     setMessage('商品已删除。');
     setDeletingProduct(null);
     if (editingId === deletingProduct.id) {
@@ -163,12 +163,12 @@ const AdminProductsPage = () => {
     }
   };
 
-  const handleToggleStatus = (productId) => {
+  const handleToggleStatus = async (productId) => {
     if (!canManage) {
       return;
     }
 
-    const updatedProduct = good.toggleGoodStatus(productId);
+    const updatedProduct = await api.products.toggleStatus(productId);
     if (!updatedProduct) {
       setMessage('已删除商品不能调整上下架状态。');
       return;
@@ -180,8 +180,8 @@ const AdminProductsPage = () => {
     }
   };
 
-  const handleRefresh = () => {
-    good.reload();
+  const handleRefresh = async () => {
+    await api.products.reload();
     setMessage('商品数据已刷新。');
   };
 

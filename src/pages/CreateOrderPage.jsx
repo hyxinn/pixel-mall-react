@@ -15,7 +15,7 @@ const CreateOrderPage = () => {
   const { goodId } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
-  const { good, order, user, address } = useServices();
+  const { good, user, address, api } = useServices();
   useServiceVersion(good);
   const currentUser = user.getCurrentUser();
   const parsedGoodId = Number(goodId);
@@ -61,7 +61,7 @@ const CreateOrderPage = () => {
   const priceInfo = getProductPriceInfo(product);
   const lineTotal = priceInfo.currentPrice * quantity;
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!shippingAddress) {
       window.alert('请先添加收货地址。');
       return;
@@ -85,7 +85,7 @@ const CreateOrderPage = () => {
     }
 
     setSubmitting(true);
-    const created = order.createOrder(
+    const created = await api.orders.create(
       currentUser.id,
       product.id,
       priceInfo.currentPrice,

@@ -4,7 +4,7 @@ import Button from '../../components/common/Button';
 import { ServiceContext } from '../../contexts/ServiceContext';
 
 const AdminLoginPage = () => {
-  const { admin } = useContext(ServiceContext);
+  const { admin, api } = useContext(ServiceContext);
   const navigate = useNavigate();
   const location = useLocation();
   const [form, setForm] = useState({ username: 'admin', password: 'admin123' });
@@ -27,9 +27,9 @@ const AdminLoginPage = () => {
     setForm((current) => ({ ...current, [name]: value }));
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    const result = admin.login(form);
+    const result = await api.admin.login(form);
 
     if (!result.success) {
       setError(result.message);

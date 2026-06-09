@@ -5,14 +5,14 @@ import { ORDER_STATUS_TABS, orderListPathForStatus } from '../constants/orderTab
 import { useServices, useServiceSnapshot } from '../hooks/useServices';
 
 const ProfilePage = () => {
-  const { user } = useServices();
+  const { user, api } = useServices();
   const navigate = useNavigate();
   const currentUser = useServiceSnapshot(user, (service) => service.getCurrentUser());
   const displayName = currentUser.nickname || currentUser.username;
   const avatarChar = displayName.trim().slice(0, 1) || 'U';
 
-  const handleLogout = () => {
-    user.logout();
+  const handleLogout = async () => {
+    await api.user.logout();
     navigate('/login');
   };
 

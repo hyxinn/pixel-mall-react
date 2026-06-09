@@ -21,7 +21,7 @@ const formatCountdown = (seconds) => {
 
 const PayPage = () => {
   const { orderId } = useParams();
-  const { order } = useServices();
+  const { order, api } = useServices();
   useServiceVersion(order);
   const navigate = useNavigate();
   const parsedOrderId = Number(orderId);
@@ -68,13 +68,13 @@ const PayPage = () => {
     );
   }
 
-  const handlePay = () => {
+  const handlePay = async () => {
     if (expired) {
       window.alert('支付已超时，请重新下单。');
       return;
     }
 
-    const result = order.payOrder(parsedOrderId);
+    const result = await api.orders.pay(parsedOrderId);
     if (!result.success) {
       window.alert(result.message);
       return;
@@ -82,8 +82,8 @@ const PayPage = () => {
     navigate(`/orderDetail/${parsedOrderId}`);
   };
 
-  const handleFail = () => {
-    order.failPayment(parsedOrderId);
+  const handleFail = async () => {
+    await api.orders.failPayment(parsedOrderId);
     setFailed(true);
   };
 

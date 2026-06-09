@@ -11,7 +11,7 @@ import { collectErrors, validatePhone, validateRequired } from '../utils/validat
 const CheckoutPage = () => {
   'use no memo';
 
-  const { cart, order, user, address } = useServices();
+  const { cart, user, address, api } = useServices();
   const location = useLocation();
   const navigate = useNavigate();
   const currentUser = user.getCurrentUser();
@@ -39,7 +39,7 @@ const CheckoutPage = () => {
     navigate({ pathname: location.pathname, search: location.search }, { replace: true, state: null });
   }, [navAddressId, location.pathname, location.search, navigate]);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!shippingAddress) {
       window.alert('请先添加收货地址。');
       return;
@@ -62,7 +62,7 @@ const CheckoutPage = () => {
       return;
     }
 
-    const validation = cart.validateCheckout(currentUser.id);
+    const validation = await api.cart.validateCheckout(currentUser.id);
     if (!validation.success) {
       window.alert(validation.message);
       navigate('/cart');
@@ -70,7 +70,7 @@ const CheckoutPage = () => {
     }
 
     setSubmitting(true);
-    const result = order.createOrderFromCart(currentUser.id, payload);
+    const result = await api.orders.createFromCart(currentUser.id, payload);
 
     if (!result.success) {
       window.alert(result.message);

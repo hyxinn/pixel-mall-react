@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 import EmptyState from '../components/common/EmptyState';
@@ -51,16 +52,33 @@ const CategoryProductFeed = ({ products }) => {
 };
 
 const CategoryPage = () => {
-  const { good } = useServices();
-  useServiceVersion(good);
+  const { good, api } = useServices();
+  const goodRevision = useServiceVersion(good);
   const [searchParams, setSearchParams] = useSearchParams();
   const activeCategoryId = searchParams.get('categoryId') || 'all';
+  const [categories, setCategories] = useState([]);
+  const [products, setProducts] = useState([]);
 
-  const categories = good.getCategoryList();
-  const products = good.getPublicGoodList({
-    categoryId: activeCategoryId,
-  });
-  const featuredShops = good.getFeaturedShops(3);
+  const [featuredShops, setFeaturedShops] = useState([]);
+
+  useEffect(() => {
+    let isMounted = true;
+    Promise.all([
+      api.categories.list(),
+      api.products.list({ categoryId: activeCategoryId }),
+      api.products.featuredShops(3),
+    ]).then(([nextCategories, nextProducts, nextFeaturedShops]) => {
+      if (isMounted) {
+        setCategories(nextCategories);
+        setProducts(nextProducts);
+        setFeaturedShops(nextFeaturedShops);
+      }
+    });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [api, activeCategoryId, goodRevision]);
 
   const selectCategory = (categoryId) => {
     const next = new URLSearchParams(searchParams);

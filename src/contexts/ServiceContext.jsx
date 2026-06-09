@@ -9,6 +9,7 @@ import messageService from '../services/messageService';
 import orderService from '../services/orderService';
 import searchService from '../services/searchService';
 import userService from '../services/userService';
+import mockApi from '../api/mockApi';
 
 const ServiceContext = createContext();
 
@@ -24,6 +25,7 @@ const ServiceProvider = ({ children }) => {
     footprint: footprintService,
     message: messageService,
     address: addressService,
+    api: mockApi,
   };
 
   return <ServiceContext.Provider value={value}>{children}</ServiceContext.Provider>;

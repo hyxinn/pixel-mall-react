@@ -9,7 +9,7 @@ import { useServiceSnapshot } from '../../hooks/useServices';
 const createInitialForm = () => ({ id: '', name: '', description: '', sort: 1 });
 
 const AdminCategoriesPage = () => {
-  const { good } = useContext(ServiceContext);
+  const { good, api } = useContext(ServiceContext);
   const [form, setForm] = useState(createInitialForm());
   const [editingId, setEditingId] = useState('');
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -39,14 +39,14 @@ const AdminCategoriesPage = () => {
     setIsFormOpen(true);
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
     if (editingId) {
-      good.updateCategory({ ...form, id: editingId });
+      await api.categories.update({ ...form, id: editingId });
       setMessage('分类已更新。');
     } else {
-      good.addCategory(form);
+      await api.categories.create(form);
       setMessage('分类已新增。');
     }
 
@@ -64,13 +64,13 @@ const AdminCategoriesPage = () => {
     setIsFormOpen(true);
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (!deletingCategory) {
       return;
     }
 
     const deletingId = deletingCategory.id;
-    const result = good.deleteCategory(deletingId);
+    const result = await api.categories.remove(deletingId);
     setDeletingCategory(null);
     setMessage(result.success ? '分类已删除。' : result.message);
     if (result.success && editingId === deletingId) {
@@ -81,8 +81,8 @@ const AdminCategoriesPage = () => {
     }
   };
 
-  const handleRefresh = () => {
-    good.reload();
+  const handleRefresh = async () => {
+    await api.products.reload();
     setMessage('分类数据已刷新。');
   };
 

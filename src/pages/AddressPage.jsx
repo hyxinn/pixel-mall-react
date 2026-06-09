@@ -16,7 +16,7 @@ const emptyForm = {
 const AddressPage = () => {
   'use no memo';
 
-  const { address, user } = useServices();
+  const { address, user, api } = useServices();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const returnTo = searchParams.get('returnTo') || '';
@@ -66,7 +66,7 @@ const AddressPage = () => {
     return Object.keys(nextErrors).length === 0;
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     setFeedback('');
 
@@ -83,7 +83,7 @@ const AddressPage = () => {
     let savedId;
 
     if (editingId) {
-      const updated = address.updateAddress(currentUser.id, { id: editingId, ...form });
+      const updated = await api.addresses.update(currentUser.id, { id: editingId, ...form });
       if (!updated) {
         setFeedback('地址更新失败，请重试。');
         return;
@@ -91,7 +91,7 @@ const AddressPage = () => {
       savedId = updated.id;
       setFeedback('地址已更新。');
     } else {
-      const created = address.addAddress(currentUser.id, form);
+      const created = await api.addresses.create(currentUser.id, form);
       if (!created) {
         setFeedback('地址添加失败，请重试。');
         return;
@@ -115,11 +115,11 @@ const AddressPage = () => {
     }
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (!window.confirm('确定删除该地址吗？')) {
       return;
     }
-    address.deleteAddress(currentUser.id, id);
+    await api.addresses.remove(currentUser.id, id);
     if (editingId === id) {
       resetForm();
     }
@@ -127,8 +127,8 @@ const AddressPage = () => {
     bumpList();
   };
 
-  const handleSetDefault = (id) => {
-    address.setDefaultAddress(currentUser.id, id);
+  const handleSetDefault = async (id) => {
+    await api.addresses.setDefault(currentUser.id, id);
     setFeedback('已设为默认地址。');
     bumpList();
   };

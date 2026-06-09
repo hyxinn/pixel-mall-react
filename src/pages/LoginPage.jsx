@@ -11,7 +11,7 @@ import {
 } from '../utils/validation';
 
 const LoginPage = () => {
-  const { user } = useServices();
+  const { api } = useServices();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const mode = searchParams.get('mode') === 'register' ? 'register' : 'login';
@@ -34,7 +34,7 @@ const LoginPage = () => {
     setErrors({});
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
     const fieldErrors = collectErrors([
@@ -51,8 +51,8 @@ const LoginPage = () => {
     setSubmitting(true);
     const result =
       mode === 'register'
-        ? user.register({ username: username.trim(), password, nickname: nickname.trim() })
-        : user.login(username.trim(), password);
+        ? await api.user.register({ username: username.trim(), password, nickname: nickname.trim() })
+        : await api.user.login(username.trim(), password);
 
     setSubmitting(false);
 
