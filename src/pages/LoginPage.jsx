@@ -67,19 +67,29 @@ const LoginPage = () => {
   return (
     <main className="pm-page pm-login-page">
       <section className="pm-login-panel">
-        <h1 className="pm-login-title">{mode === 'register' ? '注册账号' : '用户登录'}</h1>
-        <div className="pm-login-switch">
+        <header className="pm-login-hero">
+          <span className="pm-login-logo" aria-hidden="true">PM</span>
+          <div className="pm-login-heading">
+            <p className="pm-login-eyebrow">Pixel Mall</p>
+            <h1 className="pm-login-title">{mode === 'register' ? '创建你的账号' : '欢迎回来'}</h1>
+            <p className="pm-login-subtitle">{mode === 'register' ? '注册后即可同步收藏、足迹和订单。' : '登录后继续查看收藏、订单和购物车。'}</p>
+          </div>
+        </header>
+
+        <div className="pm-login-switch" role="tablist" aria-label="登录注册切换">
           <button
             type="button"
-            className={`pm-btn pm-btn-ghost${mode === 'login' ? ' is-active' : ''}`}
+            className={`pm-login-switch-btn${mode === 'login' ? ' is-active' : ''}`}
             onClick={() => switchMode('login')}
+            aria-selected={mode === 'login'}
           >
             登录
           </button>
           <button
             type="button"
-            className={`pm-btn pm-btn-ghost${mode === 'register' ? ' is-active' : ''}`}
+            className={`pm-login-switch-btn${mode === 'register' ? ' is-active' : ''}`}
             onClick={() => switchMode('register')}
+            aria-selected={mode === 'register'}
           >
             注册
           </button>
@@ -87,33 +97,39 @@ const LoginPage = () => {
 
         <form className="pm-login-form" onSubmit={handleSubmit} noValidate>
           {mode === 'register' ? (
-            <div className="pm-control">
+            <div className={`pm-control${errors.nickname ? ' pm-field-error' : ''}`}>
               <label className="pm-label" htmlFor="nickname">昵称</label>
               <input
                 id="nickname"
                 className="pm-input"
+                placeholder="给自己取个昵称"
+                autoComplete="nickname"
                 value={nickname}
                 onChange={(event) => setNickname(event.target.value)}
               />
               {errors.nickname ? <p className="pm-help has-error">{errors.nickname}</p> : null}
             </div>
           ) : null}
-          <div className="pm-control">
+          <div className={`pm-control${errors.username ? ' pm-field-error' : ''}`}>
             <label className="pm-label" htmlFor="username">用户名</label>
             <input
               id="username"
               className="pm-input"
+              placeholder="请输入用户名"
+              autoComplete="username"
               value={username}
               onChange={(event) => setUsername(event.target.value)}
             />
             {errors.username ? <p className="pm-help has-error">{errors.username}</p> : null}
           </div>
-          <div className="pm-control">
+          <div className={`pm-control${errors.password ? ' pm-field-error' : ''}`}>
             <label className="pm-label" htmlFor="password">密码</label>
             <input
               id="password"
               type="password"
               className="pm-input"
+              placeholder={mode === 'register' ? '至少 6 位密码' : '请输入密码'}
+              autoComplete={mode === 'register' ? 'new-password' : 'current-password'}
               value={password}
               onChange={(event) => setPassword(event.target.value)}
             />
@@ -125,11 +141,10 @@ const LoginPage = () => {
           </Button>
         </form>
 
-        <p className="pm-help">
-          演示账号：shopper / shopper123
-          <br />
-          <Link to="/home">返回首页</Link>
-        </p>
+        <footer className="pm-login-footer">
+          <p className="pm-login-demo">演示账号 <strong>shopper</strong> / <strong>shopper123</strong></p>
+          <Link className="pm-login-home-link" to="/home">返回首页</Link>
+        </footer>
       </section>
     </main>
   );

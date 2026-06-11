@@ -65,9 +65,9 @@ export const resolveProductImageSrc = (cover) => {
   return productImageByName[filename] ? `/images/product/${filename}` : source;
 };
 
-export const resolveProductImageList = (images, extraImage, fallback = '/favicon.svg') => {
+export const resolveProductImageList = (images, cover, fallback = '/favicon.svg') => {
   const sourceImages = Array.isArray(images) ? images : images ? [images] : [];
-  const resolvedImages = sourceImages
+  const resolvedImages = [...sourceImages, cover]
     .map(resolveProductImageSrc)
     .filter(Boolean);
   const uniqueImages = Array.from(new Set(resolvedImages));

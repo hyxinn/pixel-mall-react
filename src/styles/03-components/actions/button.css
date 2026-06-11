@@ -68,51 +68,50 @@
 .pm-back-btn {
   position: relative;
   min-height: 32px;
-  padding: 5px 12px 5px 26px;
-  overflow: visible;
+  padding: 5px 12px 5px 30px;
+  overflow: hidden;
   color: var(--pm-color-text);
   font-size: var(--pm-text-xs);
   background:
-    linear-gradient(135deg, var(--pm-color-surface) 0 72%, color-mix(in srgb, var(--pm-color-primary-soft) 34%, var(--pm-color-surface)) 72%),
+    linear-gradient(90deg, color-mix(in srgb, var(--pm-color-accent) 48%, transparent) 0 6px, transparent 6px),
+    linear-gradient(135deg, var(--pm-color-surface) 0 76%, color-mix(in srgb, var(--pm-color-primary-soft) 34%, var(--pm-color-surface)) 76%),
     var(--pm-color-surface);
   border-width: var(--pm-border-width-thin);
   box-shadow:
     3px 3px 0 color-mix(in srgb, var(--pm-color-primary) 16%, transparent),
-    -2px 2px 0 color-mix(in srgb, var(--pm-color-accent) 14%, transparent);
-  transform: rotate(-1.4deg);
+    0 0 0 1px color-mix(in srgb, var(--pm-color-surface) 52%, transparent);
 }
 
 .pm-back-btn::before {
   position: absolute;
   top: 50%;
-  left: 7px;
+  left: 10px;
   display: grid;
   place-items: center;
-  width: 15px;
-  height: 15px;
+  width: 14px;
+  height: 14px;
   content: "‹";
   color: var(--pm-color-primary-deep);
-  font-size: 18px;
+  font-size: 17px;
   line-height: 1;
-  background: color-mix(in srgb, var(--pm-color-accent) 58%, var(--pm-color-surface));
-  border: 1px solid color-mix(in srgb, var(--pm-color-line) 64%, transparent);
+  background: color-mix(in srgb, var(--pm-color-accent) 48%, var(--pm-color-surface));
+  border: 1px solid color-mix(in srgb, var(--pm-color-line) 56%, transparent);
   transform: translateY(-50%);
 }
 
 .pm-back-btn::after {
   position: absolute;
-  top: -5px;
-  left: 50%;
-  width: 24px;
-  height: 6px;
+  right: 5px;
+  bottom: 4px;
+  width: 14px;
+  height: 3px;
   content: "";
-  background: var(--pm-color-primary-soft);
-  border: 1px solid color-mix(in srgb, var(--pm-color-line) 58%, transparent);
-  transform: translateX(-50%) rotate(2deg);
+  background: color-mix(in srgb, var(--pm-color-primary) 46%, transparent);
+  border: 0;
 }
 
 .pm-back-btn:hover {
-  transform: rotate(-1.4deg) translate(1px, 1px);
+  transform: translate(1px, 1px);
 }
 
 /* 危险按钮：用于删除商品、删除地址、退出等风险操作。 */

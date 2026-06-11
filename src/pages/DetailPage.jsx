@@ -137,10 +137,9 @@ const DetailPage = () => {
   const missingVariant = hasVariants && specsCompleted && !selectedVariant;
   const variantPrice = selectedVariant ? getProductPriceInfo(selectedVariant) : null;
   const displayPriceInfo = variantPrice || priceInfo;
-  const productImages = resolveProductImageList(product?.images, product?.cover).slice(0, 9);
-  const carouselImages = productImages.length >= 3
-    ? productImages
-    : [...productImages, ...Array.from({ length: 3 - productImages.length }, () => '/favicon.svg')];
+  const productImages = resolveProductImageList(product?.images, product?.cover)
+    .filter((image) => image !== '/favicon.svg')
+    .slice(0, 3);
   const imageSrc = resolveProductImageSrc(productImages[0] || product?.cover);
   const shouldShowImage = imageSrc && failedImageSrc !== imageSrc;
   const specText = getSpecText(selectableSpecGroups, selectedSpecs);
@@ -365,12 +364,17 @@ const DetailPage = () => {
       <section className="pm-detail-hero" aria-label="商品核心信息">
         <div className="pm-detail-gallery">
           <div className="pm-product-media pm-product-gallery-media">
-            <ImageCarousel images={carouselImages} fallback="/favicon.svg" alt={product.name} toneId={product.id} minItems={3} />
+            <ImageCarousel images={productImages} fallback="/favicon.svg" alt={product.name} toneId={product.id} />
             {heroTags.length ? (
               <div className="pm-detail-activity-tags" aria-label="活动标签">
                 {heroTags.map((tag) => <span key={tag}>{tag}</span>)}
               </div>
             ) : null}
+          </div>
+          <div className="pm-detail-media-strip" aria-label="商品图片数量">
+            {productImages.slice(0, 9).map((image, index) => (
+              <span className="pm-detail-media-chip" key={`${image}-${index}`}>图 {index + 1}</span>
+            ))}
           </div>
         </div>
 

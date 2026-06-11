@@ -62,8 +62,15 @@ const ImageCarouselInner = ({ resolvedImages, alt, className, toneId, autoPlay, 
   );
 };
 
-const ImageCarousel = ({ images = [], fallback = '/favicon.svg', alt = '', className = '', toneId = 0, autoPlay = true, intervalMs = 5000 }) => {
-  const resolvedImages = resolveProductImageList(images, fallback);
+const ImageCarousel = ({ images = [], fallback = '/favicon.svg', alt = '', className = '', toneId = 0, autoPlay = true, intervalMs = 5000, minItems = 1 }) => {
+  const baseImages = resolveProductImageList(images, '', fallback);
+  const fallbackImage = resolveProductImageList([], '', fallback)[0] || fallback;
+  const targetCount = Math.max(1, Number(minItems) || 1);
+  const resolvedImages = [...baseImages];
+
+  while (resolvedImages.length < targetCount) {
+    resolvedImages.push(fallbackImage);
+  }
   const resolvedImageKey = resolvedImages.join('|');
 
   return (

@@ -147,6 +147,7 @@
 
 .pm-chat-dialog {
   display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
   gap: var(--pm-space-2);
   padding: var(--pm-space-3);
   background: var(--pm-color-surface);
@@ -165,7 +166,9 @@
 
 .pm-chat-thread {
   display: grid;
+  align-content: start;
   gap: var(--pm-space-2);
+  min-height: 0;
 }
 
 .pm-chat-bubble {
@@ -283,6 +286,22 @@
   gap: var(--pm-space-2);
 }
 
+.pm-h5-shell .pm-chat-page {
+  grid-template-rows: auto minmax(0, 1fr);
+  min-height: calc(
+    var(--pm-h5-device-height) - var(--pm-h5-status-height) - var(--pm-bottom-bar-height) - var(--pm-h5-home-indicator-height)
+  );
+  max-height: calc(
+    var(--pm-h5-device-height) - var(--pm-h5-status-height) - var(--pm-bottom-bar-height) - var(--pm-h5-home-indicator-height)
+  );
+  padding-bottom: var(--pm-space-2);
+  overflow: hidden;
+}
+
+.pm-h5-main:has(.pm-chat-page) {
+  overflow: hidden;
+}
+
 .pm-h5-shell .pm-messages-header,
 .pm-h5-shell .pm-chat-header {
   padding: var(--pm-space-2);
@@ -303,6 +322,14 @@
   font-size: var(--pm-text-xs);
 }
 
+.pm-h5-shell .pm-messages-header .pm-back-btn,
+.pm-h5-shell .pm-chat-header .pm-back-btn {
+  flex: 0 0 auto;
+  min-height: 32px;
+  padding: 5px 10px 5px 30px;
+  font-size: 10px;
+}
+
 .pm-h5-shell .pm-messages-tab {
   min-height: 30px;
   font-size: var(--pm-text-xs);
@@ -321,12 +348,17 @@
 }
 
 .pm-h5-shell .pm-chat-dialog {
-  max-height: calc(100vh - var(--pm-bottom-bar-height) - 156px);
+  min-height: 0;
+  overflow: hidden;
+}
+
+.pm-h5-shell .pm-chat-page .pm-chat-dialog {
+  height: 100%;
   overflow: hidden;
 }
 
 .pm-h5-shell .pm-chat-thread {
-  max-height: min(420px, calc(100vh - var(--pm-bottom-bar-height) - 270px));
+  min-height: 0;
   padding-right: 2px;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
@@ -334,6 +366,9 @@
 
 .pm-h5-shell .pm-chat-compose {
   grid-template-columns: minmax(0, 1fr) 58px;
+  align-self: end;
+  margin-top: var(--pm-space-1);
+  background: var(--pm-color-surface);
 }
 
 .pm-h5-shell .pm-chat-compose textarea {

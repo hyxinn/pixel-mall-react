@@ -80,8 +80,11 @@ const ProductReviewsPage = () => {
   return (
     <main className="pm-page pm-product-reviews-page">
       <nav className="pm-product-reviews-nav" aria-label="评价页导航">
-        <button className="pm-icon-btn" type="button" aria-label="返回商品详情" onClick={() => navigate(`/detail/${product.id}`)}>
-          ←
+        <button className="pm-icon-btn pm-detail-nav-btn" type="button" aria-label="返回商品详情" onClick={() => navigate(`/detail/${product.id}`, { replace: true })}>
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10 4L5 9L10 14" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M5 9H15" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
+          </svg>
         </button>
         <strong>商品评价</strong>
       </nav>

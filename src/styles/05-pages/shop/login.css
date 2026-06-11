@@ -3,39 +3,255 @@
 
 /* 登录页容器：让登录面板在视口中居中。 */
 .pm-login-page {
+  position: relative;
   display: grid;
-  place-items: center;
-  min-height: 100vh;
-  padding: var(--pm-space-5);
+  align-items: center;
+  min-height: 100%;
+  padding: var(--pm-space-5) var(--pm-space-3);
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 18% 13%, color-mix(in srgb, var(--pm-color-accent) 34%, transparent), transparent 28%),
+    radial-gradient(circle at 86% 4%, color-mix(in srgb, var(--pm-color-accent-2) 30%, transparent), transparent 24%),
+    linear-gradient(180deg, color-mix(in srgb, var(--pm-color-surface) 72%, white), var(--pm-color-bg) 58%, color-mix(in srgb, var(--pm-color-primary-soft) 54%, var(--pm-color-surface)));
+}
+
+.pm-login-page::before,
+.pm-login-page::after {
+  position: absolute;
+  z-index: 0;
+  content: "";
+  pointer-events: none;
+}
+
+.pm-login-page::before {
+  top: 28px;
+  right: -34px;
+  width: 118px;
+  height: 118px;
+  background:
+    linear-gradient(90deg, transparent 0 24px, color-mix(in srgb, var(--pm-color-primary) 58%, transparent) 24px 48px, transparent 48px),
+    linear-gradient(180deg, transparent 0 24px, color-mix(in srgb, var(--pm-color-accent) 42%, transparent) 24px 48px, transparent 48px);
+  opacity: 0.58;
+  transform: rotate(8deg);
+}
+
+.pm-login-page::after {
+  left: -42px;
+  bottom: 74px;
+  width: 132px;
+  height: 132px;
+  background:
+    linear-gradient(45deg, transparent 0 42%, color-mix(in srgb, var(--pm-color-primary-soft) 84%, transparent) 42% 58%, transparent 58%),
+    linear-gradient(135deg, transparent 0 44%, color-mix(in srgb, var(--pm-color-accent-2) 34%, transparent) 44% 56%, transparent 56%);
+  opacity: 0.72;
 }
 
 /* 登录面板：承载标题、登录/注册切换、表单和提交按钮。 */
 .pm-login-panel {
+  position: relative;
+  z-index: 1;
   display: grid;
-  gap: var(--pm-space-4);
-  width: min(100%, 420px);
-  padding: var(--pm-space-6);
-  background: var(--pm-color-surface);
+  gap: var(--pm-space-5);
+  width: min(100%, 392px);
+  padding: var(--pm-space-5);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.78), transparent 32%),
+    var(--pm-color-surface);
+  border: var(--pm-border-width) solid color-mix(in srgb, var(--pm-color-line) 78%, transparent);
+  border-radius: 8px;
+  box-shadow:
+    7px 7px 0 color-mix(in srgb, var(--pm-color-primary) 20%, transparent),
+    0 18px 34px color-mix(in srgb, var(--pm-color-shadow) 64%, transparent);
+}
+
+.pm-login-panel::before {
+  position: absolute;
+  top: -9px;
+  left: 26px;
+  width: 58px;
+  height: 16px;
+  content: "";
+  background: color-mix(in srgb, var(--pm-color-accent) 74%, var(--pm-color-surface));
+  border: var(--pm-border-width-thin) solid color-mix(in srgb, var(--pm-color-line) 68%, transparent);
+  box-shadow: 3px 3px 0 color-mix(in srgb, var(--pm-color-primary) 14%, transparent);
+  transform: rotate(-2deg);
+}
+
+.pm-login-hero {
+  display: grid;
+  grid-template-columns: 58px minmax(0, 1fr);
+  gap: var(--pm-space-3);
+  align-items: center;
+}
+
+.pm-login-logo {
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  color: var(--pm-color-primary-deep);
+  font-size: var(--pm-text-base);
+  font-weight: var(--pm-weight-black);
+  background:
+    linear-gradient(135deg, var(--pm-color-primary-soft) 0 52%, color-mix(in srgb, var(--pm-color-accent) 55%, var(--pm-color-surface)) 52%),
+    var(--pm-color-surface);
   border: var(--pm-border-width) solid var(--pm-color-line);
-  box-shadow: var(--pm-shadow-lg);
+  border-radius: 8px;
+  box-shadow: 4px 4px 0 color-mix(in srgb, var(--pm-color-primary) 28%, transparent);
+}
+
+.pm-login-heading {
+  display: grid;
+  gap: 5px;
 }
 
 /* 登录页标题：展示登录、注册或 Pixel Mall 欢迎语。 */
 .pm-login-title {
   margin: 0;
-  font-size: var(--pm-text-2xl);
-  text-align: center;
+  font-size: var(--pm-text-3xl);
+  line-height: var(--pm-line-tight);
+}
+
+.pm-login-eyebrow,
+.pm-login-subtitle,
+.pm-login-demo {
+  margin: 0;
+}
+
+.pm-login-eyebrow {
+  color: var(--pm-color-primary-deep);
+  font-size: var(--pm-text-xs);
+  font-weight: var(--pm-weight-black);
+}
+
+.pm-login-subtitle {
+  color: var(--pm-color-text-muted);
+  font-size: var(--pm-text-sm);
+  line-height: var(--pm-line-card);
 }
 
 /* 登录注册切换区：用于切换登录和注册表单。 */
 .pm-login-switch {
-  display: flex;
-  justify-content: center;
-  gap: var(--pm-space-2);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+  padding: 4px;
+  background: color-mix(in srgb, var(--pm-color-primary-soft) 62%, var(--pm-color-surface));
+  border: var(--pm-border-width-thin) solid color-mix(in srgb, var(--pm-color-line) 76%, transparent);
+  border-radius: 8px;
+  box-shadow: inset 3px 3px 0 color-mix(in srgb, var(--pm-color-primary) 10%, transparent);
+}
+
+.pm-login-switch-btn {
+  min-height: 40px;
+  color: var(--pm-color-text-muted);
+  font: inherit;
+  font-size: var(--pm-text-sm);
+  font-weight: var(--pm-weight-black);
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.pm-login-switch-btn.is-active {
+  color: var(--pm-color-primary-deep);
+  background: var(--pm-color-surface);
+  outline: 0;
+  box-shadow:
+    3px 3px 0 color-mix(in srgb, var(--pm-color-primary) 18%, transparent),
+    inset 0 -2px 0 color-mix(in srgb, var(--pm-color-accent) 32%, transparent);
 }
 
 /* 登录表单：纵向排列输入框、提示和提交按钮。 */
 .pm-login-form {
   display: grid;
-  gap: var(--pm-space-3);
+  gap: var(--pm-space-4);
+}
+
+.pm-login-form .pm-control {
+  width: 100%;
+}
+
+.pm-login-form .pm-input {
+  min-height: 48px;
+  background: color-mix(in srgb, var(--pm-color-surface) 84%, white);
+  border-width: var(--pm-border-width-thin);
+  box-shadow:
+    inset 3px 3px 0 color-mix(in srgb, var(--pm-color-accent) 18%, transparent),
+    2px 2px 0 color-mix(in srgb, var(--pm-color-primary) 10%, transparent);
+}
+
+.pm-login-form .pm-btn {
+  min-height: 50px;
+  margin-top: var(--pm-space-1);
+  border-radius: 8px;
+  box-shadow:
+    5px 5px 0 color-mix(in srgb, var(--pm-color-line) 82%, transparent),
+    inset 0 -3px 0 color-mix(in srgb, var(--pm-color-primary-deep) 28%, transparent);
+}
+
+.pm-login-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--pm-space-2);
+  align-items: center;
+  justify-content: space-between;
+  padding-top: var(--pm-space-1);
+  color: var(--pm-color-text-muted);
+  font-size: var(--pm-text-xs);
+}
+
+.pm-login-demo {
+  line-height: var(--pm-line-card);
+}
+
+.pm-login-demo strong {
+  color: var(--pm-color-text);
+}
+
+.pm-login-home-link {
+  color: var(--pm-color-primary-deep);
+  font-weight: var(--pm-weight-black);
+  text-decoration: none;
+}
+
+.pm-h5-shell .pm-login-page {
+  align-items: start;
+  place-items: stretch;
+  align-content: start;
+  padding: 52px var(--pm-space-3) var(--pm-space-5);
+}
+
+.pm-h5-shell .pm-login-panel {
+  width: 100%;
+  padding: var(--pm-space-5) var(--pm-space-4);
+}
+
+.pm-h5-shell .pm-login-title {
+  font-size: var(--pm-text-2xl);
+}
+
+@media (max-width: 420px) {
+  .pm-login-page {
+    padding: var(--pm-space-4) var(--pm-space-3);
+  }
+
+  .pm-login-panel {
+    gap: var(--pm-space-4);
+    padding: var(--pm-space-5) var(--pm-space-4);
+  }
+
+  .pm-login-hero {
+    grid-template-columns: 50px minmax(0, 1fr);
+  }
+
+  .pm-login-logo {
+    width: 50px;
+    height: 50px;
+  }
+
+  .pm-login-title {
+    font-size: var(--pm-text-2xl);
+  }
 }
